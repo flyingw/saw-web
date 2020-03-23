@@ -1,13 +1,12 @@
 {
   "name": "web",
-  "version": "0.1",
+  "private": true,
   "dependencies": {
+    "purescript-console": "*",
+    "purescript-web-socket": "*",
     "purescript-protobuf": "https://github.com/zero-deps/purescript-protobuf.git",
-    "purescript-react-dom": "6.1.0",
-    "purescript-web-html": "2.3.0",
-    "purescript-web-dom": "4.0.1"
-  },
-  "resolutions": {
-    "purescript-web-dom": "4.0.1"
+    "purescript-react-dom": "*",
+    "purescript-web-html": "*",
+    "purescript-web-dom": "*"
   }
 }
