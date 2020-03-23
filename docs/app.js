@@ -1587,14 +1587,6 @@ var PS = {};
 
   // ----------------------------------------------------------------------------
 
-  exports.host = function (location) {
-    return function () {
-      return location.host;
-    };
-  };
-
-  // ----------------------------------------------------------------------------
-
   exports.protocol = function (location) {
     return function () {
       return location.protocol;
@@ -1606,7 +1598,6 @@ var PS = {};
   $PS["Web.HTML.Location"] = $PS["Web.HTML.Location"] || {};
   var exports = $PS["Web.HTML.Location"];
   var $foreign = $PS["Web.HTML.Location"];
-  exports["host"] = $foreign.host;
   exports["protocol"] = $foreign.protocol;
 })(PS);
 (function(exports) {
@@ -1888,8 +1879,7 @@ var PS = {};
               };
               return "ws:";
           })();
-          var host = Web_HTML_Location.host(location)();
-          var url = protocol$prime + ("//" + (host + path));
+          var url = protocol$prime + ("//" + path);
           return Web_Socket_WebSocket.create(url)([  ])();
       };
   };

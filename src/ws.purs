@@ -24,7 +24,7 @@ import Prelude hiding (div)
 import Web.Event.Event (Event)
 import Web.Event.EventTarget (addEventListener, eventListener)
 import Web.HTML (window) as DOM
-import Web.HTML.Location (protocol, host) as DOM
+import Web.HTML.Location (protocol) as DOM
 import Web.HTML.Window (location) as DOM
 import Web.Socket.BinaryType (BinaryType(ArrayBuffer))
 import Web.Socket.Event.EventTypes (onOpen, onMessage, onError, onClose) as WS
@@ -37,8 +37,7 @@ create path = do
   location <- DOM.window >>= DOM.location
   protocol <- DOM.protocol location
   let protocol' = if protocol == "https:" then "wss:" else "ws:"
-  host <- DOM.host location
-  let url = protocol' <> "//" <> host <> path
+  let url = protocol' <> "//" <> path
   WS.create url []
 
 setBinary :: WebSocket -> Effect Unit
