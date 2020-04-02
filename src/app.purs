@@ -54,7 +54,7 @@ appClass = component "App" \this -> do
 view :: Effect Unit
 view = do
   container <- byId "container"
-  ws <- WS.create "demos.kaazing.com/echo"
+  ws <- WS.create "127.0.0.1:8001"
   WS.onOpen ws \_ -> WS.setBinary ws
   let element = createLeafElement appClass { ws }
   void $ render element container
