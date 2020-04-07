@@ -101,4 +101,3 @@ readArrayBuffer :: Foreign -> F ArrayBuffer
 readArrayBuffer = unsafeReadTagged "ArrayBuffer"
 
 foreign import uint8Array :: ArrayBuffer -> Uint8Array
-

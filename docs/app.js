@@ -913,6 +913,15 @@ var PS = {};
       Ping.value = new Ping();
       return Ping;
   })();
+  var LoginAttempt = (function () {
+      function LoginAttempt(value0) {
+          this.value0 = value0;
+      };
+      LoginAttempt.create = function (value0) {
+          return new LoginAttempt(value0);
+      };
+      return LoginAttempt;
+  })();
   var AddDriver = (function () {
       function AddDriver(value0) {
           this.value0 = value0;
@@ -932,6 +941,10 @@ var PS = {};
       return AddRider;
   })();
   var encodePing = Proto_Encode.uint32(0);
+  var encodeLoginAttempt = function (msg) {
+      var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.id), Proto_Encode.uint32(18), Proto_Encode.string(msg.first_name), Proto_Encode.uint32(26), Proto_Encode.string(msg.last_name), Proto_Encode.uint32(34), Proto_Encode.string(msg.username), Proto_Encode.uint32(42), Proto_Encode.string(msg.photo_url), Proto_Encode.uint32(50), Proto_Encode.string(msg.auth_date), Proto_Encode.uint32(58), Proto_Encode.string(msg.hash) ]);
+      return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
+  };
   var encodeAddress = function (msg) {
       var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.city), Proto_Encode.uint32(18), Proto_Encode.string(msg.street), Proto_Encode.uint32(26), Proto_Encode.string(msg.building) ]);
       return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
@@ -948,15 +961,19 @@ var PS = {};
       if (v instanceof Ping) {
           return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(10), encodePing ]);
       };
+      if (v instanceof LoginAttempt) {
+          return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(18), encodeLoginAttempt(v.value0) ]);
+      };
       if (v instanceof AddDriver) {
           return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(82), encodeAddDriver(v.value0) ]);
       };
       if (v instanceof AddRider) {
           return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(162), encodeAddRider(v.value0) ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 18, column 1 - line 18, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Api.Pull (line 20, column 1 - line 20, column 33): " + [ v.constructor.name ]);
   };
   exports["Ping"] = Ping;
+  exports["LoginAttempt"] = LoginAttempt;
   exports["AddDriver"] = AddDriver;
   exports["encodePull"] = encodePull;
 })(PS);
@@ -1061,7 +1078,9 @@ var PS = {};
   var exports = $PS["Data.Maybe"];
   var Control_Category = $PS["Control.Category"];
   var Data_Function = $PS["Data.Function"];
-  var Data_Functor = $PS["Data.Functor"];          
+  var Data_Functor = $PS["Data.Functor"];
+  var Data_Monoid = $PS["Data.Monoid"];
+  var Data_Semigroup = $PS["Data.Semigroup"];      
   var Nothing = (function () {
       function Nothing() {
 
@@ -1078,6 +1097,27 @@ var PS = {};
       };
       return Just;
   })();
+  var semigroupMaybe = function (dictSemigroup) {
+      return new Data_Semigroup.Semigroup(function (v) {
+          return function (v1) {
+              if (v instanceof Nothing) {
+                  return v1;
+              };
+              if (v1 instanceof Nothing) {
+                  return v;
+              };
+              if (v instanceof Just && v1 instanceof Just) {
+                  return new Just(Data_Semigroup.append(dictSemigroup)(v.value0)(v1.value0));
+              };
+              throw new Error("Failed pattern match at Data.Maybe (line 174, column 1 - line 177, column 43): " + [ v.constructor.name, v1.constructor.name ]);
+          };
+      });
+  };
+  var monoidMaybe = function (dictSemigroup) {
+      return new Data_Monoid.Monoid(function () {
+          return semigroupMaybe(dictSemigroup);
+      }, Nothing.value);
+  };
   var maybe = function (v) {
       return function (v1) {
           return function (v2) {
@@ -1118,6 +1158,7 @@ var PS = {};
   exports["isNothing"] = isNothing;
   exports["fromJust"] = fromJust;
   exports["functorMaybe"] = functorMaybe;
+  exports["monoidMaybe"] = monoidMaybe;
 })(PS);
 (function(exports) {
   "use strict";
@@ -1508,6 +1549,15 @@ var PS = {};
       Pong.value = new Pong();
       return Pong;
   })();
+  var LoginOk = (function () {
+      function LoginOk(value0) {
+          this.value0 = value0;
+      };
+      LoginOk.create = function (value0) {
+          return new LoginOk(value0);
+      };
+      return LoginOk;
+  })();
   var AddRouteOk = (function () {
       function AddRouteOk(value0) {
           this.value0 = value0;
@@ -1538,6 +1588,50 @@ var PS = {};
                   });
               })(res);
           };
+      };
+  };
+  var decodeLoginOk = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (acc) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                              var v1 = v.val >>> 3;
+                              if (v1 === 1) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          sessionid: new Data_Maybe.Just(val)
+                                      };
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v.pos)(v.val & 7))(function (v2) {
+                                  return acc;
+                              });
+                          });
+                      };
+                      return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                          pos: pos1,
+                          val: acc
+                      }));
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+              return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
+                  sessionid: Data_Maybe.Nothing.value
+              })(v.pos))(function (v1) {
+                  if (v1.val.sessionid instanceof Data_Maybe.Just) {
+                      return Control_Applicative.pure(Data_Either.applicativeEither)({
+                          pos: v1.pos,
+                          val: {
+                              sessionid: v1.val.sessionid.value0
+                          }
+                      });
+                  };
+                  return Data_Either.Left.create(new Proto_Decode.MissingFields("LoginOk"));
+              });
+          });
       };
   };
   var decodeAddress = function (_xs_) {
@@ -1681,12 +1775,16 @@ var PS = {};
                   return Pong.value;
               });
           };
+          if (v1 === 2) {
+              return decode(decodeLoginOk(_xs_)(v.pos))(LoginOk.create);
+          };
           if (v1 === 10) {
               return decode(decodeAddRouteOk(_xs_)(v.pos))(AddRouteOk.create);
           };
           return Data_Either.Left.create(new Proto_Decode.BadType(v1));
       });
   };
+  exports["LoginOk"] = LoginOk;
   exports["AddRouteOk"] = AddRouteOk;
   exports["decodePush"] = decodePush;
 })(PS);
@@ -3323,15 +3421,6 @@ var PS = {};
       return window.location;
     };
   };
-
-  exports.alert = function (str) {
-    return function (window) {
-      return function () {
-        window.alert(str);
-        return {};
-      };
-    };
-  };
 })(PS["Web.HTML.Window"] = PS["Web.HTML.Window"] || {});
 (function($PS) {
   "use strict";
@@ -3340,7 +3429,6 @@ var PS = {};
   var $foreign = $PS["Web.HTML.Window"];
   exports["document"] = $foreign.document;
   exports["location"] = $foreign.location;
-  exports["alert"] = $foreign.alert;
 })(PS);
 (function($PS) {
   "use strict";
@@ -4149,7 +4237,7 @@ var PS = {};
                       if (v1.mapQ instanceof Data_Maybe.Nothing) {
                           return Data_Monoid.mempty(React.monoidReactElement);
                       };
-                      throw new Error("Failed pattern match at App.Driver (line 208, column 11 - line 216, column 30): " + [ v1.mapQ.constructor.name ]);
+                      throw new Error("Failed pattern match at App.Driver (line 207, column 11 - line 215, column 30): " + [ v1.mapQ.constructor.name ]);
                   })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u0441\u043e\u0433\u043b\u0430\u0441\u0435\u043d \u0441 \u0443\u0441\u043b\u043e\u0432\u0438\u044f\u043c\u0438 \u0438 \u043f\u043e\u043b\u043e\u0436\u0435\u043d\u0438\u044f\u043c\u0438 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u044f \u0441\u0435\u0440\u0432\u0438\u0441\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u043e\u0437\u043d\u0430\u043a\u043e\u043c\u0438\u043b\u0441\u044f \u0441 \u043f\u0440\u0430\u0432\u0438\u043b\u0430\u043c\u0438 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438") ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-6") ])([ React_DOM.text("\u041f\u0435\u0440\u0435\u0434 \u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u0438\u0435\u043c \u043f\u043e\u0441\u043c\u043e\u0442\u0440\u0438\u0442\u0435 \u043f\u0440\u0435\u0434\u043f\u043e\u043b\u043e\u0433\u0430\u0435\u043c\u044b\u0439 \u043c\u0430\u0440\u0448\u0440\u0443\u0442") ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.disabled(Data_Maybe.isNothing(v1.mapQ)), React_DOM_Props.onClick(function (v2) {
                       return sendDriver($$this);
                   }) ])([ React_DOM.text("\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c") ]) ]) ]);
@@ -4184,7 +4272,6 @@ var PS = {};
       return React.component()("Driver")(function ($$this) {
           return function __do() {
               var date = today();
-              var q = Effect_Console.error(date)();
               return {
                   state: {
                       answer: "press the button",
@@ -4222,7 +4309,7 @@ var PS = {};
                           if (v instanceof Data_Either.Right) {
                               return handle($$this)(v.value0.val);
                           };
-                          throw new Error("Failed pattern match at App.Driver (line 67, column 28 - line 69, column 43): " + [ v.constructor.name ]);
+                          throw new Error("Failed pattern match at App.Driver (line 66, column 28 - line 68, column 43): " + [ v.constructor.name ]);
                       })((function () {
                           var $34 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
                           var $35 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
@@ -4410,17 +4497,27 @@ var PS = {};
   $PS["App"] = $PS["App"] || {};
   var exports = $PS["App"];
   var Api_Pull = $PS["Api.Pull"];
+  var Api_Push = $PS["Api.Push"];
   var App_Driver = $PS["App.Driver"];
   var App_Rider = $PS["App.Rider"];
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Apply = $PS["Control.Apply"];
   var Control_Bind = $PS["Control.Bind"];
+  var Data_Either = $PS["Data.Either"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_Maybe = $PS["Data.Maybe"];
+  var Data_Monoid = $PS["Data.Monoid"];
+  var Data_Semigroup = $PS["Data.Semigroup"];
+  var Data_Show = $PS["Data.Show"];
+  var Data_Symbol = $PS["Data.Symbol"];
+  var Data_Traversable = $PS["Data.Traversable"];
+  var Data_Unit = $PS["Data.Unit"];
   var Effect = $PS["Effect"];
+  var Effect_Console = $PS["Effect.Console"];
   var Effect_Exception = $PS["Effect.Exception"];
   var Lib_React = $PS["Lib.React"];
   var Lib_WebSocket = $PS["Lib.WebSocket"];
+  var Proto_Decode = $PS["Proto.Decode"];
   var React = $PS["React"];
   var React_DOM = $PS["React.DOM"];
   var React_DOM_Props = $PS["React.DOM.Props"];
@@ -4445,41 +4542,56 @@ var PS = {};
       };
       return React.component()("App")(function ($$this) {
           return Control_Applicative.pure(Effect.applicativeEffect)({
-              state: {},
-              render: render($$this)
+              state: Data_Monoid.mempty(Data_Monoid.monoidRecord()(Data_Monoid.monoidRecordCons(new Data_Symbol.IsSymbol(function () {
+                  return "sessionid";
+              }))(Data_Maybe.monoidMaybe(Data_Semigroup.semigroupString))()(Data_Monoid.monoidRecordNil))),
+              render: render($$this),
+              componentDidMount: function __do() {
+                  var props = React.getProps($$this)();
+                  return Lib_WebSocket.onMsg(props.ws)(function (x) {
+                      var v = Api_Push.decodePush(x);
+                      if (v instanceof Data_Either.Left) {
+                          return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
+                      };
+                      if (v instanceof Data_Either.Right && v.value0.val instanceof Api_Push.LoginOk) {
+                          return React.modifyState($$this)(function (v1) {
+                              return {
+                                  sessionid: new Data_Maybe.Just(v.value0.val.value0.sessionid)
+                              };
+                          });
+                      };
+                      if (v instanceof Data_Either.Right) {
+                          return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
+                      };
+                      throw new Error("Failed pattern match at App (line 46, column 28 - line 49, column 31): " + [ v.constructor.name ]);
+                  })((function () {
+                      var $15 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                      var $16 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                      return function ($17) {
+                          return $15($16($17));
+                      };
+                  })())();
+              }
           });
       });
   })();
-  var view = (function () {
-      var byId = function (id) {
-          return function __do() {
-              var doc = Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.document)();
-              var d = Web_HTML_HTMLDocument.toNonElementParentNode(doc);
-              var v = Web_DOM_NonElementParentNode.getElementById(id)(d)();
-              if (v instanceof Data_Maybe.Just) {
-                  return v.value0;
-              };
-              if (v instanceof Data_Maybe.Nothing) {
-                  return Effect_Exception["throw"]("not found=" + id)();
-              };
-              throw new Error("Failed pattern match at App (line 68, column 5 - line 70, column 42): " + [ v.constructor.name ]);
-          };
+  var view = function __do() {
+      var doc = Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.document)();
+      var doc$prime = Web_HTML_HTMLDocument.toNonElementParentNode(doc);
+      var elem = Web_DOM_NonElementParentNode.getElementById("container")(doc$prime)();
+      var container = Data_Maybe.maybe(Effect_Exception["throw"]("container not found"))(Control_Applicative.pure(Effect.applicativeEffect))(elem)();
+      var ws = Lib_WebSocket.create("127.0.0.1:8001")();
+      Lib_WebSocket.onOpen(ws)(function (v) {
+          return Lib_WebSocket.setBinary(ws);
+      })();
+      var element = React.createLeafElement()(appClass)({
+          ws: ws
+      });
+      Data_Functor["void"](Effect.functorEffect)(ReactDOM.render(element)(container))();
+      return function (user) {
+          return Lib_WebSocket.send(ws)(Api_Pull.encodePull(new Api_Pull.LoginAttempt(user)));
       };
-      return function __do() {
-          var container = byId("container")();
-          var ws = Lib_WebSocket.create("127.0.0.1:8001")();
-          Lib_WebSocket.onOpen(ws)(function (v) {
-              return Lib_WebSocket.setBinary(ws);
-          })();
-          var element = React.createLeafElement()(appClass)({
-              ws: ws
-          });
-          Data_Functor["void"](Effect.functorEffect)(ReactDOM.render(element)(container))();
-          return function (user) {
-              return Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.alert(user.first_name));
-          };
-      };
-  })();
+  };
   exports["appClass"] = appClass;
   exports["view"] = view;
 })(PS);

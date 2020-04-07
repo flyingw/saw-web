@@ -1,25 +1,28 @@
 module App where
 
-import Prelude (Unit, apply, bind, discard, map, pure, void, ($), (<>), (>>=))
+import Prelude (Unit, apply, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=))
 
-import Data.Maybe (Maybe(..))
+import Data.Either (Either(..))
+import Data.Maybe (Maybe(..), maybe)
+import Data.Traversable (sequence)
 import Effect (Effect)
+import Effect.Console (error)
 import Effect.Exception (throw)
-import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState)
+import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
 import React.DOM (button, div, text)
 import React.DOM.Props (_type, onClick)
 import ReactDOM (render)
-import Web.DOM.Element (Element)
 import Web.DOM.NonElementParentNode (getElementById)
 import Web.HTML (window)
 import Web.HTML.HTMLDocument (toNonElementParentNode)
-import Web.HTML.Window (document, alert)
+import Web.HTML.Window (document)
 
 import Lib.React (cn)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
-import Api.Pull (encodePull, Pull(Ping))
+import Api.Pull (encodePull, Pull(Ping, LoginAttempt), LoginAttempt)
+import Api.Push (decodePush, Push(LoginOk))
 
 import App.Driver (driverClass)
 import App.Rider (riderClass)
@@ -28,13 +31,23 @@ type Props =
   { ws :: WebSocket
   }
 
-type State = {}
+type State =
+  { sessionid :: Maybe String
+  }
 
 appClass :: ReactClass Props
 appClass = component "App" \this -> do
   pure
-    { state: {}
+    { state: mempty :: State
     , render: render this
+    , componentDidMount: do
+        props <- getProps this
+        let ws = props.ws
+        WS.onMsg ws (\x -> case decodePush x of
+          Left y -> error $ show y
+          Right { val: LoginOk {sessionid}} -> modifyState this _{ sessionid = Just sessionid }
+          Right _ -> pure unit
+        ) (sequence <<< map error)
     }
   where
   render :: ReactThis Props State -> Effect ReactElement
@@ -51,21 +64,14 @@ appClass = component "App" \this -> do
       , createLeafElement riderClass { ws }
       ]
 
-view :: Effect ({ first_name :: String } -> Effect Unit)
+view :: Effect (LoginAttempt -> Effect Unit)
 view = do
-  container <- byId "container"
+  doc <- window >>= document
+  let doc' = toNonElementParentNode doc
+  elem <- getElementById "container" doc'
+  container <- maybe (throw "container not found") pure elem
   ws <- WS.create "127.0.0.1:8001"
   WS.onOpen ws \_ -> WS.setBinary ws
   let element = createLeafElement appClass { ws }
   void $ render element container
-  pure \user -> window >>= alert user.first_name
-  where
-  byId :: String -> Effect Element
-  byId id = do
-    doc <- window >>= document
-    let d = toNonElementParentNode doc
-    e :: Maybe Element <- getElementById id d
-    case e of
-      Just e' -> pure e'
-      Nothing -> throw $ "not found="<>id
-
+  pure \user -> WS.send ws $ encodePull $ LoginAttempt user

@@ -1,5 +1,6 @@
 module Api.Push
   ( Push(..)
+  , LoginOk
   , AddRouteOk
   , decodePush
   ) where
@@ -12,12 +13,14 @@ import Data.Maybe (Maybe(Just, Nothing))
 import Data.Unit (Unit, unit)
 import Prelude (map, bind, pure, ($), (+), (<))
 import Proto.Decode as Decode
-import Api.Common
+import Api
 
 decodeFieldLoop :: forall a b c. Int -> Decode.Result a -> (a -> b) -> Decode.Result' (Step { a :: Int, b :: b, c :: Int } { pos :: Int, val :: c })
 decodeFieldLoop end res f = map (\{ pos, val } -> Loop { a: end, b: f val, c: pos }) res
 
-data Push = Pong | AddRouteOk AddRouteOk
+data Push = Pong | LoginOk LoginOk | AddRouteOk AddRouteOk
+type LoginOk = { sessionid :: String }
+type LoginOk' = { sessionid :: Maybe String }
 type AddRouteOk = { n :: String, from :: Address }
 type AddRouteOk' = { n :: Maybe String, from :: Maybe Address }
 type Address' = { city :: Maybe String, street :: Maybe String, building :: Maybe String }
@@ -27,6 +30,7 @@ decodePush _xs_ = do
   { pos: pos1, val: tag } <- Decode.uint32 _xs_ 0
   case tag `zshr` 3 of
     1 -> decode (decodePong _xs_ pos1) \_ -> Pong
+    2 -> decode (decodeLoginOk _xs_ pos1) LoginOk
     10 -> decode (decodeAddRouteOk _xs_ pos1) AddRouteOk
     i -> Left $ Decode.BadType i
   where
@@ -37,6 +41,22 @@ decodePong :: Uint8Array -> Int -> Decode.Result Unit
 decodePong _xs_ pos0 = do
   { pos, val: msglen } <- Decode.uint32 _xs_ pos0
   pure { pos: pos + msglen, val: unit }
+
+decodeLoginOk :: Uint8Array -> Int -> Decode.Result LoginOk
+decodeLoginOk _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { sessionid: Nothing } pos
+  case val of
+    { sessionid: Just sessionid } -> pure { pos: pos1, val: { sessionid } }
+    _ -> Left $ Decode.MissingFields "LoginOk"
+    where
+    decode :: Int -> LoginOk' -> Int -> Decode.Result' (Step { a :: Int, b :: LoginOk', c :: Int } { pos :: Int, val :: LoginOk' })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { sessionid = Just val }
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
 
 decodeAddRouteOk :: Uint8Array -> Int -> Decode.Result AddRouteOk
 decodeAddRouteOk _xs_ pos0 = do

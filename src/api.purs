@@ -1,4 +1,4 @@
-module Api.Common
+module Api
   ( Address 
   ) where
 

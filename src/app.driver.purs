@@ -3,7 +3,7 @@ module App.Driver
   , Props
   ) where
 
-import Api.Common (Address)
+import Api (Address)
 import Api.Push (decodePush, Push(Pong, AddRouteOk))
 import Api.Pull (Pull(AddDriver), encodePull)
 import Data.Either (Either(Left, Right))
@@ -45,7 +45,6 @@ type State =
 driverClass :: ReactClass Props
 driverClass = component "Driver" \this -> do
   date <- today
-  q <- error date
   pure
     { state:
       { answer: "press the button"
