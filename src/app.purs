@@ -70,7 +70,7 @@ view = do
   let doc' = toNonElementParentNode doc
   elem <- getElementById "container" doc'
   container <- maybe (throw "container not found") pure elem
-  ws <- WS.create "127.0.0.1:8001"
+  ws <- WS.create "ec2-54-93-193-191.eu-central-1.compute.amazonaws.com:8443"
   WS.onOpen ws \_ -> WS.setBinary ws
   let element = createLeafElement appClass { ws }
   void $ render element container
