@@ -13,7 +13,7 @@ import Web.DOM.Element (Element)
 import Web.DOM.NonElementParentNode (getElementById)
 import Web.HTML (window)
 import Web.HTML.HTMLDocument (toNonElementParentNode)
-import Web.HTML.Window (document)
+import Web.HTML.Window (document, alert)
 
 import Lib.React (cn)
 import Lib.WebSocket (WebSocket)
@@ -51,13 +51,14 @@ appClass = component "App" \this -> do
       , createLeafElement riderClass { ws }
       ]
 
-view :: Effect Unit
+view :: Effect ({ first_name :: String } -> Effect Unit)
 view = do
   container <- byId "container"
   ws <- WS.create "127.0.0.1:8001"
   WS.onOpen ws \_ -> WS.setBinary ws
   let element = createLeafElement appClass { ws }
   void $ render element container
+  pure \user -> window >>= alert user.first_name
   where
   byId :: String -> Effect Element
   byId id = do

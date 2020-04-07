@@ -3323,6 +3323,15 @@ var PS = {};
       return window.location;
     };
   };
+
+  exports.alert = function (str) {
+    return function (window) {
+      return function () {
+        window.alert(str);
+        return {};
+      };
+    };
+  };
 })(PS["Web.HTML.Window"] = PS["Web.HTML.Window"] || {});
 (function($PS) {
   "use strict";
@@ -3331,6 +3340,7 @@ var PS = {};
   var $foreign = $PS["Web.HTML.Window"];
   exports["document"] = $foreign.document;
   exports["location"] = $foreign.location;
+  exports["alert"] = $foreign.alert;
 })(PS);
 (function($PS) {
   "use strict";
@@ -4452,7 +4462,7 @@ var PS = {};
               if (v instanceof Data_Maybe.Nothing) {
                   return Effect_Exception["throw"]("not found=" + id)();
               };
-              throw new Error("Failed pattern match at App (line 67, column 5 - line 69, column 42): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at App (line 68, column 5 - line 70, column 42): " + [ v.constructor.name ]);
           };
       };
       return function __do() {
@@ -4464,7 +4474,10 @@ var PS = {};
           var element = React.createLeafElement()(appClass)({
               ws: ws
           });
-          return Data_Functor["void"](Effect.functorEffect)(ReactDOM.render(element)(container))();
+          Data_Functor["void"](Effect.functorEffect)(ReactDOM.render(element)(container))();
+          return function (user) {
+              return Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.alert(user.first_name));
+          };
       };
   })();
   exports["appClass"] = appClass;
