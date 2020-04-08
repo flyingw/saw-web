@@ -942,7 +942,7 @@ var PS = {};
   })();
   var encodePing = Proto_Encode.uint32(0);
   var encodeLoginAttempt = function (msg) {
-      var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.id), Proto_Encode.uint32(18), Proto_Encode.string(msg.first_name), Proto_Encode.uint32(26), Proto_Encode.string(msg.last_name), Proto_Encode.uint32(34), Proto_Encode.string(msg.username), Proto_Encode.uint32(42), Proto_Encode.string(msg.photo_url), Proto_Encode.uint32(50), Proto_Encode.string(msg.auth_date), Proto_Encode.uint32(58), Proto_Encode.string(msg.hash) ]);
+      var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(9), Proto_Encode["double"](msg.id), Proto_Encode.uint32(18), Proto_Encode.string(msg.first_name), Proto_Encode.uint32(26), Proto_Encode.string(msg.last_name), Proto_Encode.uint32(34), Proto_Encode.string(msg.username), Proto_Encode.uint32(42), Proto_Encode.string(msg.photo_url), Proto_Encode.uint32(49), Proto_Encode["double"](msg.auth_date), Proto_Encode.uint32(58), Proto_Encode.string(msg.hash) ]);
       return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
   };
   var encodeAddress = function (msg) {
