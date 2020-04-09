@@ -3637,6 +3637,15 @@ var PS = {};
       };
       throw new Error("Failed pattern match at Foreign (line 72, column 1 - line 72, column 45): " + [ v.constructor.name ]);
   };
+  var readNullOrUndefined = function (value) {
+      if ($foreign.isNull(value) || $foreign.isUndefined(value)) {
+          return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Maybe.Nothing.value);
+      };
+      if (Data_Boolean.otherwise) {
+          return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(new Data_Maybe.Just(value));
+      };
+      throw new Error("Failed pattern match at Foreign (line 162, column 1 - line 162, column 52): " + [ value.constructor.name ]);
+  };
   var readNull = function (value) {
       if ($foreign.isNull(value)) {
           return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Maybe.Nothing.value);
@@ -3665,6 +3674,7 @@ var PS = {};
   };                                            
   var readNumber = unsafeReadTagged("Number");
   var readString = unsafeReadTagged("String");
+  exports["ForeignError"] = ForeignError;
   exports["TypeMismatch"] = TypeMismatch;
   exports["ErrorAtProperty"] = ErrorAtProperty;
   exports["renderForeignError"] = renderForeignError;
@@ -3672,6 +3682,7 @@ var PS = {};
   exports["readString"] = readString;
   exports["readNumber"] = readNumber;
   exports["readNull"] = readNull;
+  exports["readNullOrUndefined"] = readNullOrUndefined;
   exports["fail"] = fail;
   exports["showForeignError"] = showForeignError;
   exports["typeOf"] = $foreign.typeOf;
@@ -5068,10 +5079,10 @@ var PS = {};
                       };
                       throw new Error("Failed pattern match at App (line 57, column 28 - line 60, column 31): " + [ v.constructor.name ]);
                   })((function () {
-                      var $29 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                      var $30 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                      return function ($31) {
-                          return $29($30($31));
+                      var $20 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                      var $21 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                      return function ($22) {
+                          return $20($21($22));
                       };
                   })())();
               }
@@ -5079,8 +5090,33 @@ var PS = {};
       });
   })();
   var view = (function () {
-      var readStringLike = function (x) {
-          return Control_Alt.alt(Control_Monad_Except_Trans.altExceptT(Data_List_Types.semigroupNonEmptyList)(Data_Identity.monadIdentity))(Foreign.readString(x))(Data_Functor.map(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Data_Number_Format.toString)(Foreign.readNumber(x)));
+      var f = function (x) {
+          var readStringLike = function (y) {
+              return Control_Alt.alt(Control_Monad_Except_Trans.altExceptT(Data_List_Types.semigroupNonEmptyList)(Data_Identity.monadIdentity))(Foreign.readString(y))(Data_Functor.map(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Data_Number_Format.toString)(Foreign.readNumber(y)));
+          };
+          return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(x)("hash"))(Foreign.readNullOrUndefined))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Foreign.readString)))(function (hash$prime) {
+              return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Maybe.maybe(Foreign.fail(new Foreign.ForeignError("no hash")))(Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity)))(hash$prime))(function (hash) {
+                  return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(x)("auth_date"))(Foreign.readNullOrUndefined))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Foreign.readNumber)))(function (auth_date$prime) {
+                      return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Maybe.maybe(Foreign.fail(new Foreign.ForeignError("no auth_date")))(Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity)))(auth_date$prime))(function (auth_date) {
+                          return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Keys.keys(x))(function (keys$prime) {
+                              var keys = Data_Array.sort(Data_Ord.ordString)(Data_Array.filter(function (v) {
+                                  return v !== "hash";
+                              })(keys$prime));
+                              return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Functor.map(Data_Functor.functorArray)(function (k) {
+                                  return Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(x)(k))(Foreign.readNull))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(readStringLike)))(Data_Functor.map(Data_Maybe.functorMaybe)(Data_Semigroup.append(Data_Semigroup.semigroupString)(k)));
+                              })(keys)))(function (xs) {
+                                  var data_check_string = Data_String_Common.joinWith("\x0a")(Data_Array.catMaybes(xs));
+                                  return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(new Api_Pull.LoginAttempt({
+                                      data_check_string: data_check_string,
+                                      hash: hash,
+                                      auth_date: auth_date
+                                  }));
+                              });
+                          });
+                      });
+                  });
+              });
+          });
       };
       return function __do() {
           var doc = Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.document)();
@@ -5095,45 +5131,14 @@ var PS = {};
           });
           Data_Functor["void"](Effect.functorEffect)(ReactDOM.render(element)(container))();
           return function (user) {
-              return function __do() {
-                  var hash = (function () {
-                      var v = Control_Monad_Except.runExcept(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(user)("hash"))(Foreign.readNull))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Foreign.readString)));
-                      if (v instanceof Data_Either.Right && v.value0 instanceof Data_Maybe.Just) {
-                          return v.value0.value0;
-                      };
-                      return Effect_Exception["throw"]("no hash")();
-                  })();
-                  var auth_date = (function () {
-                      var v = Control_Monad_Except.runExcept(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(user)("auth_date"))(Foreign.readNull))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Foreign.readNumber)));
-                      if (v instanceof Data_Either.Right && v.value0 instanceof Data_Maybe.Just) {
-                          return v.value0.value0;
-                      };
-                      return Effect_Exception["throw"]("no auth_date")();
-                  })();
-                  var v = Control_Monad_Except.runExcept(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Keys.keys(user))(function (keys) {
-                      return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Functor.map(Data_Functor.functorArray)(function (k) {
-                          return Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(user)(k))(Foreign.readNull))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(readStringLike)))(Data_Functor.map(Data_Maybe.functorMaybe)(Data_Semigroup.append(Data_Semigroup.semigroupString)(k)));
-                      })(Data_Array.sort(Data_Ord.ordString)(Data_Array.filter(function (v1) {
-                          return v1 !== "hash";
-                      })(keys)))))(function (xs) {
-                          return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_String_Common.joinWith("\x0a")(Data_Array.catMaybes(xs)));
-                      });
-                  }));
-                  var data_check_string = (function () {
-                      if (v instanceof Data_Either.Right) {
-                          return v.value0;
-                      };
-                      if (v instanceof Data_Either.Left) {
-                          return Effect_Exception["throw"](Data_Show.show(Data_List_Types.showNonEmptyList(Foreign.showForeignError))(v.value0))();
-                      };
-                      throw new Error("Failed pattern match at App (line 98, column 26 - line 100, column 31): " + [ v.constructor.name ]);
-                  })();
-                  return Lib_WebSocket.send(ws)(Api_Pull.encodePull(new Api_Pull.LoginAttempt({
-                      data_check_string: data_check_string,
-                      hash: hash,
-                      auth_date: auth_date
-                  })))();
+              var v = Control_Monad_Except.runExcept(f(user));
+              if (v instanceof Data_Either.Left) {
+                  return Effect_Exception["throw"](Data_Show.show(Data_List_Types.showNonEmptyList(Foreign.showForeignError))(v.value0));
               };
+              if (v instanceof Data_Either.Right) {
+                  return Lib_WebSocket.send(ws)(Api_Pull.encodePull(v.value0));
+              };
+              throw new Error("Failed pattern match at App (line 87, column 17 - line 89, column 41): " + [ v.constructor.name ]);
           };
       };
   })();

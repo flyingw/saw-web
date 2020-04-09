@@ -1,10 +1,10 @@
 module App where
 
-import Prelude (Unit, apply, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=), (/=), (<>))
+import Prelude (Unit, apply, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=), (/=))
 
-import Control.Alt (alt, (<|>))
+import Control.Alt ((<|>))
 import Control.Monad.Except (runExcept)
-import Data.Array (filter, sort, mapMaybe, catMaybes)
+import Data.Array (filter, sort, catMaybes)
 import Data.Either (Either(..))
 import Data.Functor ((<#>))
 import Data.Maybe (Maybe(..), maybe)
@@ -12,11 +12,11 @@ import Data.Number.Format (toString) as Number
 import Data.Semigroup (append)
 import Data.String.Common (joinWith)
 import Data.Traversable (sequence, traverse)
-import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (error)
 import Effect.Exception (throw)
-import Foreign (Foreign, F, readNull, readNumber, readString, unsafeFromForeign)
+import Foreign (Foreign, F, ForeignError(..), readNull, readNumber, readString, readNullOrUndefined)
+import Foreign (fail) as F
 import Foreign.Keys (keys) as F
 import Foreign.Index ((!)) as F
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
@@ -84,23 +84,21 @@ view = do
   WS.onOpen ws \_ -> WS.setBinary ws
   let element = createLeafElement appClass { ws }
   void $ render element container
-  pure \user -> do
-    hash <- case runExcept $ user F.! "hash" >>= readNull >>= traverse readString of
-      Right (Just x) -> pure x
-      _ -> throw "no hash"
-    auth_date <- case runExcept $ user F.! "auth_date" >>= readNull >>= traverse readNumber of
-      Right (Just x) -> pure x
-      _ -> throw "no auth_date"
-    let (res :: Either _ String) = runExcept $ do
-          keys <- F.keys user
-          xs <- sequence $ map (\k -> user F.! k >>= readNull >>= traverse readStringLike <#> map (append k)) $ sort $ filter (_ /= "hash") keys
-          pure $ joinWith "\n" $ catMaybes xs
-    data_check_string <- case res of
-      Right x -> pure x
-      Left x -> throw $ show x
-    WS.send ws $ encodePull $ LoginAttempt { data_check_string, hash, auth_date }
+  pure \user -> case runExcept $ f user of
+    Left x -> throw $ show x
+    Right x -> WS.send ws $ encodePull x
   where
-  readStringLike :: Foreign -> F String
-  readStringLike x = readString x <|> (map Number.toString $ readNumber x)
-
---todo: one 'do' for all F _
+  f :: Foreign -> F Pull
+  f x = do
+    hash' <- x F.! "hash" >>= readNullOrUndefined >>= traverse readString
+    hash <- maybe (F.fail $ ForeignError "no hash") pure hash'
+    auth_date' <- x F.! "auth_date" >>= readNullOrUndefined >>= traverse readNumber
+    auth_date <- maybe (F.fail $ ForeignError "no auth_date") pure auth_date'
+    keys' <- F.keys x
+    let keys = sort $ filter (_ /= "hash") keys'
+    xs <- sequence $ map (\k -> x F.! k >>= readNull >>= traverse readStringLike <#> map (append k)) keys
+    let data_check_string = joinWith "\n" $ catMaybes xs
+    pure $ LoginAttempt { data_check_string, hash, auth_date }
+    where
+    readStringLike :: Foreign -> F String
+    readStringLike y = readString y <|> (map Number.toString $ readNumber y)
