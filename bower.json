@@ -3,10 +3,11 @@
   "private": true,
   "dependencies": {
     "purescript-console": "*",
-    "purescript-web-socket": "*",
+    "purescript-numbers": "*",
     "purescript-protobuf": "https://github.com/zero-deps/purescript-protobuf.git",
     "purescript-react-dom": "*",
+    "purescript-web-dom": "*",
     "purescript-web-html": "*",
-    "purescript-web-dom": "*"
+    "purescript-web-socket": "*"
   }
 }

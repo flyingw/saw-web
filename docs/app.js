@@ -3069,6 +3069,20 @@ var PS = {};
 })(PS["Lib.WebSocket"] = PS["Lib.WebSocket"] || {});
 (function($PS) {
   "use strict";
+  $PS["Control.Alt"] = $PS["Control.Alt"] || {};
+  var exports = $PS["Control.Alt"];                          
+  var Alt = function (Functor0, alt) {
+      this.Functor0 = Functor0;
+      this.alt = alt;
+  };                                                       
+  var alt = function (dict) {
+      return dict.alt;
+  };
+  exports["Alt"] = Alt;
+  exports["alt"] = alt;
+})(PS);
+(function($PS) {
+  "use strict";
   $PS["Control.Monad.Error.Class"] = $PS["Control.Monad.Error.Class"] || {};
   var exports = $PS["Control.Monad.Error.Class"];                
   var MonadThrow = function (Monad0, throwError) {
@@ -3085,13 +3099,15 @@ var PS = {};
   "use strict";
   $PS["Control.Monad.Except.Trans"] = $PS["Control.Monad.Except.Trans"] || {};
   var exports = $PS["Control.Monad.Except.Trans"];
+  var Control_Alt = $PS["Control.Alt"];
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Apply = $PS["Control.Apply"];
   var Control_Bind = $PS["Control.Bind"];
   var Control_Monad = $PS["Control.Monad"];
   var Control_Monad_Error_Class = $PS["Control.Monad.Error.Class"];
   var Data_Either = $PS["Data.Either"];
-  var Data_Functor = $PS["Data.Functor"];                
+  var Data_Functor = $PS["Data.Functor"];
+  var Data_Semigroup = $PS["Data.Semigroup"];            
   var ExceptT = function (x) {
       return x;
   };
@@ -3157,10 +3173,38 @@ var PS = {};
           };
       })());
   };
+  var altExceptT = function (dictSemigroup) {
+      return function (dictMonad) {
+          return new Control_Alt.Alt(function () {
+              return functorExceptT(((dictMonad.Bind1()).Apply0()).Functor0());
+          }, function (v) {
+              return function (v1) {
+                  return Control_Bind.bind(dictMonad.Bind1())(v)(function (rm) {
+                      if (rm instanceof Data_Either.Right) {
+                          return Control_Applicative.pure(dictMonad.Applicative0())(new Data_Either.Right(rm.value0));
+                      };
+                      if (rm instanceof Data_Either.Left) {
+                          return Control_Bind.bind(dictMonad.Bind1())(v1)(function (rn) {
+                              if (rn instanceof Data_Either.Right) {
+                                  return Control_Applicative.pure(dictMonad.Applicative0())(new Data_Either.Right(rn.value0));
+                              };
+                              if (rn instanceof Data_Either.Left) {
+                                  return Control_Applicative.pure(dictMonad.Applicative0())(new Data_Either.Left(Data_Semigroup.append(dictSemigroup)(rm.value0)(rn.value0)));
+                              };
+                              throw new Error("Failed pattern match at Control.Monad.Except.Trans (line 86, column 9 - line 88, column 49): " + [ rn.constructor.name ]);
+                          });
+                      };
+                      throw new Error("Failed pattern match at Control.Monad.Except.Trans (line 82, column 5 - line 88, column 49): " + [ rm.constructor.name ]);
+                  });
+              };
+          });
+      };
+  };
   exports["runExceptT"] = runExceptT;
   exports["functorExceptT"] = functorExceptT;
   exports["applicativeExceptT"] = applicativeExceptT;
   exports["bindExceptT"] = bindExceptT;
+  exports["altExceptT"] = altExceptT;
   exports["monadThrowExceptT"] = monadThrowExceptT;
 })(PS);
 (function($PS) {
@@ -3241,16 +3285,6 @@ var PS = {};
 })(PS);
 (function($PS) {
   "use strict";
-  $PS["Control.Alt"] = $PS["Control.Alt"] || {};
-  var exports = $PS["Control.Alt"];                          
-  var Alt = function (Functor0, alt) {
-      this.Functor0 = Functor0;
-      this.alt = alt;
-  };
-  exports["Alt"] = Alt;
-})(PS);
-(function($PS) {
-  "use strict";
   $PS["Control.Plus"] = $PS["Control.Plus"] || {};
   var exports = $PS["Control.Plus"];                   
   var Plus = function (Alt0, empty) {
@@ -3293,6 +3327,7 @@ var PS = {};
           });
       };
   };
+  exports["NonEmpty"] = NonEmpty;
   exports["singleton"] = singleton;
   exports["showNonEmpty"] = showNonEmpty;
 })(PS);
@@ -3330,6 +3365,9 @@ var PS = {};
   })();
   var NonEmptyList = function (x) {
       return x;
+  };
+  var toList = function (v) {
+      return new Cons(v.value0, v.value1);
   };
   var listMap = function (f) {
       var chunkedRevMap = function ($copy_chunksAcc) {
@@ -3431,6 +3469,11 @@ var PS = {};
       return function (ys) {
           return Data_Foldable.foldr(foldableList)(Cons.create)(ys)(xs);
       };
+  });           
+  var semigroupNonEmptyList = new Data_Semigroup.Semigroup(function (v) {
+      return function (as$prime) {
+          return new Data_NonEmpty.NonEmpty(v.value0, Data_Semigroup.append(semigroupList)(v.value1)(toList(as$prime)));
+      };
   });
   var showList = function (dictShow) {
       return new Data_Show.Show(function (v) {
@@ -3456,6 +3499,7 @@ var PS = {};
   exports["foldableList"] = foldableList;
   exports["plusList"] = plusList;
   exports["showNonEmptyList"] = showNonEmptyList;
+  exports["semigroupNonEmptyList"] = semigroupNonEmptyList;
 })(PS);
 (function($PS) {
   "use strict";
@@ -3630,7 +3674,6 @@ var PS = {};
   exports["readNull"] = readNull;
   exports["fail"] = fail;
   exports["showForeignError"] = showForeignError;
-  exports["unsafeFromForeign"] = $foreign.unsafeFromForeign;
   exports["typeOf"] = $foreign.typeOf;
   exports["isNull"] = $foreign.isNull;
   exports["isUndefined"] = $foreign.isUndefined;
@@ -4681,6 +4724,24 @@ var PS = {};
   exports["riderClass"] = riderClass;
 })(PS);
 (function(exports) {
+  function wrap(method) {
+    return function(d) {
+      return function(num) {
+        return method.apply(num, [d]);
+      };
+    };
+  }                                                                  
+
+  exports.toString = function(num) { return num.toString(); };
+})(PS["Data.Number.Format"] = PS["Data.Number.Format"] || {});
+(function($PS) {
+  "use strict";
+  $PS["Data.Number.Format"] = $PS["Data.Number.Format"] || {};
+  var exports = $PS["Data.Number.Format"];
+  var $foreign = $PS["Data.Number.Format"];
+  exports["toString"] = $foreign.toString;
+})(PS);
+(function(exports) {
   "use strict";
 
   exports.joinWith = function (s) {
@@ -4930,6 +4991,7 @@ var PS = {};
   var Api_Push = $PS["Api.Push"];
   var App_Driver = $PS["App.Driver"];
   var App_Rider = $PS["App.Rider"];
+  var Control_Alt = $PS["Control.Alt"];
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Apply = $PS["Control.Apply"];
   var Control_Bind = $PS["Control.Bind"];
@@ -4942,6 +5004,7 @@ var PS = {};
   var Data_List_Types = $PS["Data.List.Types"];
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Monoid = $PS["Data.Monoid"];
+  var Data_Number_Format = $PS["Data.Number.Format"];
   var Data_Ord = $PS["Data.Ord"];
   var Data_Semigroup = $PS["Data.Semigroup"];
   var Data_Show = $PS["Data.Show"];
@@ -4966,7 +5029,6 @@ var PS = {};
   var Web_HTML = $PS["Web.HTML"];
   var Web_HTML_HTMLDocument = $PS["Web.HTML.HTMLDocument"];
   var Web_HTML_Window = $PS["Web.HTML.Window"];                
-  var readStringLike = Foreign.unsafeFromForeign;
   var appClass = (function () {
       var render = function ($$this) {
           return Control_Apply.apply(Effect.applyEffect)(Data_Functor.map(Effect.functorEffect)(function (v) {
@@ -5004,7 +5066,7 @@ var PS = {};
                       if (v instanceof Data_Either.Right) {
                           return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                       };
-                      throw new Error("Failed pattern match at App (line 55, column 28 - line 58, column 31): " + [ v.constructor.name ]);
+                      throw new Error("Failed pattern match at App (line 57, column 28 - line 60, column 31): " + [ v.constructor.name ]);
                   })((function () {
                       var $29 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
                       var $30 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
@@ -5016,61 +5078,65 @@ var PS = {};
           });
       });
   })();
-  var view = function __do() {
-      var doc = Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.document)();
-      var elem = Web_DOM_NonElementParentNode.getElementById("container")(Web_HTML_HTMLDocument.toNonElementParentNode(doc))();
-      var container = Data_Maybe.maybe(Effect_Exception["throw"]("container not found"))(Control_Applicative.pure(Effect.applicativeEffect))(elem)();
-      var ws = Lib_WebSocket.create("ec2-54-93-193-191.eu-central-1.compute.amazonaws.com:8443")();
-      Lib_WebSocket.onOpen(ws)(function (v) {
-          return Lib_WebSocket.setBinary(ws);
-      })();
-      var element = React.createLeafElement()(appClass)({
-          ws: ws
-      });
-      Data_Functor["void"](Effect.functorEffect)(ReactDOM.render(element)(container))();
-      return function (user) {
-          return function __do() {
-              var hash = (function () {
-                  var v = Control_Monad_Except.runExcept(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(user)("hash"))(Foreign.readNull))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Foreign.readString)));
-                  if (v instanceof Data_Either.Right && v.value0 instanceof Data_Maybe.Just) {
-                      return v.value0.value0;
-                  };
-                  return Effect_Exception["throw"]("no hash")();
-              })();
-              var auth_date = (function () {
-                  var v = Control_Monad_Except.runExcept(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(user)("auth_date"))(Foreign.readNull))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Foreign.readNumber)));
-                  if (v instanceof Data_Either.Right && v.value0 instanceof Data_Maybe.Just) {
-                      return v.value0.value0;
-                  };
-                  return Effect_Exception["throw"]("no auth_date")();
-              })();
-              var v = Control_Monad_Except.runExcept(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Keys.keys(user))(function (keys) {
-                  return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Functor.map(Data_Functor.functorArray)(function (k) {
-                      return Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(user)(k))(Foreign.readNull))(Data_Functor.map(Data_Maybe.functorMaybe)(readStringLike)))(Data_Functor.map(Data_Maybe.functorMaybe)(Data_Semigroup.append(Data_Semigroup.semigroupString)(k)));
-                  })(Data_Array.sort(Data_Ord.ordString)(Data_Array.filter(function (v1) {
-                      return v1 !== "hash";
-                  })(keys)))))(function (xs) {
-                      return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_String_Common.joinWith("\x0a")(Data_Array.catMaybes(xs)));
-                  });
-              }));
-              var data_check_string = (function () {
-                  if (v instanceof Data_Either.Right) {
-                      return v.value0;
-                  };
-                  if (v instanceof Data_Either.Left) {
-                      return Effect_Exception["throw"](Data_Show.show(Data_List_Types.showNonEmptyList(Foreign.showForeignError))(v.value0))();
-                  };
-                  throw new Error("Failed pattern match at App (line 96, column 26 - line 98, column 31): " + [ v.constructor.name ]);
-              })();
-              return Lib_WebSocket.send(ws)(Api_Pull.encodePull(new Api_Pull.LoginAttempt({
-                  data_check_string: data_check_string,
-                  hash: hash,
-                  auth_date: auth_date
-              })))();
+  var view = (function () {
+      var readStringLike = function (x) {
+          return Control_Alt.alt(Control_Monad_Except_Trans.altExceptT(Data_List_Types.semigroupNonEmptyList)(Data_Identity.monadIdentity))(Foreign.readString(x))(Data_Functor.map(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Data_Number_Format.toString)(Foreign.readNumber(x)));
+      };
+      return function __do() {
+          var doc = Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.document)();
+          var elem = Web_DOM_NonElementParentNode.getElementById("container")(Web_HTML_HTMLDocument.toNonElementParentNode(doc))();
+          var container = Data_Maybe.maybe(Effect_Exception["throw"]("container not found"))(Control_Applicative.pure(Effect.applicativeEffect))(elem)();
+          var ws = Lib_WebSocket.create("ec2-54-93-193-191.eu-central-1.compute.amazonaws.com:8443")();
+          Lib_WebSocket.onOpen(ws)(function (v) {
+              return Lib_WebSocket.setBinary(ws);
+          })();
+          var element = React.createLeafElement()(appClass)({
+              ws: ws
+          });
+          Data_Functor["void"](Effect.functorEffect)(ReactDOM.render(element)(container))();
+          return function (user) {
+              return function __do() {
+                  var hash = (function () {
+                      var v = Control_Monad_Except.runExcept(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(user)("hash"))(Foreign.readNull))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Foreign.readString)));
+                      if (v instanceof Data_Either.Right && v.value0 instanceof Data_Maybe.Just) {
+                          return v.value0.value0;
+                      };
+                      return Effect_Exception["throw"]("no hash")();
+                  })();
+                  var auth_date = (function () {
+                      var v = Control_Monad_Except.runExcept(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(user)("auth_date"))(Foreign.readNull))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Foreign.readNumber)));
+                      if (v instanceof Data_Either.Right && v.value0 instanceof Data_Maybe.Just) {
+                          return v.value0.value0;
+                      };
+                      return Effect_Exception["throw"]("no auth_date")();
+                  })();
+                  var v = Control_Monad_Except.runExcept(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Keys.keys(user))(function (keys) {
+                      return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Functor.map(Data_Functor.functorArray)(function (k) {
+                          return Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(user)(k))(Foreign.readNull))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(readStringLike)))(Data_Functor.map(Data_Maybe.functorMaybe)(Data_Semigroup.append(Data_Semigroup.semigroupString)(k)));
+                      })(Data_Array.sort(Data_Ord.ordString)(Data_Array.filter(function (v1) {
+                          return v1 !== "hash";
+                      })(keys)))))(function (xs) {
+                          return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_String_Common.joinWith("\x0a")(Data_Array.catMaybes(xs)));
+                      });
+                  }));
+                  var data_check_string = (function () {
+                      if (v instanceof Data_Either.Right) {
+                          return v.value0;
+                      };
+                      if (v instanceof Data_Either.Left) {
+                          return Effect_Exception["throw"](Data_Show.show(Data_List_Types.showNonEmptyList(Foreign.showForeignError))(v.value0))();
+                      };
+                      throw new Error("Failed pattern match at App (line 98, column 26 - line 100, column 31): " + [ v.constructor.name ]);
+                  })();
+                  return Lib_WebSocket.send(ws)(Api_Pull.encodePull(new Api_Pull.LoginAttempt({
+                      data_check_string: data_check_string,
+                      hash: hash,
+                      auth_date: auth_date
+                  })))();
+              };
           };
       };
-  };
+  })();
   exports["appClass"] = appClass;
   exports["view"] = view;
-  exports["readStringLike"] = readStringLike;
 })(PS);

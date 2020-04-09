@@ -2,11 +2,13 @@ module App where
 
 import Prelude (Unit, apply, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=), (/=), (<>))
 
+import Control.Alt (alt, (<|>))
 import Control.Monad.Except (runExcept)
 import Data.Array (filter, sort, mapMaybe, catMaybes)
 import Data.Either (Either(..))
 import Data.Functor ((<#>))
 import Data.Maybe (Maybe(..), maybe)
+import Data.Number.Format (toString) as Number
 import Data.Semigroup (append)
 import Data.String.Common (joinWith)
 import Data.Traversable (sequence, traverse)
@@ -91,14 +93,14 @@ view = do
       _ -> throw "no auth_date"
     let (res :: Either _ String) = runExcept $ do
           keys <- F.keys user
-          xs <- sequence $ map (\k -> user F.! k >>= readNull <#> map readStringLike <#> map (append k)) $ sort $ filter (_ /= "hash") keys
+          xs <- sequence $ map (\k -> user F.! k >>= readNull >>= traverse readStringLike <#> map (append k)) $ sort $ filter (_ /= "hash") keys
           pure $ joinWith "\n" $ catMaybes xs
     data_check_string <- case res of
       Right x -> pure x
       Left x -> throw $ show x
     WS.send ws $ encodePull $ LoginAttempt { data_check_string, hash, auth_date }
-
-readStringLike :: Foreign -> String
-readStringLike = unsafeFromForeign
+  where
+  readStringLike :: Foreign -> F String
+  readStringLike x = readString x <|> (map Number.toString $ readNumber x)
 
 --todo: one 'do' for all F _
