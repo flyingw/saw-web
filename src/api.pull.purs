@@ -13,7 +13,7 @@ import Proto.Uint8ArrayExt (length, concatAll)
 import Api
 
 data Pull = Ping | LoginAttempt LoginAttempt | AddDriver AddDriver | AddRider AddRider
-type LoginAttempt = { id :: Number, first_name :: String, last_name :: String, username :: String, photo_url :: String, auth_date :: Number, hash :: String }
+type LoginAttempt = { data_check_string :: String, hash :: String, auth_date :: Number }
 type AddDriver = { name :: String, phone :: String, carPlate :: String, date :: Number, lap :: Int, seats :: Int, from :: Address, to :: Address }
 type AddRider = { name :: String, from :: Address, to :: Address }
 
@@ -29,20 +29,12 @@ encodePing = Encode.uint32 0
 encodeLoginAttempt :: LoginAttempt -> Uint8Array
 encodeLoginAttempt msg = do
   let xs = concatAll
-        [ Encode.uint32 9
-        , Encode.double msg.id
+        [ Encode.uint32 10
+        , Encode.string msg.data_check_string
         , Encode.uint32 18
-        , Encode.string msg.first_name
-        , Encode.uint32 26
-        , Encode.string msg.last_name
-        , Encode.uint32 34
-        , Encode.string msg.username
-        , Encode.uint32 42
-        , Encode.string msg.photo_url
-        , Encode.uint32 49
-        , Encode.double msg.auth_date
-        , Encode.uint32 58
         , Encode.string msg.hash
+        , Encode.uint32 25
+        , Encode.double msg.auth_date
         ]
   concatAll [ Encode.uint32 $ length xs, xs ]
 

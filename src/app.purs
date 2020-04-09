@@ -1,13 +1,22 @@
 module App where
 
-import Prelude (Unit, apply, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=))
+import Prelude (Unit, apply, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=), (/=), (<>))
 
+import Control.Monad.Except (runExcept)
+import Data.Array (filter, sort, mapMaybe, catMaybes)
 import Data.Either (Either(..))
+import Data.Functor ((<#>))
 import Data.Maybe (Maybe(..), maybe)
-import Data.Traversable (sequence)
+import Data.Semigroup (append)
+import Data.String.Common (joinWith)
+import Data.Traversable (sequence, traverse)
+import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (error)
 import Effect.Exception (throw)
+import Foreign (Foreign, F, readNull, readNumber, readString)
+import Foreign.Keys (keys) as F
+import Foreign.Index ((!)) as F
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
 import React.DOM (button, div, text)
 import React.DOM.Props (_type, onClick)
@@ -21,7 +30,7 @@ import Lib.React (cn)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
-import Api.Pull (encodePull, Pull(Ping, LoginAttempt), LoginAttempt)
+import Api.Pull (encodePull, Pull(Ping, LoginAttempt))
 import Api.Push (decodePush, Push(LoginOk))
 
 import App.Driver (driverClass)
@@ -64,14 +73,29 @@ appClass = component "App" \this -> do
       , createLeafElement riderClass { ws }
       ]
 
-view :: Effect (LoginAttempt -> Effect Unit)
+view :: Effect (Foreign -> Effect Unit)
 view = do
   doc <- window >>= document
-  let doc' = toNonElementParentNode doc
-  elem <- getElementById "container" doc'
+  elem <- getElementById "container" $ toNonElementParentNode doc
   container <- maybe (throw "container not found") pure elem
   ws <- WS.create "ec2-54-93-193-191.eu-central-1.compute.amazonaws.com:8443"
   WS.onOpen ws \_ -> WS.setBinary ws
   let element = createLeafElement appClass { ws }
   void $ render element container
-  pure \user -> WS.send ws $ encodePull $ LoginAttempt user
+  pure \user -> do
+    hash <- case runExcept $ user F.! "hash" >>= readNull >>= traverse readString of
+      Right (Just x) -> pure x
+      _ -> throw "no hash"
+    auth_date <- case runExcept $ user F.! "auth_date" >>= readNull >>= traverse readNumber of
+      Right (Just x) -> pure x
+      _ -> throw "no auth_date"
+    let (res :: Either _ String) = runExcept $ do
+          keys <- F.keys user
+          xs <- sequence $ map (\k -> user F.! k >>= readNull >>= traverse readString <#> map (append k)) $ sort $ filter (_ /= "hash") keys
+          pure $ joinWith "\n" $ catMaybes xs
+    data_check_string <- case res of
+      Right x -> pure x
+      Left x -> throw $ show x
+    WS.send ws $ encodePull $ LoginAttempt { data_check_string, hash, auth_date }
+
+--todo: one 'do' for all F _
