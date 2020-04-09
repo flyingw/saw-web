@@ -25,11 +25,10 @@ import Lib.WebSocket as WS
 
 import Api (Address)
 import Api.Pull (Pull(AddDriver), encodePull)
-import Api.Push (decodePush, Push(Pong, AddRouteOk))
+import Api.Push (decodePush, Push(Pong, AddRouteOk, LoginOk))
 
 type Props =
   { ws :: WebSocket
-  , name :: Maybe String
   }
 
 type State =
@@ -55,7 +54,7 @@ driverClass = component "Driver" \this -> do
       { answer: "press the button"
       , mapQ: Nothing
       , routeN: Nothing
-      , name: fromMaybe "" props.name
+      , name: ""
       , phone: ""
       , carPlate: ""
       , date: date
@@ -70,21 +69,15 @@ driverClass = component "Driver" \this -> do
         let ws = props.ws
         WS.onMsg ws (\x -> case decodePush x of
           Left y -> error $ show y
-          Right msg -> handle this msg.val
+          Right { val: AddRouteOk r } -> modifyState this _{ routeN=Just r.n }
+          Right { val: LoginOk {name: Just name}} -> modifyState this _{ name=name }
+          Right _ -> pure unit
         ) (sequence <<< map error)
     }
   where
 
   today :: Effect String 
   today = now >>= toISOString <#> (take 19)
-
-  handle :: ReactThis Props State -> Push -> Effect Unit
-  handle this msg =
-    case msg of
-      AddRouteOk r -> do
-        p <- getProps this
-        modifyState this _{ routeN=Just r.n }
-      msg -> pure unit
   
   sendDriver :: ReactThis Props State -> Effect Unit
   sendDriver this = do

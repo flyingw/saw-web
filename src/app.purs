@@ -1,6 +1,6 @@
 module App where
 
-import Prelude (Unit, apply, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=), (/=))
+import Prelude (Unit, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=), (/=))
 
 import Control.Alt ((<|>))
 import Control.Monad.Except (runExcept)
@@ -44,7 +44,6 @@ type Props =
 
 type State =
   { sessionid :: Maybe String
-  , name :: Maybe String
   }
 
 appClass :: ReactClass Props
@@ -57,7 +56,7 @@ appClass = component "App" \this -> do
         let ws = props.ws
         WS.onMsg ws (\x -> case decodePush x of
           Left y -> error $ show y
-          Right { val: LoginOk { sessionid, name }} -> modifyState this _{ sessionid=Just sessionid, name=name }
+          Right { val: LoginOk {sessionid}} -> modifyState this _{ sessionid=Just sessionid }
           Right _ -> pure unit
         ) (sequence <<< map error)
     }
@@ -72,8 +71,8 @@ appClass = component "App" \this -> do
                 , cn "btn btn-primary"
                 , onClick \_ -> WS.send ws $ encodePull Ping
                 ] [ text "Send" ]
-      , createLeafElement driverClass { ws, name: state.name }
-      , createLeafElement riderClass { ws, name: state.name }
+      , createLeafElement driverClass {ws}
+      , createLeafElement riderClass {ws}
       ]
 
 view :: Effect (Foreign -> Effect Unit)

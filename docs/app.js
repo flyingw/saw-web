@@ -4597,35 +4597,10 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 213, column 11 - line 221, column 30): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 206, column 11 - line 214, column 30): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u0441\u043e\u0433\u043b\u0430\u0441\u0435\u043d \u0441 \u0443\u0441\u043b\u043e\u0432\u0438\u044f\u043c\u0438 \u0438 \u043f\u043e\u043b\u043e\u0436\u0435\u043d\u0438\u044f\u043c\u0438 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u044f \u0441\u0435\u0440\u0432\u0438\u0441\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u043e\u0437\u043d\u0430\u043a\u043e\u043c\u0438\u043b\u0441\u044f \u0441 \u043f\u0440\u0430\u0432\u0438\u043b\u0430\u043c\u0438 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438") ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-6") ])([ React_DOM.text("\u041f\u0435\u0440\u0435\u0434 \u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u0438\u0435\u043c \u043f\u043e\u0441\u043c\u043e\u0442\u0440\u0438\u0442\u0435 \u043f\u0440\u0435\u0434\u043f\u043e\u043b\u043e\u0433\u0430\u0435\u043c\u044b\u0439 \u043c\u0430\u0440\u0448\u0440\u0443\u0442") ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.disabled(Data_Maybe.isNothing(state.mapQ)), React_DOM_Props.onClick(function (v) {
                   return sendDriver($$this);
               }) ])([ React_DOM.text("\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c") ]) ]) ]);
-          };
-      };
-      var handle = function ($$this) {
-          return function (msg) {
-              if (msg instanceof Api_Push.AddRouteOk) {
-                  return function __do() {
-                      var p = React.getProps($$this)();
-                      return React.modifyState($$this)(function (v) {
-                          return {
-                              answer: v.answer,
-                              mapQ: v.mapQ,
-                              routeN: new Data_Maybe.Just(msg.value0.n),
-                              name: v.name,
-                              phone: v.phone,
-                              carPlate: v.carPlate,
-                              date: v.date,
-                              lap: v.lap,
-                              seats: v.seats,
-                              from: v.from,
-                              to: v.to
-                          };
-                      })();
-                  };
-              };
-              return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
           };
       };
       return React.component()("Driver")(function ($$this) {
@@ -4637,7 +4612,7 @@ var PS = {};
                       answer: "press the button",
                       mapQ: Data_Maybe.Nothing.value,
                       routeN: Data_Maybe.Nothing.value,
-                      name: Data_Maybe.fromMaybe("")(props.name),
+                      name: "",
                       phone: "",
                       carPlate: "",
                       date: date,
@@ -4666,15 +4641,49 @@ var PS = {};
                           if (v instanceof Data_Either.Left) {
                               return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
                           };
-                          if (v instanceof Data_Either.Right) {
-                              return handle($$this)(v.value0.val);
+                          if (v instanceof Data_Either.Right && v.value0.val instanceof Api_Push.AddRouteOk) {
+                              return React.modifyState($$this)(function (v1) {
+                                  return {
+                                      name: v1.name,
+                                      phone: v1.phone,
+                                      carPlate: v1.carPlate,
+                                      date: v1.date,
+                                      lap: v1.lap,
+                                      seats: v1.seats,
+                                      from: v1.from,
+                                      to: v1.to,
+                                      answer: v1.answer,
+                                      mapQ: v1.mapQ,
+                                      routeN: new Data_Maybe.Just(v.value0.val.value0.n)
+                                  };
+                              });
                           };
-                          throw new Error("Failed pattern match at App.Driver (line 71, column 28 - line 73, column 43): " + [ v.constructor.name ]);
+                          if (v instanceof Data_Either.Right && (v.value0.val instanceof Api_Push.LoginOk && v.value0.val.value0.name instanceof Data_Maybe.Just)) {
+                              return React.modifyState($$this)(function (v1) {
+                                  return {
+                                      name: v.value0.val.value0.name.value0,
+                                      phone: v1.phone,
+                                      carPlate: v1.carPlate,
+                                      date: v1.date,
+                                      lap: v1.lap,
+                                      seats: v1.seats,
+                                      from: v1.from,
+                                      to: v1.to,
+                                      answer: v1.answer,
+                                      mapQ: v1.mapQ,
+                                      routeN: v1.routeN
+                                  };
+                              });
+                          };
+                          if (v instanceof Data_Either.Right) {
+                              return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
+                          };
+                          throw new Error("Failed pattern match at App.Driver (line 70, column 28 - line 74, column 31): " + [ v.constructor.name ]);
                       })((function () {
-                          var $30 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $31 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($32) {
-                              return $30($31($32));
+                          var $37 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $38 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($39) {
+                              return $37($38($39));
                           };
                       })())();
                   }
@@ -4692,7 +4701,6 @@ var PS = {};
   var Control_Applicative = $PS["Control.Applicative"];
   var Data_Either = $PS["Data.Either"];
   var Data_Functor = $PS["Data.Functor"];
-  var Data_Maybe = $PS["Data.Maybe"];
   var Data_Show = $PS["Data.Show"];
   var Data_Traversable = $PS["Data.Traversable"];
   var Data_Unit = $PS["Data.Unit"];
@@ -4707,16 +4715,14 @@ var PS = {};
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([  ])([ React_DOM.text(state.answer) ]);
+              return React_DOM.div([  ])([ React_DOM.text("rider") ]);
           };
       };
       return React.component()("Rider")(function ($$this) {
           return function __do() {
               var props = React.getProps($$this)();
               return {
-                  state: {
-                      answer: Data_Maybe.fromMaybe("login")(props.name)
-                  },
+                  state: {},
                   render: render($$this),
                   componentDidMount: function __do() {
                       var props1 = React.getProps($$this)();
@@ -4728,7 +4734,7 @@ var PS = {};
                           if (v instanceof Data_Either.Right) {
                               return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                           };
-                          throw new Error("Failed pattern match at App.Rider (line 40, column 28 - line 42, column 31): " + [ v.constructor.name ]);
+                          throw new Error("Failed pattern match at App.Rider (line 35, column 28 - line 37, column 31): " + [ v.constructor.name ]);
                       })((function () {
                           var $4 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
                           var $5 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
@@ -5056,21 +5062,17 @@ var PS = {};
               return React_DOM.div([  ])([ React_DOM.button([ React_DOM_Props["_type"]("button"), Lib_React.cn("btn btn-primary"), React_DOM_Props.onClick(function (v) {
                   return Lib_WebSocket.send(props.ws)(Api_Pull.encodePull(Api_Pull.Ping.value));
               }) ])([ React_DOM.text("Send") ]), React.createLeafElement()(App_Driver.driverClass)({
-                  ws: props.ws,
-                  name: state.name
+                  ws: props.ws
               }), React.createLeafElement()(App_Rider.riderClass)({
-                  ws: props.ws,
-                  name: state.name
+                  ws: props.ws
               }) ]);
           };
       };
       return React.component()("App")(function ($$this) {
           return Control_Applicative.pure(Effect.applicativeEffect)({
               state: Data_Monoid.mempty(Data_Monoid.monoidRecord()(Data_Monoid.monoidRecordCons(new Data_Symbol.IsSymbol(function () {
-                  return "name";
-              }))(Data_Maybe.monoidMaybe(Data_Semigroup.semigroupString))()(Data_Monoid.monoidRecordCons(new Data_Symbol.IsSymbol(function () {
                   return "sessionid";
-              }))(Data_Maybe.monoidMaybe(Data_Semigroup.semigroupString))()(Data_Monoid.monoidRecordNil)))),
+              }))(Data_Maybe.monoidMaybe(Data_Semigroup.semigroupString))()(Data_Monoid.monoidRecordNil))),
               render: render($$this),
               componentDidMount: function __do() {
                   var props = React.getProps($$this)();
@@ -5082,20 +5084,19 @@ var PS = {};
                       if (v instanceof Data_Either.Right && v.value0.val instanceof Api_Push.LoginOk) {
                           return React.modifyState($$this)(function (v1) {
                               return {
-                                  sessionid: new Data_Maybe.Just(v.value0.val.value0.sessionid),
-                                  name: v.value0.val.value0.name
+                                  sessionid: new Data_Maybe.Just(v.value0.val.value0.sessionid)
                               };
                           });
                       };
                       if (v instanceof Data_Either.Right) {
                           return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                       };
-                      throw new Error("Failed pattern match at App (line 58, column 28 - line 61, column 31): " + [ v.constructor.name ]);
+                      throw new Error("Failed pattern match at App (line 57, column 28 - line 60, column 31): " + [ v.constructor.name ]);
                   })((function () {
-                      var $17 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                      var $18 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                      return function ($19) {
-                          return $17($18($19));
+                      var $16 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                      var $17 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                      return function ($18) {
+                          return $16($17($18));
                       };
                   })())();
               }
@@ -5154,7 +5155,7 @@ var PS = {};
               if (v instanceof Data_Either.Right) {
                   return Lib_WebSocket.send(ws)(Api_Pull.encodePull(v.value0));
               };
-              throw new Error("Failed pattern match at App (line 88, column 17 - line 91, column 34): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at App (line 87, column 17 - line 90, column 34): " + [ v.constructor.name ]);
           };
       };
   })();

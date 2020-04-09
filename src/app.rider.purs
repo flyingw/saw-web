@@ -19,20 +19,15 @@ import Api.Push (decodePush, Push(Pong))
 
 type Props =
   { ws :: WebSocket
-  , name :: Maybe String
   }
 
-type State =
-  { answer :: String
-  }
+type State = {}
 
 riderClass :: ReactClass Props
 riderClass = component "Rider" \this -> do
   props <- getProps this
   pure
-    { state:
-      { answer: fromMaybe "login" props.name
-      }
+    { state: {}
     , render: render this
     , componentDidMount: do
         props <- getProps this
@@ -46,4 +41,4 @@ riderClass = component "Rider" \this -> do
   render this = do
     props <- getProps this
     state <- getState this
-    pure $ div [] [ text state.answer ]
+    pure $ div [] [ text "rider" ]
