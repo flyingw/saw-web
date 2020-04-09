@@ -43,9 +43,7 @@ riderClass = component "Rider" \this -> do
         ) (sequence <<< map error)
     }
   where
-  render this = ado
+  render this = do
     props <- getProps this
     state <- getState this
-    in div []
-      [ text state.answer
-      ]
+    pure $ div [] [ text state.answer ]

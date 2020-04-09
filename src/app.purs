@@ -63,12 +63,12 @@ appClass = component "App" \this -> do
     }
   where
   render :: ReactThis Props State -> Effect ReactElement
-  render this = ado
+  render this = do
     props <- getProps this
     let ws = props.ws
     state <- getState this
     let name = state.name
-    in div []
+    pure $ div []
       [ button  [ _type "button"
                 , cn "btn btn-primary"
                 , onClick \_ -> WS.send ws $ encodePull Ping

@@ -2846,7 +2846,6 @@ var PS = {};
   }, $foreign.pureE);
   var functorEffect = new Data_Functor.Functor(Control_Applicative.liftA1(applicativeEffect));
   exports["functorEffect"] = functorEffect;
-  exports["applyEffect"] = applyEffect;
   exports["applicativeEffect"] = applicativeEffect;
   exports["bindEffect"] = bindEffect;
 })(PS);
@@ -4306,7 +4305,6 @@ var PS = {};
   var Api_Pull = $PS["Api.Pull"];
   var Api_Push = $PS["Api.Push"];
   var Control_Applicative = $PS["Control.Applicative"];
-  var Control_Apply = $PS["Control.Apply"];
   var Control_Bind = $PS["Control.Bind"];
   var Data_Either = $PS["Data.Either"];
   var Data_Functor = $PS["Data.Functor"];
@@ -4371,239 +4369,239 @@ var PS = {};
           };
       };
       var render = function ($$this) {
-          return Control_Apply.apply(Effect.applyEffect)(Data_Functor.map(Effect.functorEffect)(function (v) {
-              return function (v1) {
-                  return React_DOM.div([ Lib_React.cn("m-2  ") ])([ React_DOM.form([ React_DOM_Props.noValidate(true) ])([ React_DOM.h6([  ])([ React_DOM.text("\u0414\u0430\u043d\u043d\u044b\u0435 \u0432\u043e\u0434\u0438\u0442\u0435\u043b\u044f") ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("name") ])([ React_DOM.text("\u0418\u043c\u044f") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("name"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v2) {
-                      return React.modifyState($$this)(function (v3) {
-                          return {
-                              name: v2,
-                              phone: v3.phone,
-                              carPlate: v3.carPlate,
-                              date: v3.date,
-                              lap: v3.lap,
-                              seats: v3.seats,
-                              from: v3.from,
-                              to: v3.to,
-                              answer: v3.answer,
-                              mapQ: v3.mapQ,
-                              routeN: v3.routeN
-                          };
-                      });
-                  }), React_DOM_Props.value(v1.name) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text("\u0422\u0435\u043b\u0435\u0444\u043e\u043d") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v2) {
-                      return React.modifyState($$this)(function (v3) {
-                          return {
-                              name: v3.name,
-                              phone: v2,
-                              carPlate: v3.carPlate,
-                              date: v3.date,
-                              lap: v3.lap,
-                              seats: v3.seats,
-                              from: v3.from,
-                              to: v3.to,
-                              answer: v3.answer,
-                              mapQ: v3.mapQ,
-                              routeN: v3.routeN
-                          };
-                      });
-                  }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text("\u0412\u0438\u0434\u0435\u043d \u0442\u043e\u043b\u044c\u043a\u043e \u043f\u0430\u0441\u0430\u0436\u0438\u0440\u0443") ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("carPlate") ])([ React_DOM.text("\u041d\u043e\u043c\u0435\u0440 \u043c\u0430\u0448\u0438\u043d\u044b") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("carPlate"), React_DOM_Props.autoComplete("carPlate"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v2) {
-                      return React.modifyState($$this)(function (v3) {
-                          return {
-                              name: v3.name,
-                              phone: v3.phone,
-                              carPlate: v2,
-                              date: v3.date,
-                              lap: v3.lap,
-                              seats: v3.seats,
-                              from: v3.from,
-                              to: v3.to,
-                              answer: v3.answer,
-                              mapQ: v3.mapQ,
-                              routeN: v3.routeN
-                          };
-                      });
-                  }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text("\u0412\u0438\u0434\u0435\u043d \u0442\u043e\u043b\u044c\u043a\u043e \u043f\u0430\u0441\u0430\u0436\u0438\u0440\u0443") ]) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text("\u0414\u0430\u0442\u0430") ]), React_DOM.input([ React_DOM_Props["_type"]("datetime-local"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(v1.date), Lib_React.onChangeValue(function (v2) {
-                      return React.modifyState($$this)(function (v3) {
-                          return {
-                              name: v3.name,
-                              phone: v3.phone,
-                              carPlate: v3.carPlate,
-                              date: v2,
-                              lap: v3.lap,
-                              seats: v3.seats,
-                              from: v3.from,
-                              to: v3.to,
-                              answer: v3.answer,
-                              mapQ: v3.mapQ,
-                              routeN: v3.routeN
-                          };
-                      });
-                  }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lap") ])([ React_DOM.text("\u0417\u0430\u0435\u0437\u0434 (\u043a\u043c)") ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lap"), React_DOM_Props.min("1"), React_DOM_Props.max("100"), React_DOM_Props.value("3"), React_DOM_Props.required(true), Lib_React.onChangeValueInt(function (v2) {
-                      return React.modifyState($$this)(function (v3) {
-                          return {
-                              name: v3.name,
-                              phone: v3.phone,
-                              carPlate: v3.carPlate,
-                              date: v3.date,
-                              lap: v2,
-                              seats: v3.seats,
-                              from: v3.from,
-                              to: v3.to,
-                              answer: v3.answer,
-                              mapQ: v3.mapQ,
-                              routeN: v3.routeN
-                          };
-                      });
-                  }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text("\u041f\u043e \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0443") ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("seats") ])([ React_DOM.text("\u041c\u0435\u0441\u0442") ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("seats"), React_DOM_Props.min("1"), React_DOM_Props.max("5"), React_DOM_Props.value("1"), React_DOM_Props.required(true), Lib_React.onChangeValueInt(function (v2) {
-                      return React.modifyState($$this)(function (v3) {
-                          return {
-                              name: v3.name,
-                              phone: v3.phone,
-                              carPlate: v3.carPlate,
-                              date: v3.date,
-                              lap: v3.lap,
-                              seats: v2,
-                              from: v3.from,
-                              to: v3.to,
-                              answer: v3.answer,
-                              mapQ: v3.mapQ,
-                              routeN: v3.routeN
-                          };
-                      });
-                  }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text("\u041c\u0430\u043a\u0441 (1-5)") ]) ]) ]), React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text("\u041d\u0430\u0447\u0430\u043b\u043e \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityFrom") ])([ React_DOM.text("\u0413\u043e\u0440\u043e\u0434") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityFrom"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v2) {
-                      return React.modifyState($$this)(function (s) {
-                          return {
-                              name: s.name,
-                              phone: s.phone,
-                              carPlate: s.carPlate,
-                              date: s.date,
-                              lap: s.lap,
-                              seats: s.seats,
-                              from: {
-                                  city: v2,
-                                  street: s.from.street,
-                                  building: s.from.building
-                              },
-                              to: s.to,
-                              answer: s.answer,
-                              mapQ: s.mapQ,
-                              routeN: s.routeN
-                          };
-                      });
-                  }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetFrom") ])([ React_DOM.text("\u0423\u043b\u0438\u0446\u0430") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetFrom"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v2) {
-                      return React.modifyState($$this)(function (s) {
-                          return {
-                              name: s.name,
-                              phone: s.phone,
-                              carPlate: s.carPlate,
-                              date: s.date,
-                              lap: s.lap,
-                              seats: s.seats,
-                              from: {
-                                  city: s.from.city,
-                                  street: v2,
-                                  building: s.from.building
-                              },
-                              to: s.to,
-                              answer: s.answer,
-                              mapQ: s.mapQ,
-                              routeN: s.routeN
-                          };
-                      });
-                  }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("buildingFrom") ])([ React_DOM.text("\u0414\u043e\u043c") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("buildingFrom"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v2) {
-                      return React.modifyState($$this)(function (s) {
-                          return {
-                              name: s.name,
-                              phone: s.phone,
-                              carPlate: s.carPlate,
-                              date: s.date,
-                              lap: s.lap,
-                              seats: s.seats,
-                              from: {
-                                  city: s.from.city,
-                                  street: s.from.street,
-                                  building: v2
-                              },
-                              to: s.to,
-                              answer: s.answer,
-                              mapQ: s.mapQ,
-                              routeN: s.routeN
-                          };
-                      });
-                  }) ]) ]) ]), React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text("\u041a\u043e\u043d\u0435\u0446 \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityTo") ])([ React_DOM.text("\u0413\u043e\u0440\u043e\u0434") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityTo"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v2) {
-                      return React.modifyState($$this)(function (s) {
-                          return {
-                              name: s.name,
-                              phone: s.phone,
-                              carPlate: s.carPlate,
-                              date: s.date,
-                              lap: s.lap,
-                              seats: s.seats,
-                              from: s.from,
-                              to: {
-                                  city: v2,
-                                  street: s.to.street,
-                                  building: s.to.building
-                              },
-                              answer: s.answer,
-                              mapQ: s.mapQ,
-                              routeN: s.routeN
-                          };
-                      });
-                  }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetTo") ])([ React_DOM.text("\u0423\u043b\u0438\u0446\u0430") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetTo"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v2) {
-                      return React.modifyState($$this)(function (s) {
-                          return {
-                              name: s.name,
-                              phone: s.phone,
-                              carPlate: s.carPlate,
-                              date: s.date,
-                              lap: s.lap,
-                              seats: s.seats,
-                              from: s.from,
-                              to: {
-                                  city: s.to.city,
-                                  street: v2,
-                                  building: s.to.building
-                              },
-                              answer: s.answer,
-                              mapQ: s.mapQ,
-                              routeN: s.routeN
-                          };
-                      });
-                  }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("houseTo") ])([ React_DOM.text("\u0414\u043e\u043c") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("houseTo"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v2) {
-                      return React.modifyState($$this)(function (s) {
-                          return {
-                              name: s.name,
-                              phone: s.phone,
-                              carPlate: s.carPlate,
-                              date: s.date,
-                              lap: s.lap,
-                              seats: s.seats,
-                              from: s.from,
-                              to: {
-                                  city: s.to.city,
-                                  street: s.to.street,
-                                  building: v2
-                              },
-                              answer: s.answer,
-                              mapQ: s.mapQ,
-                              routeN: s.routeN
-                          };
-                      });
-                  }) ]) ]) ]), React_DOM.button([ Lib_React.cn("btn btn-secondary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v2) {
-                      return updateMap($$this);
-                  }) ])([ React_DOM.text("\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u043c\u0430\u0440\u0448\u0440\u0443\u0442") ]), (function () {
-                      if (v1.mapQ instanceof Data_Maybe.Just) {
-                          return React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-6 mb-3") ])([ React_DOM.iframe([ React_DOM_Props.width("100%"), React_DOM_Props.height("400"), React_DOM_Props.frameBorder("0"), React_DOM_Props.src(v1.mapQ.value0) ])([  ]) ]) ]);
+          return function __do() {
+              var props = React.getProps($$this)();
+              var state = React.getState($$this)();
+              return React_DOM.div([ Lib_React.cn("m-2  ") ])([ React_DOM.form([ React_DOM_Props.noValidate(true) ])([ React_DOM.h6([  ])([ React_DOM.text("\u0414\u0430\u043d\u043d\u044b\u0435 \u0432\u043e\u0434\u0438\u0442\u0435\u043b\u044f") ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("name") ])([ React_DOM.text("\u0418\u043c\u044f") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("name"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          name: v,
+                          phone: v1.phone,
+                          carPlate: v1.carPlate,
+                          date: v1.date,
+                          lap: v1.lap,
+                          seats: v1.seats,
+                          from: v1.from,
+                          to: v1.to,
+                          answer: v1.answer,
+                          mapQ: v1.mapQ,
+                          routeN: v1.routeN
                       };
-                      if (v1.mapQ instanceof Data_Maybe.Nothing) {
-                          return Data_Monoid.mempty(React.monoidReactElement);
+                  });
+              }), React_DOM_Props.value(state.name) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text("\u0422\u0435\u043b\u0435\u0444\u043e\u043d") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          name: v1.name,
+                          phone: v,
+                          carPlate: v1.carPlate,
+                          date: v1.date,
+                          lap: v1.lap,
+                          seats: v1.seats,
+                          from: v1.from,
+                          to: v1.to,
+                          answer: v1.answer,
+                          mapQ: v1.mapQ,
+                          routeN: v1.routeN
                       };
-                      throw new Error("Failed pattern match at App.Driver (line 213, column 11 - line 221, column 30): " + [ v1.mapQ.constructor.name ]);
-                  })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u0441\u043e\u0433\u043b\u0430\u0441\u0435\u043d \u0441 \u0443\u0441\u043b\u043e\u0432\u0438\u044f\u043c\u0438 \u0438 \u043f\u043e\u043b\u043e\u0436\u0435\u043d\u0438\u044f\u043c\u0438 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u044f \u0441\u0435\u0440\u0432\u0438\u0441\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u043e\u0437\u043d\u0430\u043a\u043e\u043c\u0438\u043b\u0441\u044f \u0441 \u043f\u0440\u0430\u0432\u0438\u043b\u0430\u043c\u0438 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438") ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-6") ])([ React_DOM.text("\u041f\u0435\u0440\u0435\u0434 \u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u0438\u0435\u043c \u043f\u043e\u0441\u043c\u043e\u0442\u0440\u0438\u0442\u0435 \u043f\u0440\u0435\u0434\u043f\u043e\u043b\u043e\u0433\u0430\u0435\u043c\u044b\u0439 \u043c\u0430\u0440\u0448\u0440\u0443\u0442") ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.disabled(Data_Maybe.isNothing(v1.mapQ)), React_DOM_Props.onClick(function (v2) {
-                      return sendDriver($$this);
-                  }) ])([ React_DOM.text("\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c") ]) ]) ]);
-              };
-          })(React.getProps($$this)))(React.getState($$this));
+                  });
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text("\u0412\u0438\u0434\u0435\u043d \u0442\u043e\u043b\u044c\u043a\u043e \u043f\u0430\u0441\u0430\u0436\u0438\u0440\u0443") ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("carPlate") ])([ React_DOM.text("\u041d\u043e\u043c\u0435\u0440 \u043c\u0430\u0448\u0438\u043d\u044b") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("carPlate"), React_DOM_Props.autoComplete("carPlate"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          name: v1.name,
+                          phone: v1.phone,
+                          carPlate: v,
+                          date: v1.date,
+                          lap: v1.lap,
+                          seats: v1.seats,
+                          from: v1.from,
+                          to: v1.to,
+                          answer: v1.answer,
+                          mapQ: v1.mapQ,
+                          routeN: v1.routeN
+                      };
+                  });
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text("\u0412\u0438\u0434\u0435\u043d \u0442\u043e\u043b\u044c\u043a\u043e \u043f\u0430\u0441\u0430\u0436\u0438\u0440\u0443") ]) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text("\u0414\u0430\u0442\u0430") ]), React_DOM.input([ React_DOM_Props["_type"]("datetime-local"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          name: v1.name,
+                          phone: v1.phone,
+                          carPlate: v1.carPlate,
+                          date: v,
+                          lap: v1.lap,
+                          seats: v1.seats,
+                          from: v1.from,
+                          to: v1.to,
+                          answer: v1.answer,
+                          mapQ: v1.mapQ,
+                          routeN: v1.routeN
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lap") ])([ React_DOM.text("\u0417\u0430\u0435\u0437\u0434 (\u043a\u043c)") ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lap"), React_DOM_Props.min("1"), React_DOM_Props.max("100"), React_DOM_Props.value("3"), React_DOM_Props.required(true), Lib_React.onChangeValueInt(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          name: v1.name,
+                          phone: v1.phone,
+                          carPlate: v1.carPlate,
+                          date: v1.date,
+                          lap: v,
+                          seats: v1.seats,
+                          from: v1.from,
+                          to: v1.to,
+                          answer: v1.answer,
+                          mapQ: v1.mapQ,
+                          routeN: v1.routeN
+                      };
+                  });
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text("\u041f\u043e \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0443") ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("seats") ])([ React_DOM.text("\u041c\u0435\u0441\u0442") ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("seats"), React_DOM_Props.min("1"), React_DOM_Props.max("5"), React_DOM_Props.value("1"), React_DOM_Props.required(true), Lib_React.onChangeValueInt(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          name: v1.name,
+                          phone: v1.phone,
+                          carPlate: v1.carPlate,
+                          date: v1.date,
+                          lap: v1.lap,
+                          seats: v,
+                          from: v1.from,
+                          to: v1.to,
+                          answer: v1.answer,
+                          mapQ: v1.mapQ,
+                          routeN: v1.routeN
+                      };
+                  });
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text("\u041c\u0430\u043a\u0441 (1-5)") ]) ]) ]), React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text("\u041d\u0430\u0447\u0430\u043b\u043e \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityFrom") ])([ React_DOM.text("\u0413\u043e\u0440\u043e\u0434") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityFrom"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          name: s.name,
+                          phone: s.phone,
+                          carPlate: s.carPlate,
+                          date: s.date,
+                          lap: s.lap,
+                          seats: s.seats,
+                          from: {
+                              city: v,
+                              street: s.from.street,
+                              building: s.from.building
+                          },
+                          to: s.to,
+                          answer: s.answer,
+                          mapQ: s.mapQ,
+                          routeN: s.routeN
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetFrom") ])([ React_DOM.text("\u0423\u043b\u0438\u0446\u0430") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetFrom"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          name: s.name,
+                          phone: s.phone,
+                          carPlate: s.carPlate,
+                          date: s.date,
+                          lap: s.lap,
+                          seats: s.seats,
+                          from: {
+                              city: s.from.city,
+                              street: v,
+                              building: s.from.building
+                          },
+                          to: s.to,
+                          answer: s.answer,
+                          mapQ: s.mapQ,
+                          routeN: s.routeN
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("buildingFrom") ])([ React_DOM.text("\u0414\u043e\u043c") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("buildingFrom"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          name: s.name,
+                          phone: s.phone,
+                          carPlate: s.carPlate,
+                          date: s.date,
+                          lap: s.lap,
+                          seats: s.seats,
+                          from: {
+                              city: s.from.city,
+                              street: s.from.street,
+                              building: v
+                          },
+                          to: s.to,
+                          answer: s.answer,
+                          mapQ: s.mapQ,
+                          routeN: s.routeN
+                      };
+                  });
+              }) ]) ]) ]), React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text("\u041a\u043e\u043d\u0435\u0446 \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityTo") ])([ React_DOM.text("\u0413\u043e\u0440\u043e\u0434") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityTo"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          name: s.name,
+                          phone: s.phone,
+                          carPlate: s.carPlate,
+                          date: s.date,
+                          lap: s.lap,
+                          seats: s.seats,
+                          from: s.from,
+                          to: {
+                              city: v,
+                              street: s.to.street,
+                              building: s.to.building
+                          },
+                          answer: s.answer,
+                          mapQ: s.mapQ,
+                          routeN: s.routeN
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetTo") ])([ React_DOM.text("\u0423\u043b\u0438\u0446\u0430") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetTo"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          name: s.name,
+                          phone: s.phone,
+                          carPlate: s.carPlate,
+                          date: s.date,
+                          lap: s.lap,
+                          seats: s.seats,
+                          from: s.from,
+                          to: {
+                              city: s.to.city,
+                              street: v,
+                              building: s.to.building
+                          },
+                          answer: s.answer,
+                          mapQ: s.mapQ,
+                          routeN: s.routeN
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("houseTo") ])([ React_DOM.text("\u0414\u043e\u043c") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("houseTo"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          name: s.name,
+                          phone: s.phone,
+                          carPlate: s.carPlate,
+                          date: s.date,
+                          lap: s.lap,
+                          seats: s.seats,
+                          from: s.from,
+                          to: {
+                              city: s.to.city,
+                              street: s.to.street,
+                              building: v
+                          },
+                          answer: s.answer,
+                          mapQ: s.mapQ,
+                          routeN: s.routeN
+                      };
+                  });
+              }) ]) ]) ]), React_DOM.button([ Lib_React.cn("btn btn-secondary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+                  return updateMap($$this);
+              }) ])([ React_DOM.text("\u041f\u043e\u0441\u043c\u043e\u0442\u0440\u0435\u0442\u044c \u043c\u0430\u0440\u0448\u0440\u0443\u0442") ]), (function () {
+                  if (state.mapQ instanceof Data_Maybe.Just) {
+                      return React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-6 mb-3") ])([ React_DOM.iframe([ React_DOM_Props.width("100%"), React_DOM_Props.height("400"), React_DOM_Props.frameBorder("0"), React_DOM_Props.src(state.mapQ.value0) ])([  ]) ]) ]);
+                  };
+                  if (state.mapQ instanceof Data_Maybe.Nothing) {
+                      return Data_Monoid.mempty(React.monoidReactElement);
+                  };
+                  throw new Error("Failed pattern match at App.Driver (line 213, column 11 - line 221, column 30): " + [ state.mapQ.constructor.name ]);
+              })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u0441\u043e\u0433\u043b\u0430\u0441\u0435\u043d \u0441 \u0443\u0441\u043b\u043e\u0432\u0438\u044f\u043c\u0438 \u0438 \u043f\u043e\u043b\u043e\u0436\u0435\u043d\u0438\u044f\u043c\u0438 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u044f \u0441\u0435\u0440\u0432\u0438\u0441\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u043e\u0437\u043d\u0430\u043a\u043e\u043c\u0438\u043b\u0441\u044f \u0441 \u043f\u0440\u0430\u0432\u0438\u043b\u0430\u043c\u0438 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438") ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-6") ])([ React_DOM.text("\u041f\u0435\u0440\u0435\u0434 \u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u0438\u0435\u043c \u043f\u043e\u0441\u043c\u043e\u0442\u0440\u0438\u0442\u0435 \u043f\u0440\u0435\u0434\u043f\u043e\u043b\u043e\u0433\u0430\u0435\u043c\u044b\u0439 \u043c\u0430\u0440\u0448\u0440\u0443\u0442") ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.disabled(Data_Maybe.isNothing(state.mapQ)), React_DOM_Props.onClick(function (v) {
+                  return sendDriver($$this);
+              }) ])([ React_DOM.text("\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c") ]) ]) ]);
+          };
       };
       var handle = function ($$this) {
           return function (msg) {
@@ -4673,10 +4671,10 @@ var PS = {};
                           };
                           throw new Error("Failed pattern match at App.Driver (line 71, column 28 - line 73, column 43): " + [ v.constructor.name ]);
                       })((function () {
-                          var $34 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $35 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($36) {
-                              return $34($35($36));
+                          var $30 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $31 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($32) {
+                              return $30($31($32));
                           };
                       })())();
                   }
@@ -4692,7 +4690,6 @@ var PS = {};
   var exports = $PS["App.Rider"];
   var Api_Push = $PS["Api.Push"];
   var Control_Applicative = $PS["Control.Applicative"];
-  var Control_Apply = $PS["Control.Apply"];
   var Data_Either = $PS["Data.Either"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_Maybe = $PS["Data.Maybe"];
@@ -4707,11 +4704,11 @@ var PS = {};
   var React_DOM = $PS["React.DOM"];                
   var riderClass = (function () {
       var render = function ($$this) {
-          return Control_Apply.apply(Effect.applyEffect)(Data_Functor.map(Effect.functorEffect)(function (v) {
-              return function (v1) {
-                  return React_DOM.div([  ])([ React_DOM.text(v1.answer) ]);
-              };
-          })(React.getProps($$this)))(React.getState($$this));
+          return function __do() {
+              var props = React.getProps($$this)();
+              var state = React.getState($$this)();
+              return React_DOM.div([  ])([ React_DOM.text(state.answer) ]);
+          };
       };
       return React.component()("Rider")(function ($$this) {
           return function __do() {
@@ -4733,10 +4730,10 @@ var PS = {};
                           };
                           throw new Error("Failed pattern match at App.Rider (line 40, column 28 - line 42, column 31): " + [ v.constructor.name ]);
                       })((function () {
-                          var $8 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $9 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($10) {
-                              return $8($9($10));
+                          var $4 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $5 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($6) {
+                              return $4($5($6));
                           };
                       })())();
                   }
@@ -5016,7 +5013,6 @@ var PS = {};
   var App_Rider = $PS["App.Rider"];
   var Control_Alt = $PS["Control.Alt"];
   var Control_Applicative = $PS["Control.Applicative"];
-  var Control_Apply = $PS["Control.Apply"];
   var Control_Bind = $PS["Control.Bind"];
   var Control_Monad_Except = $PS["Control.Monad.Except"];
   var Control_Monad_Except_Trans = $PS["Control.Monad.Except.Trans"];
@@ -5054,19 +5050,19 @@ var PS = {};
   var Web_HTML_Window = $PS["Web.HTML.Window"];                
   var appClass = (function () {
       var render = function ($$this) {
-          return Control_Apply.apply(Effect.applyEffect)(Data_Functor.map(Effect.functorEffect)(function (v) {
-              return function (v1) {
-                  return React_DOM.div([  ])([ React_DOM.button([ React_DOM_Props["_type"]("button"), Lib_React.cn("btn btn-primary"), React_DOM_Props.onClick(function (v2) {
-                      return Lib_WebSocket.send(v.ws)(Api_Pull.encodePull(Api_Pull.Ping.value));
-                  }) ])([ React_DOM.text("Send") ]), React.createLeafElement()(App_Driver.driverClass)({
-                      ws: v.ws,
-                      name: v1.name
-                  }), React.createLeafElement()(App_Rider.riderClass)({
-                      ws: v.ws,
-                      name: v1.name
-                  }) ]);
-              };
-          })(React.getProps($$this)))(React.getState($$this));
+          return function __do() {
+              var props = React.getProps($$this)();
+              var state = React.getState($$this)();
+              return React_DOM.div([  ])([ React_DOM.button([ React_DOM_Props["_type"]("button"), Lib_React.cn("btn btn-primary"), React_DOM_Props.onClick(function (v) {
+                  return Lib_WebSocket.send(props.ws)(Api_Pull.encodePull(Api_Pull.Ping.value));
+              }) ])([ React_DOM.text("Send") ]), React.createLeafElement()(App_Driver.driverClass)({
+                  ws: props.ws,
+                  name: state.name
+              }), React.createLeafElement()(App_Rider.riderClass)({
+                  ws: props.ws,
+                  name: state.name
+              }) ]);
+          };
       };
       return React.component()("App")(function ($$this) {
           return Control_Applicative.pure(Effect.applicativeEffect)({
@@ -5096,10 +5092,10 @@ var PS = {};
                       };
                       throw new Error("Failed pattern match at App (line 58, column 28 - line 61, column 31): " + [ v.constructor.name ]);
                   })((function () {
-                      var $21 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                      var $22 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                      return function ($23) {
-                          return $21($22($23));
+                      var $17 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                      var $18 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                      return function ($19) {
+                          return $17($18($19));
                       };
                   })())();
               }

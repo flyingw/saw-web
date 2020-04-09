@@ -115,10 +115,10 @@ driverClass = component "Driver" \this -> do
     modifyState this \state -> state{ mapQ = Just q }
 
 
-  render this = ado
+  render this = do
     props <- getProps this
     state <- getState this
-    in div [ cn "m-2  " ]
+    pure $ div [ cn "m-2  " ]
       [ form [ noValidate true ]
         [ h6 [] [ text "Данные водителя" ]
         , div [ cn "form-row" ]
