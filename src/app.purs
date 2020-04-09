@@ -67,14 +67,13 @@ appClass = component "App" \this -> do
     props <- getProps this
     let ws = props.ws
     state <- getState this
-    let name = state.name
     pure $ div []
       [ button  [ _type "button"
                 , cn "btn btn-primary"
                 , onClick \_ -> WS.send ws $ encodePull Ping
                 ] [ text "Send" ]
-      , createLeafElement driverClass { ws, name }
-      , createLeafElement riderClass { ws, name }
+      , createLeafElement driverClass { ws, name: state.name }
+      , createLeafElement riderClass { ws, name: state.name }
       ]
 
 view :: Effect (Foreign -> Effect Unit)
