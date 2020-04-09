@@ -3032,14 +3032,12 @@ var PS = {};
   var htmlFor = $foreign.unsafeMkProps("htmlFor");
   var height = $foreign.unsafeMkProps("height");  
   var frameBorder = $foreign.unsafeMkProps("frameBorder");
-  var disabled = $foreign.unsafeMkProps("disabled");
   var className = $foreign.unsafeMkProps("className");    
   var autoComplete = $foreign.unsafeMkProps("autoComplete");
   var _type = $foreign.unsafeMkProps("type");
   var _id = $foreign.unsafeMkProps("id");
   exports["autoComplete"] = autoComplete;
   exports["className"] = className;
-  exports["disabled"] = disabled;
   exports["frameBorder"] = frameBorder;
   exports["height"] = height;
   exports["htmlFor"] = htmlFor;
@@ -4313,7 +4311,6 @@ var PS = {};
   var Data_Monoid = $PS["Data.Monoid"];
   var Data_Show = $PS["Data.Show"];
   var Data_String_CodePoints = $PS["Data.String.CodePoints"];
-  var Data_Symbol = $PS["Data.Symbol"];
   var Data_Traversable = $PS["Data.Traversable"];
   var Data_Unit = $PS["Data.Unit"];
   var Effect = $PS["Effect"];
@@ -4329,9 +4326,9 @@ var PS = {};
       var updateMap = function ($$this) {
           return function __do() {
               var s = React.getState($$this)();
-              var origin = Data_Maybe.fromMaybe("")(Global["encodeURI"](s.from.street + (", " + (s.from.building + (", " + s.from.city)))));
-              var destination = Data_Maybe.fromMaybe("")(Global["encodeURI"](s.to.street + (", " + (s.to.building + (", " + s.to.city)))));
-              var q = "https://www.google.com/maps/embed/v1/directions" + ("?origin=" + (origin + ("&destination=" + (destination + ("&key=" + "AIzaSyAijTi54AQ6VowZ-PMGUb7w1MFK54Zrwbw")))));
+              var origin = Data_Maybe.fromMaybe("")(Global["encodeURI"](s.from.street + ("+" + (s.from.building + ("+" + s.from.city)))));
+              var destination = Data_Maybe.fromMaybe("")(Global["encodeURI"](s.to.street + ("+" + (s.to.building + ("+" + s.to.city)))));
+              var q = "https://www.google.com/maps/embed/v1/directions" + ("?origin=" + (origin + ("&destination=" + (destination + ("&key=" + "AIzaSyAuq2lMfK8JPYK4-zYYw9Bl8SeTQrKJJeY")))));
               return React.modifyState($$this)(function (state) {
                   return {
                       answer: state.answer,
@@ -4372,7 +4369,7 @@ var PS = {};
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([ Lib_React.cn("m-2  ") ])([ React_DOM.form([ React_DOM_Props.noValidate(true) ])([ React_DOM.h6([  ])([ React_DOM.text("\u0414\u0430\u043d\u043d\u044b\u0435 \u0432\u043e\u0434\u0438\u0442\u0435\u043b\u044f") ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("name") ])([ React_DOM.text("\u0418\u043c\u044f") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("name"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+              return React_DOM.div([ Lib_React.cn("m-2  ") ])([ React_DOM.form([ React_DOM_Props.noValidate(true) ])([ React_DOM.h6([  ])([ React_DOM.text("\u0414\u0430\u043d\u043d\u044b\u0435 \u0432\u043e\u0434\u0438\u0442\u0435\u043b\u044f") ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("name") ])([ React_DOM.text("\u0418\u043c\u044f") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("name"), React_DOM_Props.required(true), React_DOM_Props.value(state.name), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           name: v,
@@ -4388,7 +4385,7 @@ var PS = {};
                           routeN: v1.routeN
                       };
                   });
-              }), React_DOM_Props.value(state.name) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text("\u0422\u0435\u043b\u0435\u0444\u043e\u043d") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+              }), React_DOM_Props.value(state.name) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text("\u0422\u0435\u043b\u0435\u0444\u043e\u043d") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), React_DOM_Props.value(state.phone), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           name: v1.name,
@@ -4404,7 +4401,7 @@ var PS = {};
                           routeN: v1.routeN
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text("\u0412\u0438\u0434\u0435\u043d \u0442\u043e\u043b\u044c\u043a\u043e \u043f\u0430\u0441\u0430\u0436\u0438\u0440\u0443") ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("carPlate") ])([ React_DOM.text("\u041d\u043e\u043c\u0435\u0440 \u043c\u0430\u0448\u0438\u043d\u044b") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("carPlate"), React_DOM_Props.autoComplete("carPlate"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text("\u0412\u0438\u0434\u0435\u043d \u0442\u043e\u043b\u044c\u043a\u043e \u043f\u0430\u0441\u0430\u0436\u0438\u0440\u0443") ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("carPlate") ])([ React_DOM.text("\u041d\u043e\u043c\u0435\u0440 \u043c\u0430\u0448\u0438\u043d\u044b") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("carPlate"), React_DOM_Props.autoComplete("carPlate"), React_DOM_Props.required(true), React_DOM_Props.value(state.carPlate), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           name: v1.name,
@@ -4436,7 +4433,7 @@ var PS = {};
                           routeN: v1.routeN
                       };
                   });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lap") ])([ React_DOM.text("\u0417\u0430\u0435\u0437\u0434 (\u043a\u043c)") ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lap"), React_DOM_Props.min("1"), React_DOM_Props.max("100"), React_DOM_Props.value("3"), React_DOM_Props.required(true), Lib_React.onChangeValueInt(function (v) {
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lap") ])([ React_DOM.text("\u0417\u0430\u0435\u0437\u0434 (\u043a\u043c)") ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lap"), React_DOM_Props.min("1"), React_DOM_Props.max("100"), React_DOM_Props.value("3"), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.lap)), Lib_React.onChangeValueInt(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           name: v1.name,
@@ -4452,7 +4449,7 @@ var PS = {};
                           routeN: v1.routeN
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text("\u041f\u043e \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0443") ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("seats") ])([ React_DOM.text("\u041c\u0435\u0441\u0442") ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("seats"), React_DOM_Props.min("1"), React_DOM_Props.max("5"), React_DOM_Props.value("1"), React_DOM_Props.required(true), Lib_React.onChangeValueInt(function (v) {
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text("\u041f\u043e \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0443") ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("seats") ])([ React_DOM.text("\u041c\u0435\u0441\u0442") ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("seats"), React_DOM_Props.min("1"), React_DOM_Props.max("5"), React_DOM_Props.value("1"), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.seats)), Lib_React.onChangeValueInt(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           name: v1.name,
@@ -4468,7 +4465,7 @@ var PS = {};
                           routeN: v1.routeN
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text("\u041c\u0430\u043a\u0441 (1-5)") ]) ]) ]), React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text("\u041d\u0430\u0447\u0430\u043b\u043e \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityFrom") ])([ React_DOM.text("\u0413\u043e\u0440\u043e\u0434") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityFrom"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text("\u041c\u0430\u043a\u0441 (1-5)") ]) ]) ]), React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text("\u041d\u0430\u0447\u0430\u043b\u043e \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityFrom") ])([ React_DOM.text("\u0413\u043e\u0440\u043e\u0434") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.city), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           name: s.name,
@@ -4488,7 +4485,7 @@ var PS = {};
                           routeN: s.routeN
                       };
                   });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetFrom") ])([ React_DOM.text("\u0423\u043b\u0438\u0446\u0430") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetFrom"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetFrom") ])([ React_DOM.text("\u0423\u043b\u0438\u0446\u0430") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.street), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           name: s.name,
@@ -4508,7 +4505,7 @@ var PS = {};
                           routeN: s.routeN
                       };
                   });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("buildingFrom") ])([ React_DOM.text("\u0414\u043e\u043c") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("buildingFrom"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("buildingFrom") ])([ React_DOM.text("\u0414\u043e\u043c") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("buildingFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.building), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           name: s.name,
@@ -4528,7 +4525,7 @@ var PS = {};
                           routeN: s.routeN
                       };
                   });
-              }) ]) ]) ]), React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text("\u041a\u043e\u043d\u0435\u0446 \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityTo") ])([ React_DOM.text("\u0413\u043e\u0440\u043e\u0434") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityTo"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+              }) ]) ]) ]), React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text("\u041a\u043e\u043d\u0435\u0446 \u043c\u0430\u0440\u0448\u0440\u0443\u0442\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityTo") ])([ React_DOM.text("\u0413\u043e\u0440\u043e\u0434") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.city), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           name: s.name,
@@ -4548,7 +4545,7 @@ var PS = {};
                           routeN: s.routeN
                       };
                   });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetTo") ])([ React_DOM.text("\u0423\u043b\u0438\u0446\u0430") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetTo"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetTo") ])([ React_DOM.text("\u0423\u043b\u0438\u0446\u0430") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.street), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           name: s.name,
@@ -4568,7 +4565,7 @@ var PS = {};
                           routeN: s.routeN
                       };
                   });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("houseTo") ])([ React_DOM.text("\u0414\u043e\u043c") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("houseTo"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v) {
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("houseTo") ])([ React_DOM.text("\u0414\u043e\u043c") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("houseTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.building), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           name: s.name,
@@ -4597,8 +4594,8 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 206, column 11 - line 214, column 30): " + [ state.mapQ.constructor.name ]);
-              })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u0441\u043e\u0433\u043b\u0430\u0441\u0435\u043d \u0441 \u0443\u0441\u043b\u043e\u0432\u0438\u044f\u043c\u0438 \u0438 \u043f\u043e\u043b\u043e\u0436\u0435\u043d\u0438\u044f\u043c\u0438 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u044f \u0441\u0435\u0440\u0432\u0438\u0441\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u043e\u0437\u043d\u0430\u043a\u043e\u043c\u0438\u043b\u0441\u044f \u0441 \u043f\u0440\u0430\u0432\u0438\u043b\u0430\u043c\u0438 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438") ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-6") ])([ React_DOM.text("\u041f\u0435\u0440\u0435\u0434 \u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u0438\u0435\u043c \u043f\u043e\u0441\u043c\u043e\u0442\u0440\u0438\u0442\u0435 \u043f\u0440\u0435\u0434\u043f\u043e\u043b\u043e\u0433\u0430\u0435\u043c\u044b\u0439 \u043c\u0430\u0440\u0448\u0440\u0443\u0442") ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.disabled(Data_Maybe.isNothing(state.mapQ)), React_DOM_Props.onClick(function (v) {
+                  throw new Error("Failed pattern match at App.Driver (line 217, column 11 - line 225, column 30): " + [ state.mapQ.constructor.name ]);
+              })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u0441\u043e\u0433\u043b\u0430\u0441\u0435\u043d \u0441 \u0443\u0441\u043b\u043e\u0432\u0438\u044f\u043c\u0438 \u0438 \u043f\u043e\u043b\u043e\u0436\u0435\u043d\u0438\u044f\u043c\u0438 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u044f \u0441\u0435\u0440\u0432\u0438\u0441\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u043e\u0437\u043d\u0430\u043a\u043e\u043c\u0438\u043b\u0441\u044f \u0441 \u043f\u0440\u0430\u0432\u0438\u043b\u0430\u043c\u0438 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438") ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-6") ])([ React_DOM.text("\u041f\u0435\u0440\u0435\u0434 \u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u0438\u0435\u043c \u043f\u043e\u0441\u043c\u043e\u0442\u0440\u0438\u0442\u0435 \u043f\u0440\u0435\u0434\u043f\u043e\u043b\u043e\u0433\u0430\u0435\u043c\u044b\u0439 \u043c\u0430\u0440\u0448\u0440\u0443\u0442") ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return sendDriver($$this);
               }) ])([ React_DOM.text("\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c") ]) ]) ]);
           };
@@ -4618,20 +4615,16 @@ var PS = {};
                       date: date,
                       lap: 3,
                       seats: 1,
-                      from: Data_Monoid.mempty(Data_Monoid.monoidRecord()(Data_Monoid.monoidRecordCons(new Data_Symbol.IsSymbol(function () {
-                          return "building";
-                      }))(Data_Monoid.monoidString)()(Data_Monoid.monoidRecordCons(new Data_Symbol.IsSymbol(function () {
-                          return "city";
-                      }))(Data_Monoid.monoidString)()(Data_Monoid.monoidRecordCons(new Data_Symbol.IsSymbol(function () {
-                          return "street";
-                      }))(Data_Monoid.monoidString)()(Data_Monoid.monoidRecordNil))))),
-                      to: Data_Monoid.mempty(Data_Monoid.monoidRecord()(Data_Monoid.monoidRecordCons(new Data_Symbol.IsSymbol(function () {
-                          return "building";
-                      }))(Data_Monoid.monoidString)()(Data_Monoid.monoidRecordCons(new Data_Symbol.IsSymbol(function () {
-                          return "city";
-                      }))(Data_Monoid.monoidString)()(Data_Monoid.monoidRecordCons(new Data_Symbol.IsSymbol(function () {
-                          return "street";
-                      }))(Data_Monoid.monoidString)()(Data_Monoid.monoidRecordNil)))))
+                      from: {
+                          city: "\u041a\u0438\u0435\u0432",
+                          street: "\u0421\u043f\u043e\u0440\u0442\u0438\u0432\u043d\u0430\u044f",
+                          building: "1"
+                      },
+                      to: {
+                          city: "\u041a\u0438\u0435\u0432",
+                          street: "\u041b\u044c\u0432\u0430 \u0422\u043e\u043b\u0441\u0442\u043e\u0433\u043e",
+                          building: "1"
+                      }
                   },
                   render: render($$this),
                   componentDidMount: function __do() {
