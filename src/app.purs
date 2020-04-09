@@ -7,7 +7,7 @@ import Control.Monad.Except (runExcept)
 import Data.Array (filter, sort, catMaybes)
 import Data.Either (Either(..))
 import Data.Functor ((<#>))
-import Data.Maybe (Maybe(..), maybe, fromMaybe)
+import Data.Maybe (Maybe(..), maybe)
 import Data.Number.Format (toString) as Number
 import Data.Semigroup (append)
 import Data.String.Common (joinWith)
@@ -75,7 +75,6 @@ appClass = component "App" \this -> do
                 ] [ text "Send" ]
       , createLeafElement driverClass { ws, name }
       , createLeafElement riderClass { ws, name }
-      , div [] [ text $ fromMaybe "-" name ]
       ]
 
 view :: Effect (Foreign -> Effect Unit)

@@ -4389,7 +4389,7 @@ var PS = {};
                               routeN: v3.routeN
                           };
                       });
-                  }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text("\u0422\u0435\u043b\u0435\u0444\u043e\u043d") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v2) {
+                  }), React_DOM_Props.value(v1.name) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text("\u0422\u0435\u043b\u0435\u0444\u043e\u043d") ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), Lib_React.onChangeValue(function (v2) {
                       return React.modifyState($$this)(function (v3) {
                           return {
                               name: v3.name,
@@ -4598,7 +4598,7 @@ var PS = {};
                       if (v1.mapQ instanceof Data_Maybe.Nothing) {
                           return Data_Monoid.mempty(React.monoidReactElement);
                       };
-                      throw new Error("Failed pattern match at App.Driver (line 212, column 11 - line 220, column 30): " + [ v1.mapQ.constructor.name ]);
+                      throw new Error("Failed pattern match at App.Driver (line 213, column 11 - line 221, column 30): " + [ v1.mapQ.constructor.name ]);
                   })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u0441\u043e\u0433\u043b\u0430\u0441\u0435\u043d \u0441 \u0443\u0441\u043b\u043e\u0432\u0438\u044f\u043c\u0438 \u0438 \u043f\u043e\u043b\u043e\u0436\u0435\u043d\u0438\u044f\u043c\u0438 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u044f \u0441\u0435\u0440\u0432\u0438\u0441\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u043e\u0437\u043d\u0430\u043a\u043e\u043c\u0438\u043b\u0441\u044f \u0441 \u043f\u0440\u0430\u0432\u0438\u043b\u0430\u043c\u0438 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438") ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-6") ])([ React_DOM.text("\u041f\u0435\u0440\u0435\u0434 \u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u0438\u0435\u043c \u043f\u043e\u0441\u043c\u043e\u0442\u0440\u0438\u0442\u0435 \u043f\u0440\u0435\u0434\u043f\u043e\u043b\u043e\u0433\u0430\u0435\u043c\u044b\u0439 \u043c\u0430\u0440\u0448\u0440\u0443\u0442") ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.disabled(Data_Maybe.isNothing(v1.mapQ)), React_DOM_Props.onClick(function (v2) {
                       return sendDriver($$this);
                   }) ])([ React_DOM.text("\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c") ]) ]) ]);
@@ -5068,7 +5068,7 @@ var PS = {};
                   }), React.createLeafElement()(App_Rider.riderClass)({
                       ws: v.ws,
                       name: v1.name
-                  }), React_DOM.div([  ])([ React_DOM.text(Data_Maybe.fromMaybe("-")(v1.name)) ]) ]);
+                  }) ]);
               };
           })(React.getProps($$this)))(React.getState($$this));
       };
@@ -5162,7 +5162,7 @@ var PS = {};
               if (v instanceof Data_Either.Right) {
                   return Lib_WebSocket.send(ws)(Api_Pull.encodePull(v.value0));
               };
-              throw new Error("Failed pattern match at App (line 90, column 17 - line 93, column 34): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at App (line 89, column 17 - line 92, column 34): " + [ v.constructor.name ]);
           };
       };
   })();

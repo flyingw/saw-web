@@ -126,6 +126,7 @@ driverClass = component "Driver" \this -> do
             [ label [ htmlFor "name" ] [ text "Имя" ]
             , input [ _type "text", cn "form-control", _id "name", required true 
                     , onChangeValue \v -> modifyState this _{ name=v }
+                    , value state.name
                     ]
             ]
           , div [ cn "col-md-2 mb-3" ]
