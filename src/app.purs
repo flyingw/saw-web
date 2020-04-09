@@ -91,11 +91,14 @@ view = do
       _ -> throw "no auth_date"
     let (res :: Either _ String) = runExcept $ do
           keys <- F.keys user
-          xs <- sequence $ map (\k -> user F.! k >>= readNull >>= traverse unsafeFromForeign <#> map (append k)) $ sort $ filter (_ /= "hash") keys
+          xs <- sequence $ map (\k -> user F.! k >>= readNull <#> map readStringLike <#> map (append k)) $ sort $ filter (_ /= "hash") keys
           pure $ joinWith "\n" $ catMaybes xs
     data_check_string <- case res of
       Right x -> pure x
       Left x -> throw $ show x
     WS.send ws $ encodePull $ LoginAttempt { data_check_string, hash, auth_date }
+
+readStringLike :: Foreign -> String
+readStringLike = unsafeFromForeign
 
 --todo: one 'do' for all F _
