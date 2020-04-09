@@ -14,7 +14,7 @@ import Data.Tuple (Tuple(..))
 import Effect (Effect)
 import Effect.Console (error)
 import Effect.Exception (throw)
-import Foreign (Foreign, F, readNull, readNumber, readString)
+import Foreign (Foreign, F, readNull, readNumber, readString, unsafeFromForeign)
 import Foreign.Keys (keys) as F
 import Foreign.Index ((!)) as F
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
@@ -91,7 +91,7 @@ view = do
       _ -> throw "no auth_date"
     let (res :: Either _ String) = runExcept $ do
           keys <- F.keys user
-          xs <- sequence $ map (\k -> user F.! k >>= readNull >>= traverse readString <#> map (append k)) $ sort $ filter (_ /= "hash") keys
+          xs <- sequence $ map (\k -> user F.! k >>= readNull >>= traverse unsafeFromForeign <#> map (append k)) $ sort $ filter (_ /= "hash") keys
           pure $ joinWith "\n" $ catMaybes xs
     data_check_string <- case res of
       Right x -> pure x

@@ -3630,6 +3630,7 @@ var PS = {};
   exports["readNull"] = readNull;
   exports["fail"] = fail;
   exports["showForeignError"] = showForeignError;
+  exports["unsafeFromForeign"] = $foreign.unsafeFromForeign;
   exports["typeOf"] = $foreign.typeOf;
   exports["isNull"] = $foreign.isNull;
   exports["isUndefined"] = $foreign.isUndefined;
@@ -5044,7 +5045,7 @@ var PS = {};
               })();
               var v = Control_Monad_Except.runExcept(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Keys.keys(user))(function (keys) {
                   return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Functor.map(Data_Functor.functorArray)(function (k) {
-                      return Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(user)(k))(Foreign.readNull))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Foreign.readString)))(Data_Functor.map(Data_Maybe.functorMaybe)(Data_Semigroup.append(Data_Semigroup.semigroupString)(k)));
+                      return Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(user)(k))(Foreign.readNull))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Foreign.unsafeFromForeign)))(Data_Functor.map(Data_Maybe.functorMaybe)(Data_Semigroup.append(Data_Semigroup.semigroupString)(k)));
                   })(Data_Array.sort(Data_Ord.ordString)(Data_Array.filter(function (v1) {
                       return v1 !== "hash";
                   })(keys)))))(function (xs) {
