@@ -44,6 +44,7 @@ type Props =
 
 type State =
   { sessionid :: Maybe String
+  , name :: Maybe String
   }
 
 appClass :: ReactClass Props
@@ -66,13 +67,14 @@ appClass = component "App" \this -> do
     props <- getProps this
     let ws = props.ws
     state <- getState this
+    let name = state.name
     in div []
       [ button  [ _type "button"
                 , cn "btn btn-primary"
                 , onClick \_ -> WS.send ws $ encodePull Ping
                 ] [ text "Send" ]
-      , createLeafElement driverClass { ws }
-      , createLeafElement riderClass { ws }
+      , createLeafElement driverClass { ws, name }
+      , createLeafElement riderClass { ws, name }
       ]
 
 view :: Effect (Foreign -> Effect Unit)

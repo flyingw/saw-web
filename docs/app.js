@@ -4583,7 +4583,7 @@ var PS = {};
                       if (v1.mapQ instanceof Data_Maybe.Nothing) {
                           return Data_Monoid.mempty(React.monoidReactElement);
                       };
-                      throw new Error("Failed pattern match at App.Driver (line 207, column 11 - line 215, column 30): " + [ v1.mapQ.constructor.name ]);
+                      throw new Error("Failed pattern match at App.Driver (line 212, column 11 - line 220, column 30): " + [ v1.mapQ.constructor.name ]);
                   })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u0441\u043e\u0433\u043b\u0430\u0441\u0435\u043d \u0441 \u0443\u0441\u043b\u043e\u0432\u0438\u044f\u043c\u0438 \u0438 \u043f\u043e\u043b\u043e\u0436\u0435\u043d\u0438\u044f\u043c\u0438 \u0438\u0441\u043f\u043e\u043b\u044c\u0437\u043e\u0432\u0430\u043d\u0438\u044f \u0441\u0435\u0440\u0432\u0438\u0441\u0430") ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text("\u042f \u043e\u0437\u043d\u0430\u043a\u043e\u043c\u0438\u043b\u0441\u044f \u0441 \u043f\u0440\u0430\u0432\u0438\u043b\u0430\u043c\u0438 \u0431\u0435\u0437\u043e\u043f\u0430\u0441\u043d\u043e\u0441\u0442\u0438") ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-6") ])([ React_DOM.text("\u041f\u0435\u0440\u0435\u0434 \u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u0438\u0435\u043c \u043f\u043e\u0441\u043c\u043e\u0442\u0440\u0438\u0442\u0435 \u043f\u0440\u0435\u0434\u043f\u043e\u043b\u043e\u0433\u0430\u0435\u043c\u044b\u0439 \u043c\u0430\u0440\u0448\u0440\u0443\u0442") ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.disabled(Data_Maybe.isNothing(v1.mapQ)), React_DOM_Props.onClick(function (v2) {
                       return sendDriver($$this);
                   }) ])([ React_DOM.text("\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c") ]) ]) ]);
@@ -4618,12 +4618,13 @@ var PS = {};
       return React.component()("Driver")(function ($$this) {
           return function __do() {
               var date = today();
+              var props = React.getProps($$this)();
               return {
                   state: {
                       answer: "press the button",
                       mapQ: Data_Maybe.Nothing.value,
                       routeN: Data_Maybe.Nothing.value,
-                      name: "",
+                      name: Data_Maybe.fromMaybe("")(props.name),
                       phone: "",
                       carPlate: "",
                       date: date,
@@ -4646,8 +4647,8 @@ var PS = {};
                   },
                   render: render($$this),
                   componentDidMount: function __do() {
-                      var props = React.getProps($$this)();
-                      return Lib_WebSocket.onMsg(props.ws)(function (x) {
+                      var props1 = React.getProps($$this)();
+                      return Lib_WebSocket.onMsg(props1.ws)(function (x) {
                           var v = Api_Push.decodePush(x);
                           if (v instanceof Data_Either.Left) {
                               return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
@@ -4655,7 +4656,7 @@ var PS = {};
                           if (v instanceof Data_Either.Right) {
                               return handle($$this)(v.value0.val);
                           };
-                          throw new Error("Failed pattern match at App.Driver (line 66, column 28 - line 68, column 43): " + [ v.constructor.name ]);
+                          throw new Error("Failed pattern match at App.Driver (line 71, column 28 - line 73, column 43): " + [ v.constructor.name ]);
                       })((function () {
                           var $34 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
                           var $35 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
@@ -4720,7 +4721,7 @@ var PS = {};
                               return $8;
                           });
                       };
-                      throw new Error("Failed pattern match at App.Rider (line 34, column 28 - line 36, column 67): " + [ v.constructor.name ]);
+                      throw new Error("Failed pattern match at App.Rider (line 39, column 28 - line 41, column 67): " + [ v.constructor.name ]);
                   })((function () {
                       var $12 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
                       var $13 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
@@ -5047,9 +5048,11 @@ var PS = {};
                   return React_DOM.div([  ])([ React_DOM.button([ React_DOM_Props["_type"]("button"), Lib_React.cn("btn btn-primary"), React_DOM_Props.onClick(function (v2) {
                       return Lib_WebSocket.send(v.ws)(Api_Pull.encodePull(Api_Pull.Ping.value));
                   }) ])([ React_DOM.text("Send") ]), React.createLeafElement()(App_Driver.driverClass)({
-                      ws: v.ws
+                      ws: v.ws,
+                      name: v1.name
                   }), React.createLeafElement()(App_Rider.riderClass)({
-                      ws: v.ws
+                      ws: v.ws,
+                      name: v1.name
                   }) ]);
               };
           })(React.getProps($$this)))(React.getState($$this));
@@ -5057,8 +5060,10 @@ var PS = {};
       return React.component()("App")(function ($$this) {
           return Control_Applicative.pure(Effect.applicativeEffect)({
               state: Data_Monoid.mempty(Data_Monoid.monoidRecord()(Data_Monoid.monoidRecordCons(new Data_Symbol.IsSymbol(function () {
+                  return "name";
+              }))(Data_Maybe.monoidMaybe(Data_Semigroup.semigroupString))()(Data_Monoid.monoidRecordCons(new Data_Symbol.IsSymbol(function () {
                   return "sessionid";
-              }))(Data_Maybe.monoidMaybe(Data_Semigroup.semigroupString))()(Data_Monoid.monoidRecordNil))),
+              }))(Data_Maybe.monoidMaybe(Data_Semigroup.semigroupString))()(Data_Monoid.monoidRecordNil)))),
               render: render($$this),
               componentDidMount: function __do() {
                   var props = React.getProps($$this)();
@@ -5070,14 +5075,15 @@ var PS = {};
                       if (v instanceof Data_Either.Right && v.value0.val instanceof Api_Push.LoginOk) {
                           return React.modifyState($$this)(function (v1) {
                               return {
-                                  sessionid: new Data_Maybe.Just(v.value0.val.value0.sessionid)
+                                  sessionid: new Data_Maybe.Just(v.value0.val.value0.sessionid),
+                                  name: v1.name
                               };
                           });
                       };
                       if (v instanceof Data_Either.Right) {
                           return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                       };
-                      throw new Error("Failed pattern match at App (line 57, column 28 - line 60, column 31): " + [ v.constructor.name ]);
+                      throw new Error("Failed pattern match at App (line 58, column 28 - line 61, column 31): " + [ v.constructor.name ]);
                   })((function () {
                       var $20 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
                       var $21 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
@@ -5138,7 +5144,7 @@ var PS = {};
               if (v instanceof Data_Either.Right) {
                   return Lib_WebSocket.send(ws)(Api_Pull.encodePull(v.value0));
               };
-              throw new Error("Failed pattern match at App (line 87, column 17 - line 89, column 41): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at App (line 89, column 17 - line 91, column 41): " + [ v.constructor.name ]);
           };
       };
   })();

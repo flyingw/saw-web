@@ -3,18 +3,23 @@ module App.Rider
   , Props
   ) where
 
-import Lib.WebSocket as WS
-import Lib.WebSocket (WebSocket)
-import React (ReactClass, getProps, getState, modifyState, component)
-import Effect.Console (error)
-import Data.Traversable (sequence)
 import Prelude hiding (div)
-import React.DOM (text, div)
-import Api.Push (decodePush, Push(Pong))
+
 import Data.Either (Either(Left, Right))
+import Data.Maybe (Maybe, fromMaybe)
+import Data.Traversable (sequence)
+import Effect.Console (error)
+import React (ReactClass, getProps, getState, modifyState, component)
+import React.DOM (text, div)
+
+import Lib.WebSocket (WebSocket)
+import Lib.WebSocket as WS
+
+import Api.Push (decodePush, Push(Pong))
 
 type Props =
   { ws :: WebSocket
+  , name :: Maybe String
   }
 
 type State =

@@ -3,9 +3,8 @@ module App.Driver
   , Props
   ) where
 
-import Api (Address)
-import Api.Push (decodePush, Push(Pong, AddRouteOk))
-import Api.Pull (Pull(AddDriver), encodePull)
+import Prelude hiding (div)
+
 import Data.Either (Either(Left, Right))
 import Data.Int (ceil)
 import Data.JSDate (parse, now, getTime, toISOString)
@@ -16,16 +15,21 @@ import Data.Traversable (sequence)
 import Effect (Effect)
 import Effect.Console (error)
 import Global (encodeURI)
-import Lib.React(cn, targetValue, onChangeValue, onChangeValueInt)
-import Lib.WebSocket (WebSocket)
-import Lib.WebSocket as WS
-import Prelude hiding (div)
 import React (ReactClass, ReactThis, getProps, getState, modifyState, component)
 import React.DOM (text, div, form, label, input, button, h6, small, iframe)
 import React.DOM.Props (htmlFor, placeholder, _id, _type, noValidate, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, value, disabled)
 
+import Lib.React(cn, targetValue, onChangeValue, onChangeValueInt)
+import Lib.WebSocket (WebSocket)
+import Lib.WebSocket as WS
+
+import Api (Address)
+import Api.Pull (Pull(AddDriver), encodePull)
+import Api.Push (decodePush, Push(Pong, AddRouteOk))
+
 type Props =
   { ws :: WebSocket
+  , name :: Maybe String
   }
 
 type State =
@@ -45,12 +49,13 @@ type State =
 driverClass :: ReactClass Props
 driverClass = component "Driver" \this -> do
   date <- today
+  props <- getProps this
   pure
     { state:
       { answer: "press the button"
       , mapQ: Nothing
       , routeN: Nothing
-      , name: ""
+      , name: fromMaybe "" props.name
       , phone: ""
       , carPlate: ""
       , date: date
