@@ -5068,7 +5068,7 @@ var PS = {};
                   }), React.createLeafElement()(App_Rider.riderClass)({
                       ws: v.ws,
                       name: v1.name
-                  }) ]);
+                  }), React_DOM.div([  ])([ React_DOM.text(Data_Maybe.fromMaybe("-")(v1.name)) ]) ]);
               };
           })(React.getProps($$this)))(React.getState($$this));
       };
@@ -5162,7 +5162,7 @@ var PS = {};
               if (v instanceof Data_Either.Right) {
                   return Lib_WebSocket.send(ws)(Api_Pull.encodePull(v.value0));
               };
-              throw new Error("Failed pattern match at App (line 89, column 17 - line 92, column 34): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at App (line 90, column 17 - line 93, column 34): " + [ v.constructor.name ]);
           };
       };
   })();
