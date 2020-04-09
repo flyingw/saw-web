@@ -57,7 +57,7 @@ appClass = component "App" \this -> do
         let ws = props.ws
         WS.onMsg ws (\x -> case decodePush x of
           Left y -> error $ show y
-          Right { val: LoginOk {sessionid}} -> modifyState this _{ sessionid = Just sessionid }
+          Right { val: LoginOk { sessionid, name }} -> modifyState this _{ sessionid=Just sessionid, name=name }
           Right _ -> pure unit
         ) (sequence <<< map error)
     }
@@ -88,7 +88,8 @@ view = do
   void $ render element container
   pure \user -> case runExcept $ f user of
     Left x -> throw $ show x
-    Right x -> WS.send ws $ encodePull x
+    Right msg -> do
+      WS.send ws $ encodePull msg
   where
   f :: Foreign -> F Pull
   f x = do
@@ -100,7 +101,8 @@ view = do
     let keys = sort $ filter (_ /= "hash") keys'
     xs <- sequence $ map (\k -> x F.! k >>= readNull >>= traverse readStringLike <#> map (append k)) keys
     let data_check_string = joinWith "\n" $ catMaybes xs
-    pure $ LoginAttempt { data_check_string, hash, auth_date }
+    name <- x F.! "first_name" >>= readNullOrUndefined >>= traverse readString
+    pure $ LoginAttempt { data_check_string, hash, auth_date, name }
     where
     readStringLike :: Foreign -> F String
     readStringLike y = readString y <|> (map Number.toString $ readNumber y)

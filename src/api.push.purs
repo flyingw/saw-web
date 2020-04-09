@@ -19,8 +19,8 @@ decodeFieldLoop :: forall a b c. Int -> Decode.Result a -> (a -> b) -> Decode.Re
 decodeFieldLoop end res f = map (\{ pos, val } -> Loop { a: end, b: f val, c: pos }) res
 
 data Push = Pong | LoginOk LoginOk | AddRouteOk AddRouteOk
-type LoginOk = { sessionid :: String }
-type LoginOk' = { sessionid :: Maybe String }
+type LoginOk = { sessionid :: String, name :: Maybe String }
+type LoginOk' = { sessionid :: Maybe String, name :: Maybe String }
 type AddRouteOk = { n :: String, from :: Address }
 type AddRouteOk' = { n :: Maybe String, from :: Maybe Address }
 type Address' = { city :: Maybe String, street :: Maybe String, building :: Maybe String }
@@ -45,9 +45,9 @@ decodePong _xs_ pos0 = do
 decodeLoginOk :: Uint8Array -> Int -> Decode.Result LoginOk
 decodeLoginOk _xs_ pos0 = do
   { pos, val: msglen } <- Decode.uint32 _xs_ pos0
-  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { sessionid: Nothing } pos
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { sessionid: Nothing, name: Nothing } pos
   case val of
-    { sessionid: Just sessionid } -> pure { pos: pos1, val: { sessionid } }
+    { sessionid: Just sessionid, name } -> pure { pos: pos1, val: { sessionid, name } }
     _ -> Left $ Decode.MissingFields "LoginOk"
     where
     decode :: Int -> LoginOk' -> Int -> Decode.Result' (Step { a :: Int, b :: LoginOk', c :: Int } { pos :: Int, val :: LoginOk' })
@@ -55,6 +55,7 @@ decodeLoginOk _xs_ pos0 = do
       { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
       case tag `zshr` 3 of
         1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { sessionid = Just val }
+        2 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { name = Just val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
     decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
 

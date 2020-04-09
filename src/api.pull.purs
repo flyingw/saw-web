@@ -7,13 +7,14 @@ module Api.Pull
   ) where
 
 import Data.ArrayBuffer.Types (Uint8Array)
-import Prelude (($))
+import Data.Maybe (Maybe, fromMaybe)
+import Prelude (map, ($))
 import Proto.Encode as Encode
-import Proto.Uint8ArrayExt (length, concatAll)
+import Proto.Uint8ArrayExt (length, concatAll, fromArray)
 import Api
 
 data Pull = Ping | LoginAttempt LoginAttempt | AddDriver AddDriver | AddRider AddRider
-type LoginAttempt = { data_check_string :: String, hash :: String, auth_date :: Number }
+type LoginAttempt = { data_check_string :: String, hash :: String, auth_date :: Number, name :: Maybe String }
 type AddDriver = { name :: String, phone :: String, carPlate :: String, date :: Number, lap :: Int, seats :: Int, from :: Address, to :: Address }
 type AddRider = { name :: String, from :: Address, to :: Address }
 
@@ -35,6 +36,7 @@ encodeLoginAttempt msg = do
         , Encode.string msg.hash
         , Encode.uint32 25
         , Encode.double msg.auth_date
+        , fromMaybe (fromArray []) $ map (\x -> concatAll [ Encode.uint32 34, Encode.string x ]) msg.name
         ]
   concatAll [ Encode.uint32 $ length xs, xs ]
 
