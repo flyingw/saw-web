@@ -28,9 +28,10 @@ type State =
 
 riderClass :: ReactClass Props
 riderClass = component "Rider" \this -> do
+  props <- getProps this
   pure
     { state:
-      { answer: "press the button"
+      { answer: fromMaybe "login" props.name
       }
     , render: render this
     , componentDidMount: do

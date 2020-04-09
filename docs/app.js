@@ -4691,10 +4691,10 @@ var PS = {};
   $PS["App.Rider"] = $PS["App.Rider"] || {};
   var exports = $PS["App.Rider"];
   var Api_Push = $PS["Api.Push"];
-  var Control_Applicative = $PS["Control.Applicative"];
   var Control_Apply = $PS["Control.Apply"];
   var Data_Either = $PS["Data.Either"];
   var Data_Functor = $PS["Data.Functor"];
+  var Data_Maybe = $PS["Data.Maybe"];
   var Data_Show = $PS["Data.Show"];
   var Data_Traversable = $PS["Data.Traversable"];
   var Effect = $PS["Effect"];
@@ -4712,40 +4712,43 @@ var PS = {};
           })(React.getProps($$this)))(React.getState($$this));
       };
       return React.component()("Rider")(function ($$this) {
-          return Control_Applicative.pure(Effect.applicativeEffect)({
-              state: {
-                  answer: "press the button"
-              },
-              render: render($$this),
-              componentDidMount: function __do() {
-                  var props = React.getProps($$this)();
-                  return Lib_WebSocket.onMsg(props.ws)(function (x) {
-                      var v = Api_Push.decodePush(x);
-                      if (v instanceof Data_Either.Left) {
-                          return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
-                      };
-                      if (v instanceof Data_Either.Right) {
-                          return React.modifyState($$this)(function (v1) {
-                              var $8 = {};
-                              for (var $9 in v1) {
-                                  if ({}.hasOwnProperty.call(v1, $9)) {
-                                      $8[$9] = v1[$9];
+          return function __do() {
+              var props = React.getProps($$this)();
+              return {
+                  state: {
+                      answer: Data_Maybe.fromMaybe("login")(props.name)
+                  },
+                  render: render($$this),
+                  componentDidMount: function __do() {
+                      var props1 = React.getProps($$this)();
+                      return Lib_WebSocket.onMsg(props1.ws)(function (x) {
+                          var v = Api_Push.decodePush(x);
+                          if (v instanceof Data_Either.Left) {
+                              return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
+                          };
+                          if (v instanceof Data_Either.Right) {
+                              return React.modifyState($$this)(function (v1) {
+                                  var $8 = {};
+                                  for (var $9 in v1) {
+                                      if ({}.hasOwnProperty.call(v1, $9)) {
+                                          $8[$9] = v1[$9];
+                                      };
                                   };
-                              };
-                              $8.answer = "got answer";
-                              return $8;
-                          });
-                      };
-                      throw new Error("Failed pattern match at App.Rider (line 39, column 28 - line 41, column 67): " + [ v.constructor.name ]);
-                  })((function () {
-                      var $12 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                      var $13 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                      return function ($14) {
-                          return $12($13($14));
-                      };
-                  })())();
-              }
-          });
+                                  $8.answer = "got answer";
+                                  return $8;
+                              });
+                          };
+                          throw new Error("Failed pattern match at App.Rider (line 40, column 28 - line 42, column 67): " + [ v.constructor.name ]);
+                      })((function () {
+                          var $12 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $13 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($14) {
+                              return $12($13($14));
+                          };
+                      })())();
+                  }
+              };
+          };
       });
   })();
   exports["riderClass"] = riderClass;
