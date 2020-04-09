@@ -39,7 +39,7 @@ riderClass = component "Rider" \this -> do
         let ws = props.ws
         WS.onMsg ws (\x -> case decodePush x of
           Left y -> error $ show y
-          Right msg -> modifyState this _{ answer = "got answer" }
+          Right _ -> pure unit
         ) (sequence <<< map error)
     }
   where
