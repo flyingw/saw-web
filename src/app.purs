@@ -117,7 +117,7 @@ view = do
     auth_date <- maybe (F.fail $ ForeignError "no auth_date") pure auth_date'
     keys' <- F.keys x
     let keys = sort $ filter (_ /= "hash") keys'
-    xs <- sequence $ map (\k -> x F.! k >>= readNull >>= traverse readStringLike <#> map (append k)) keys
+    xs <- sequence $ map (\k -> x F.! k >>= readNull >>= traverse readStringLike <#> map (append k <<< append "=")) keys
     let data_check_string = joinWith "\n" $ catMaybes xs
     name <- x F.! "first_name" >>= readNullOrUndefined >>= traverse readString
     pure $ LoginAttempt { data_check_string, hash, auth_date, name }

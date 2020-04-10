@@ -29,6 +29,8 @@ import Api.Pull (PassengerType(..), Pull(AddPassenger), encodePull)
 
 type Props =
   { ws :: WebSocket
+  , lang :: String
+  , keyText :: String -> String
   }
 
 type State =
