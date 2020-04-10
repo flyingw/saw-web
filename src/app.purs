@@ -100,7 +100,7 @@ view = do
   doc <- window >>= document
   elem <- getElementById "container" $ toNonElementParentNode doc
   container <- maybe (throw "container not found") pure elem
-  ws <- WS.create "ridehub.city:8443"
+  ws <- WS.create "ridehub.city:8443/ws"
   WS.onOpen ws \_ -> WS.setBinary ws
   let element = createLeafElement appClass { ws }
   void $ render element container
