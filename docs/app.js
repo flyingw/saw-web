@@ -5793,7 +5793,7 @@ var PS = {};
           var doc = Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.document)();
           var elem = Web_DOM_NonElementParentNode.getElementById("container")(Web_HTML_HTMLDocument.toNonElementParentNode(doc))();
           var container = Data_Maybe.maybe(Effect_Exception["throw"]("container not found"))(Control_Applicative.pure(Effect.applicativeEffect))(elem)();
-          var ws = Lib_WebSocket.create("ec2-54-93-193-191.eu-central-1.compute.amazonaws.com:8443")();
+          var ws = Lib_WebSocket.create("ridehub.city:8443")();
           Lib_WebSocket.onOpen(ws)(function (v) {
               return Lib_WebSocket.setBinary(ws);
           })();
