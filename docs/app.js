@@ -8421,7 +8421,7 @@ var PS = {};
   var appClass = (function () {
       var setLang = function ($$this) {
           return function (lang) {
-              return Ajax.getEff("/langs/" + (lang + ".data"))(function (err) {
+              return Ajax.getEff("/langs/" + (lang + ".js"))(function (err) {
                   return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
               })(function (v) {
                   var keys = Data_Map_Internal.fromFoldable(Data_Ord.ordString)(Data_Foldable.foldableArray)(Data_Functor.mapFlipped(Data_Functor.functorArray)(Data_Functor.mapFlipped(Data_Functor.functorArray)(Data_String_Common.split("\x0a")(v))(Data_String_Common.split("=")))(function (kv) {
