@@ -8,6 +8,7 @@
     "purescript-react-dom": "*",
     "purescript-web-dom": "*",
     "purescript-web-html": "*",
-    "purescript-web-socket": "*"
+    "purescript-web-socket": "*",
+    "purescript-affjax": "*"
   }
 }

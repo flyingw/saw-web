@@ -31,6 +31,8 @@ import Api.Push (decodePush, Push(Pong, AddRouteOk, LoginOk))
 
 type Props =
   { ws :: WebSocket
+  , lang :: String
+  , keyText :: String -> String
   }
 
 type State =
@@ -116,10 +118,10 @@ driverClass = component "Driver" \this -> do
     state <- getState this
     pure $ div [ cn "m-2  " ]
       [ form [ noValidate true ]
-        [ h6 [] [ text "Данные водителя" ]
+        [ h6 [] [ text $ props.keyText "key.driver_data" ]
         , div [ cn "form-row" ]
           [ div [ cn "col-md-4 mb-3" ]
-            [ label [ htmlFor "name" ] [ text "Имя" ]
+            [ label [ htmlFor "name" ] [ text $ props.keyText "key.name" ]
             , input [ _type "text", cn "form-control", _id "name", required true 
                     , value state.name
                     , onChangeValue \v -> modifyState this _{ name=v }
@@ -127,91 +129,91 @@ driverClass = component "Driver" \this -> do
                     ]
             ]
           , div [ cn "col-md-4 mb-3" ]
-            [ label [ htmlFor "phone" ] [ text "Телефон" ]
+            [ label [ htmlFor "phone" ] [ text $ props.keyText "key.phone" ]
             , input [ _type "text", cn "form-control", _id "phone", autoComplete "phone", required true 
                     , value state.phone
                     , onChangeValue \v -> modifyState this _{ phone=v }
                     ]
-            , small [ cn "form-text text-muted" ] [ text "Виден только пасажиру" ]
+            , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.phone.hint" ]
             ]
           , div [ cn "col-md-4 mb-3" ]
-            [ label [ htmlFor "carPlate" ] [ text "Номер машины" ]
+            [ label [ htmlFor "carPlate" ] [ text $ props.keyText "key.car_plate"]
             , input [ _type "text", cn "form-control", _id "carPlate", autoComplete "carPlate", required true 
                     , value state.carPlate
                     , onChangeValue \v -> modifyState this _{ carPlate=v }
                     ]
-            , small [ cn "form-text text-muted" ] [ text "Виден только пасажиру" ]
+            , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.car_plate.hint" ]
             ]
           ]
         , div [ cn "form-row" ]
           [ div [ cn "col-md-8" ]
             [ div [ cn "form-row" ]
               [ div [ cn "col-md-6 mb-3" ]
-                [ label [ htmlFor "date" ] [ text "Дата" ]
+                [ label [ htmlFor "date" ] [ text $ props.keyText "key.date" ]
                 , input [ _type "datetime-local", cn "form-control", _id "date", required true
                         , value state.date
                         , onChangeValue \v -> modifyState this _{ date=v }
                         ]
                 ]
               , div [ cn "col-md-2 mb-3" ]
-                [ label [ htmlFor "lap" ] [ text "Заезд (км)" ]
+                [ label [ htmlFor "lap" ] [ text $ props.keyText "key.lap" ]
                 , input [ _type "number", cn "form-control", _id "lap", min "2", max "10", value "3", required true 
                         , value $ show state.lap
                         , onChangeValueInt \v -> modifyState this _{ lap=v }
                         ]
-                , small [ cn "form-text text-muted" ] [ text "По маршруту" ]
+                , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.lap.hint" ]
                 ]
               , div [ cn "col-md-2 mb-3" ]
-                [ label [ htmlFor "seats" ] [ text "Мест" ]
+                [ label [ htmlFor "seats" ] [ text $ props.keyText "key.seats" ]
                 , input [ _type "number", cn "form-control", _id "seats", min "1", max "5", value "1", disabled true, required true
                         , value $ show state.seats
                         , onChangeValueInt \v -> modifyState this _{ seats=v }
                         ]
-                , small [ cn "form-text text-muted" ] [ text "Временно недоступно" ]
+                , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.seats.hint" ]
                 ]
               ]
-            , div [] [ h6 [] [ text "Начало маршрута" ] ]
+            , div [] [ h6 [] [ text $ props.keyText "key.route_start" ] ]
             , div [ cn "form-row" ]
               [ div [ cn "col-md-6 mb-3" ]
-                [ label [ htmlFor "cityFrom" ] [ text "Город" ]
+                [ label [ htmlFor "cityFrom" ] [ text $ props.keyText "key.city" ]
                 , input [ _type "text", cn "form-control", _id "cityFrom", required true
                         , value state.from.city
                         , onChangeValue \v -> modifyState this \s -> s{ from=s.from{ city=v } }
                         ]
                 ]
               , div [ cn "col-md-4 mb-3" ]
-                [ label [ htmlFor "streetFrom" ] [ text "Улица" ]
+                [ label [ htmlFor "streetFrom" ] [ text $ props.keyText "key.street" ]
                 , input [ _type "text", cn "form-control", _id "streetFrom", required true
                         , value state.from.street
                         , onChangeValue \v -> modifyState this \s -> s{ from=s.from{ street=v } }
                         ]
                 ] 
               , div [ cn "col-md-2 mb-3" ]
-                [ label [ htmlFor "buildingFrom" ] [ text "Дом" ]
+                [ label [ htmlFor "buildingFrom" ] [ text $ props.keyText "key.building" ]
                 , input [ _type "text", cn "form-control", _id "buildingFrom", required true
                         , value state.from.building
                         , onChangeValue \v -> modifyState this \s -> s{ from=s.from{ building=v } }
                         ]
                 ]
               ]
-            , div [] [ h6 [] [ text "Конец маршрута" ] ]
+            , div [] [ h6 [] [ text $ props.keyText "key.route_end" ] ]
             , div [ cn "form-row" ]
               [ div [ cn "col-md-6 mb-3" ]
-                [ label [ htmlFor "cityTo" ] [ text "Город" ]
+                [ label [ htmlFor "cityTo" ] [ text $ props.keyText "key.city" ]
                 , input [ _type "text", cn "form-control", _id "cityTo", required true
                         , value state.to.city
                         , onChangeValue \v -> modifyState this \s -> s{ to=s.to{ city=v } } 
                         ]
                 ]
               , div [ cn "col-md-4 mb-3" ]
-                [ label [ htmlFor "streetTo" ] [ text "Улица" ]
+                [ label [ htmlFor "streetTo" ] [ text $ props.keyText "key.street" ]
                 , input [ _type "text", cn "form-control", _id "streetTo", required true
                         , value state.to.street
                         , onChangeValue \v -> modifyState this \s -> s{ to=s.to{ street=v } } 
                         ]
                 ]
               , div [ cn "col-md-2 mb-3" ]
-                [ label [ htmlFor "houseTo" ] [ text "Дом" ]
+                [ label [ htmlFor "houseTo" ] [ text $ props.keyText "key.building" ]
                 , input [ _type "text", cn "form-control", _id "houseTo", required true
                         , value state.to.building
                         , onChangeValue \v -> modifyState this \s -> s{ to=s.to{ building=v } } 
@@ -220,7 +222,7 @@ driverClass = component "Driver" \this -> do
               ]
             ]
           , div [ cn "col-md-4" ]
-            [ div [] [ h6 [] [ text "Пассажиры" ] ]
+            [ div [] [ h6 [] [ text $ props.keyText "key.passenger" ] ]
             , div [ cn "form-check" ]
               [ input [ cn "form-check-input", _type "checkbox",  value "", _id "c1" ]
               , label  [ cn "form-check-label", htmlFor "c1" ] [ text "Медицинский работник" ]
@@ -247,7 +249,7 @@ driverClass = component "Driver" \this -> do
               ]
             ]
           ]
-        , button [ cn "btn btn-secondary mb-3", _type "button", onClick \_ -> updateMap this ] [ text "Другое" ]
+        , button [ cn "btn btn-secondary mb-3", _type "button", onClick \_ -> updateMap this ] [ text $ props.keyText "key.overview_route" ]
         , case state.mapQ of
             Just q -> 
               div [ cn "form-row" ]
@@ -260,19 +262,19 @@ driverClass = component "Driver" \this -> do
         , div [ cn "form-group" ]
           [ div [ cn "form-check" ]
             [ input [ _type "checkbox", cn "form-check-input", _id "agree_terms" ]
-            , label [ htmlFor "agree_terms", cn "form-check-label" ] [ text "Я согласен с условиями и положениями использования сервиса" ]
+            , label [ htmlFor "agree_terms", cn "form-check-label" ] [ text $ props.keyText "key.agree_terms" ]
             ]
           , div [ cn "form-check" ]
             [ input [ _type "checkbox", cn "form-check-input", _id "agree_rules" ]
-            , label [ htmlFor "agree_rules", cn "form-check-label" ] [ text "Я ознакомился с правилами безопасности" ]
+            , label [ htmlFor "agree_rules", cn "form-check-label" ] [ text $ props.keyText "key.agree_rules" ]
             ]
           ]
-        , div [ cn "alert alert-info col-md-12" ] [ text "Перед добавлением посмотрите предпологаемый маршрут" ]
+        , div [ cn "alert alert-info col-md-12" ] [ text $ props.keyText "key.add.hint" ]
         , button [ cn "btn btn-primary mb-3", _type "button"
                 --  , disabled $ isNothing state.mapQ
                  , onClick \_ -> sendDriver this 
                  ] 
-          [ text "Добавить"
+          [ text $ props.keyText "key.add"
           ]
         ]
       ]
