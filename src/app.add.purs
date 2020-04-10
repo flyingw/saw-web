@@ -32,6 +32,8 @@ import App.Rider (riderClass)
 
 type Props =
   { ws :: WebSocket
+  , lang :: String
+  , keyText :: String -> String
   }
 
 type State = 
@@ -41,9 +43,9 @@ type State =
 data Tab = AddD | AddR
 
 derive instance eqTab :: Eq Tab
-tabText :: Tab -> String
-tabText AddD = "Водитель"
-tabText AddR = "Пассажир"
+tabKey :: Tab -> String
+tabKey AddD = "key.driver"
+tabKey AddR = "key.passenger"
 
 addClass :: ReactClass Props
 addClass = component "Add" \this -> do
@@ -66,10 +68,10 @@ addClass = component "Add" \this -> do
                 , href "#"
                 , onClick \e -> (R.preventDefault e) >>= \_ -> modifyState this _{ tab = t }
                 ]
-              [ text $ tabText t ]
+              [ text $ props.keyText $ tabKey t ]
             ]
         ) [AddD, AddR]
       , case state.tab of
-          AddD -> createLeafElement driverClass {ws: props.ws}
-          AddR -> createLeafElement riderClass {ws: props.ws}
+          AddD -> createLeafElement driverClass props
+          AddR -> createLeafElement riderClass props
       ]

@@ -1,16 +1,20 @@
 module App where
 
-import Prelude (Unit, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=), (/=))
+import Prelude (Unit, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=), (/=), (<$>), (<#>), (<>))
 
 import Control.Alt ((<|>))
 import Control.Monad.Except (runExcept)
-import Data.Array (filter, sort, catMaybes)
+import Data.Array (filter, sort, catMaybes, take, drop)
 import Data.Either (Either(..))
 import Data.Functor ((<#>))
 import Data.Maybe (Maybe(..), maybe)
 import Data.Number.Format (toString) as Number
 import Data.Semigroup (append)
-import Data.String.Common (joinWith)
+import Data.Maybe (fromMaybe)
+import Data.String.Common (joinWith, split, toLower)
+import Data.String.Pattern (Pattern(Pattern))
+import Data.Map as Map
+import Data.Tuple (Tuple(Tuple))
 import Data.Traversable (sequence, traverse)
 import Effect (Effect)
 import Effect.Console (error)
@@ -28,6 +32,7 @@ import Web.HTML (window)
 import Web.HTML.HTMLDocument (toNonElementParentNode)
 import Web.HTML.Window (document)
 
+import Ajax (getEff)
 import Lib.React (cn)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
@@ -43,15 +48,23 @@ type Props =
 
 type State =
   { sessionid :: Maybe String
+  , lang :: String
+  , keyText :: String -> String
   }
 
 appClass :: ReactClass Props
 appClass = component "App" \this -> do
   pure
-    { state: mempty :: State
+    { state: 
+      { sessionid: mempty
+      , lang: "uk"
+      , keyText: \key -> key
+      }:: State
     , render: render this
     , componentDidMount: do
-        props <- getProps this
+        props  <- getProps this
+        state  <- getState this
+        _      <- setLang this state.lang
         let ws = props.ws
         WS.onMsg ws (\x -> case decodePush x of
           Left y -> error $ show y
@@ -60,6 +73,15 @@ appClass = component "App" \this -> do
         ) (sequence <<< map error)
     }
   where
+  setLang :: ReactThis Props State -> String -> Effect Unit
+  setLang this lang = do
+    getEff ("/langs/" <> lang <> ".js") (\err -> pure unit)(\v -> do
+      let keys = Map.fromFoldable $ split (Pattern "\n") v <#> 
+                                    split (Pattern "=") <#> 
+                                    \kv -> Tuple (joinWith "" $ take 1 kv) (joinWith "" $ drop 1 kv)
+      modifyState this _ { lang = lang, keyText = \key -> fromMaybe key $ Map.lookup (toLower key) keys }
+    )
+
   render :: ReactThis Props State -> Effect ReactElement
   render this = do
     props <- getProps this
@@ -70,7 +92,7 @@ appClass = component "App" \this -> do
                 , cn "btn btn-primary"
                 , onClick \_ -> WS.send ws $ encodePull Ping
                 ] [ text "Send" ]
-      , createLeafElement addClass {ws}
+      , createLeafElement addClass {ws: ws, lang: state.lang, keyText: state.keyText}
       ]
 
 view :: Effect (Foreign -> Effect Unit)
