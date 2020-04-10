@@ -5,8 +5,9 @@ module App.Driver
 
 import Prelude hiding (div)
 
-import Data.Array (fromFoldable)
-import Data.Set (Set, delete, empty, insert, member)
+import Data.Tuple (Tuple(Tuple))
+import Data.Array (fromFoldable) as Array
+import Data.Set (Set, delete, empty, insert, member, fromFoldable)
 import Data.Either (Either(Left, Right))
 import Data.Int (ceil)
 import Data.JSDate (parse, now, getTime, toISOString)
@@ -19,14 +20,16 @@ import Effect.Console (error)
 import Global (encodeURI)
 import React (ReactClass, ReactThis, getProps, getState, modifyState, component)
 import React.DOM (text, div, form, label, input, button, h6, small, iframe)
-import React.DOM.Props (htmlFor, placeholder, _id, _type, noValidate, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, value, disabled)
+import React.DOM.Props (htmlFor, placeholder, _id, _type, noValidate, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, value, disabled, checked)
 
 import Lib.React(cn, targetValue, onChangeValue, onChangeValueInt)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
+import Model(PassengerType(..))
 import Api (Address)
-import Api.Pull (Pull(AddDriver), PassengerType, encodePull)
+import Api.Pull as P
+import Api.Pull (Pull(AddDriver), encodePull)
 import Api.Push (decodePush, Push(Pong, AddRouteOk, LoginOk))
 
 type Props =
@@ -65,7 +68,7 @@ driverClass = component "Driver" \this -> do
       , seats: 1  
       , from: { city: "Киев", street: "Спортивная", building: "1" }
       , to: { city: "Киев", street: "Льва Толстого", building: "1" }
-      , types: empty
+      , types: fromFoldable [ Medical, Police, Firefighter, Army, Farmacy, Cashier, Regular ]
       } :: State
     , render: render this
     , componentDidMount: do
@@ -97,7 +100,14 @@ driverClass = component "Driver" \this -> do
       , seats: s.seats
       , from: s.from
       , to: s.to
-      , types: fromFoldable s.types
+      , types: Array.fromFoldable s.types <#> case _ of
+          Medical -> P.Medical
+          Police -> P.Police
+          Firefighter -> P.Firefighter
+          Army -> P.Army
+          Farmacy -> P.Farmacy
+          Cashier -> P.Cashier
+          Regular -> P.Regular
       }
     WS.send p.ws $ encodePull driver
 
@@ -223,30 +233,15 @@ driverClass = component "Driver" \this -> do
             ]
           , div [ cn "col-md-4" ]
             [ div [] [ h6 [] [ text $ props.keyText "key.passenger" ] ]
-            , div [ cn "form-check" ]
-              [ input [ cn "form-check-input", _type "checkbox",  value "", _id "c1" ]
-              , label  [ cn "form-check-label", htmlFor "c1" ] [ text "Медицинский работник" ]
-              ]
-            , div [ cn "form-check" ]
-              [ input [ cn "form-check-input", _type "checkbox",  value "", _id "c2" ]
-              , label  [ cn "form-check-label", htmlFor "c2" ] [ text "Сотрудник полиции" ]
-              ]
-            , div [ cn "form-check" ]
-              [ input [ cn "form-check-input", _type "checkbox",  value "", _id "c3" ]
-              , label  [ cn "form-check-label", htmlFor "c3" ] [ text "Сотрудник МЧС" ]
-              ]
-            , div [ cn "form-check" ]
-              [ input [ cn "form-check-input", _type "checkbox",  value "", _id "c4" ]
-              , label  [ cn "form-check-label", htmlFor "c4" ] [ text "Армия" ]
-              ]
-            , div [ cn "form-check" ]
-              [ input [ cn "form-check-input", _type "checkbox",  value "", _id "c5" ]
-              , label  [ cn "form-check-label", htmlFor "c5" ] [ text "Фармацевт" ]
-              ]
-            , div [ cn "form-check" ]
-              [ input [ cn "form-check-input", _type "checkbox",  value "", _id "c6" ]
-              , label  [ cn "form-check-label", htmlFor "c6" ] [ text "Сотрудник торговли" ]
-              ]
+            , div [] $
+                map (\v ->
+                  div [ cn "form-check" ]
+                  [ input [ cn "form-check-input", _type "checkbox",  value "", _id "c1", checked $ member v state.types 
+                          , onChange \_ -> modifyState this _ { types = if member v state.types then delete v state.types else insert v state.types }
+                          ]
+                  , label  [ cn "form-check-label", htmlFor "c1" ] [ text $ props.keyText $ show v ]
+                  ]
+                ) [ Medical, Police, Firefighter, Army, Farmacy, Cashier, Regular ]
             ]
           ]
         , button [ cn "btn btn-secondary mb-3", _type "button", onClick \_ -> updateMap this ] [ text $ props.keyText "key.overview_route" ]

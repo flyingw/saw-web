@@ -12,6 +12,8 @@ import Data.Maybe (Maybe(Just, Nothing), fromMaybe, isNothing)
 import Data.Monoid (mempty)
 import Data.String (take)
 import Data.Traversable (sequence)
+import Data.Tuple (Tuple(Tuple))
+import Data.Map (Map, delete, empty, insert, member, fromFoldable, lookup)
 import Effect (Effect)
 import Effect.Console (error)
 import Global (encodeURI)
@@ -23,9 +25,11 @@ import Lib.React(cn, targetValue, onChangeValue, onChangeValueInt)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
+import Model(PassengerType(..))
 import Api (Address)
 import Api.Push (decodePush, Push(Pong))
-import Api.Pull (PassengerType(..), Pull(AddPassenger), encodePull)
+import Api.Pull as P
+import Api.Pull (Pull(AddPassenger), encodePull)
 
 type Props =
   { ws :: WebSocket
@@ -68,6 +72,12 @@ riderClass = component "Rider" \this -> do
     }
   where
 
+  types :: Array PassengerType
+  types = [ Medical, Police, Firefighter, Army, Farmacy, Cashier, Regular ]
+  
+  typesMap :: Map String PassengerType
+  typesMap = fromFoldable $ map (\v -> Tuple (show v) v) types
+
   today :: Effect String 
   today = now >>= toISOString <#> (take 19)
 
@@ -80,7 +90,14 @@ riderClass = component "Rider" \this -> do
         name: s.name
       , phone: s.phone
       , date: getTime d
-      , tpe: s.tpe
+      , tpe: case s.tpe of
+          Medical -> P.Medical
+          Police -> P.Police
+          Firefighter -> P.Firefighter
+          Army -> P.Army
+          Farmacy -> P.Farmacy
+          Cashier -> P.Cashier
+          Regular -> P.Regular
       , from: s.from
       , to: s.to
       }
@@ -95,15 +112,6 @@ riderClass = component "Rider" \this -> do
     let key = "AIzaSyAuq2lMfK8JPYK4-zYYw9Bl8SeTQrKJJeY"
     let q = host <> "?origin=" <> origin <> "&destination=" <> destination <> "&key=" <> key
     modifyState this \state -> state{ mapQ = Just q }
-
-  tpeText :: PassengerType -> String
-  tpeText Medical = "Medical"
-  tpeText Police = "Police"
-  tpeText Firefighter = "Firefighter"
-  tpeText Army = "Army"
-  tpeText Farmacy = "Farmacy"
-  tpeText Cashier = "Cashier"
-  tpeText Regular = "Regular"
 
   render this = do
     props <- getProps this
@@ -132,33 +140,10 @@ riderClass = component "Rider" \this -> do
             [ label [ htmlFor "specialization" ] [ text $ props.keyText "key.specialization" ]
             , select [ cn "custom-select"
                      , _id "type"
-                     , value $ case state.tpe of
-                                  Medical -> "Medical"
-                                  Police -> "Police"
-                                  Firefighter -> "Firefighter"
-                                  Army -> "Army"
-                                  Farmacy -> "Farmacy"
-                                  Cashier -> "Cashier"
-                                  Regular -> "Regular"
-                     , onChangeValue \v -> do
-                          let tpe = case v of
-                                      "Medical"     -> Medical
-                                      "Police"      -> Police
-                                      "Firefighter" -> Firefighter
-                                      "Army"        -> Army
-                                      "Farmacy"     -> Farmacy
-                                      "Cashier"     -> Cashier
-                                      _             -> Regular
-                          modifyState this _{ tpe = tpe }
-                     ]
-              [ option [ value "Medical" ] [ text "Медицинский работник" ]
-              , option [ value "Police" ] [ text "Сотрудник полиции" ]
-              , option [ value "Firefighter" ] [ text "Сотрудник МЧС" ]
-              , option [ value "Army" ] [ text "Армия" ]
-              , option [ value "Farmacy" ] [ text "Фармацевт" ]
-              , option [ value "Cashier" ] [ text "Сотрудник торговли" ]
-              , option [ value "Regular" ] [ text "Другое" ]
-              ]
+                     , value $ show state.tpe
+                     , onChangeValue \v -> modifyState this _{ tpe = fromMaybe Regular $ lookup v typesMap }
+                     ] $
+              map (\v -> option [ value $ show v ] [ text $ props.keyText $ show v ]) types
             ]
           ]
         , div [ cn "form-row" ]

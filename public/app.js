@@ -441,6 +441,7 @@ var PS = {};
       };
   };
   var isNothing = maybe(true)(Data_Function["const"](false));
+  var isJust = maybe(false)(Data_Function["const"](true));
   var functorMaybe = new Data_Functor.Functor(function (v) {
       return function (v1) {
           if (v1 instanceof Just) {
@@ -493,6 +494,7 @@ var PS = {};
   exports["Just"] = Just;
   exports["maybe"] = maybe;
   exports["fromMaybe"] = fromMaybe;
+  exports["isJust"] = isJust;
   exports["isNothing"] = isNothing;
   exports["fromJust"] = fromJust;
   exports["functorMaybe"] = functorMaybe;
@@ -1688,6 +1690,7 @@ var PS = {};
   var compare = function (dict) {
       return dict.compare;
   };
+  exports["Ord"] = Ord;
   exports["compare"] = compare;
   exports["ordInt"] = ordInt;
   exports["ordString"] = ordString;
@@ -5464,6 +5467,32 @@ var PS = {};
 })(PS);
 (function($PS) {
   "use strict";
+  $PS["Data.Tuple"] = $PS["Data.Tuple"] || {};
+  var exports = $PS["Data.Tuple"];                         
+  var Tuple = (function () {
+      function Tuple(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      Tuple.create = function (value0) {
+          return function (value1) {
+              return new Tuple(value0, value1);
+          };
+      };
+      return Tuple;
+  })();
+  var snd = function (v) {
+      return v.value1;
+  };                                                                                                    
+  var fst = function (v) {
+      return v.value0;
+  };
+  exports["Tuple"] = Tuple;
+  exports["fst"] = fst;
+  exports["snd"] = snd;
+})(PS);
+(function($PS) {
+  "use strict";
   $PS["Data.Map.Internal"] = $PS["Data.Map.Internal"] || {};
   var exports = $PS["Data.Map.Internal"];
   var Control_Applicative = $PS["Control.Applicative"];
@@ -5472,7 +5501,8 @@ var PS = {};
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Ord = $PS["Data.Ord"];
   var Data_Ordering = $PS["Data.Ordering"];
-  var Data_Semigroup = $PS["Data.Semigroup"];                  
+  var Data_Semigroup = $PS["Data.Semigroup"];
+  var Data_Tuple = $PS["Data.Tuple"];                          
   var Leaf = (function () {
       function Leaf() {
 
@@ -5701,6 +5731,13 @@ var PS = {};
           return go;
       };
   };
+  var member = function (dictOrd) {
+      return function (k) {
+          return function (m) {
+              return Data_Maybe.isJust(lookup(dictOrd)(k)(m));
+          };
+      };
+  };
   var keys = function (v) {
       if (v instanceof Leaf) {
           return Data_List_Types.Nil.value;
@@ -5877,6 +5914,247 @@ var PS = {};
           };
       };
   };
+  var pop = function (dictOrd) {
+      return function (k) {
+          var up = function ($copy_ctxs) {
+              return function ($copy_tree) {
+                  var $tco_var_ctxs = $copy_ctxs;
+                  var $tco_done = false;
+                  var $tco_result;
+                  function $tco_loop(ctxs, tree) {
+                      if (ctxs instanceof Data_List_Types.Nil) {
+                          $tco_done = true;
+                          return tree;
+                      };
+                      if (ctxs instanceof Data_List_Types.Cons) {
+                          if (ctxs.value0 instanceof TwoLeft && (ctxs.value0.value2 instanceof Leaf && tree instanceof Leaf)) {
+                              $tco_done = true;
+                              return fromZipper(dictOrd)(ctxs.value1)(new Two(Leaf.value, ctxs.value0.value0, ctxs.value0.value1, Leaf.value));
+                          };
+                          if (ctxs.value0 instanceof TwoRight && (ctxs.value0.value0 instanceof Leaf && tree instanceof Leaf)) {
+                              $tco_done = true;
+                              return fromZipper(dictOrd)(ctxs.value1)(new Two(Leaf.value, ctxs.value0.value1, ctxs.value0.value2, Leaf.value));
+                          };
+                          if (ctxs.value0 instanceof TwoLeft && ctxs.value0.value2 instanceof Two) {
+                              $tco_var_ctxs = ctxs.value1;
+                              $copy_tree = new Three(tree, ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2.value0, ctxs.value0.value2.value1, ctxs.value0.value2.value2, ctxs.value0.value2.value3);
+                              return;
+                          };
+                          if (ctxs.value0 instanceof TwoRight && ctxs.value0.value0 instanceof Two) {
+                              $tco_var_ctxs = ctxs.value1;
+                              $copy_tree = new Three(ctxs.value0.value0.value0, ctxs.value0.value0.value1, ctxs.value0.value0.value2, ctxs.value0.value0.value3, ctxs.value0.value1, ctxs.value0.value2, tree);
+                              return;
+                          };
+                          if (ctxs.value0 instanceof TwoLeft && ctxs.value0.value2 instanceof Three) {
+                              $tco_done = true;
+                              return fromZipper(dictOrd)(ctxs.value1)(new Two(new Two(tree, ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2.value0), ctxs.value0.value2.value1, ctxs.value0.value2.value2, new Two(ctxs.value0.value2.value3, ctxs.value0.value2.value4, ctxs.value0.value2.value5, ctxs.value0.value2.value6)));
+                          };
+                          if (ctxs.value0 instanceof TwoRight && ctxs.value0.value0 instanceof Three) {
+                              $tco_done = true;
+                              return fromZipper(dictOrd)(ctxs.value1)(new Two(new Two(ctxs.value0.value0.value0, ctxs.value0.value0.value1, ctxs.value0.value0.value2, ctxs.value0.value0.value3), ctxs.value0.value0.value4, ctxs.value0.value0.value5, new Two(ctxs.value0.value0.value6, ctxs.value0.value1, ctxs.value0.value2, tree)));
+                          };
+                          if (ctxs.value0 instanceof ThreeLeft && (ctxs.value0.value2 instanceof Leaf && (ctxs.value0.value5 instanceof Leaf && tree instanceof Leaf))) {
+                              $tco_done = true;
+                              return fromZipper(dictOrd)(ctxs.value1)(new Three(Leaf.value, ctxs.value0.value0, ctxs.value0.value1, Leaf.value, ctxs.value0.value3, ctxs.value0.value4, Leaf.value));
+                          };
+                          if (ctxs.value0 instanceof ThreeMiddle && (ctxs.value0.value0 instanceof Leaf && (ctxs.value0.value5 instanceof Leaf && tree instanceof Leaf))) {
+                              $tco_done = true;
+                              return fromZipper(dictOrd)(ctxs.value1)(new Three(Leaf.value, ctxs.value0.value1, ctxs.value0.value2, Leaf.value, ctxs.value0.value3, ctxs.value0.value4, Leaf.value));
+                          };
+                          if (ctxs.value0 instanceof ThreeRight && (ctxs.value0.value0 instanceof Leaf && (ctxs.value0.value3 instanceof Leaf && tree instanceof Leaf))) {
+                              $tco_done = true;
+                              return fromZipper(dictOrd)(ctxs.value1)(new Three(Leaf.value, ctxs.value0.value1, ctxs.value0.value2, Leaf.value, ctxs.value0.value4, ctxs.value0.value5, Leaf.value));
+                          };
+                          if (ctxs.value0 instanceof ThreeLeft && ctxs.value0.value2 instanceof Two) {
+                              $tco_done = true;
+                              return fromZipper(dictOrd)(ctxs.value1)(new Two(new Three(tree, ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2.value0, ctxs.value0.value2.value1, ctxs.value0.value2.value2, ctxs.value0.value2.value3), ctxs.value0.value3, ctxs.value0.value4, ctxs.value0.value5));
+                          };
+                          if (ctxs.value0 instanceof ThreeMiddle && ctxs.value0.value0 instanceof Two) {
+                              $tco_done = true;
+                              return fromZipper(dictOrd)(ctxs.value1)(new Two(new Three(ctxs.value0.value0.value0, ctxs.value0.value0.value1, ctxs.value0.value0.value2, ctxs.value0.value0.value3, ctxs.value0.value1, ctxs.value0.value2, tree), ctxs.value0.value3, ctxs.value0.value4, ctxs.value0.value5));
+                          };
+                          if (ctxs.value0 instanceof ThreeMiddle && ctxs.value0.value5 instanceof Two) {
+                              $tco_done = true;
+                              return fromZipper(dictOrd)(ctxs.value1)(new Two(ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2, new Three(tree, ctxs.value0.value3, ctxs.value0.value4, ctxs.value0.value5.value0, ctxs.value0.value5.value1, ctxs.value0.value5.value2, ctxs.value0.value5.value3)));
+                          };
+                          if (ctxs.value0 instanceof ThreeRight && ctxs.value0.value3 instanceof Two) {
+                              $tco_done = true;
+                              return fromZipper(dictOrd)(ctxs.value1)(new Two(ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2, new Three(ctxs.value0.value3.value0, ctxs.value0.value3.value1, ctxs.value0.value3.value2, ctxs.value0.value3.value3, ctxs.value0.value4, ctxs.value0.value5, tree)));
+                          };
+                          if (ctxs.value0 instanceof ThreeLeft && ctxs.value0.value2 instanceof Three) {
+                              $tco_done = true;
+                              return fromZipper(dictOrd)(ctxs.value1)(new Three(new Two(tree, ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2.value0), ctxs.value0.value2.value1, ctxs.value0.value2.value2, new Two(ctxs.value0.value2.value3, ctxs.value0.value2.value4, ctxs.value0.value2.value5, ctxs.value0.value2.value6), ctxs.value0.value3, ctxs.value0.value4, ctxs.value0.value5));
+                          };
+                          if (ctxs.value0 instanceof ThreeMiddle && ctxs.value0.value0 instanceof Three) {
+                              $tco_done = true;
+                              return fromZipper(dictOrd)(ctxs.value1)(new Three(new Two(ctxs.value0.value0.value0, ctxs.value0.value0.value1, ctxs.value0.value0.value2, ctxs.value0.value0.value3), ctxs.value0.value0.value4, ctxs.value0.value0.value5, new Two(ctxs.value0.value0.value6, ctxs.value0.value1, ctxs.value0.value2, tree), ctxs.value0.value3, ctxs.value0.value4, ctxs.value0.value5));
+                          };
+                          if (ctxs.value0 instanceof ThreeMiddle && ctxs.value0.value5 instanceof Three) {
+                              $tco_done = true;
+                              return fromZipper(dictOrd)(ctxs.value1)(new Three(ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2, new Two(tree, ctxs.value0.value3, ctxs.value0.value4, ctxs.value0.value5.value0), ctxs.value0.value5.value1, ctxs.value0.value5.value2, new Two(ctxs.value0.value5.value3, ctxs.value0.value5.value4, ctxs.value0.value5.value5, ctxs.value0.value5.value6)));
+                          };
+                          if (ctxs.value0 instanceof ThreeRight && ctxs.value0.value3 instanceof Three) {
+                              $tco_done = true;
+                              return fromZipper(dictOrd)(ctxs.value1)(new Three(ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2, new Two(ctxs.value0.value3.value0, ctxs.value0.value3.value1, ctxs.value0.value3.value2, ctxs.value0.value3.value3), ctxs.value0.value3.value4, ctxs.value0.value3.value5, new Two(ctxs.value0.value3.value6, ctxs.value0.value4, ctxs.value0.value5, tree)));
+                          };
+                          throw new Error("Failed pattern match at Data.Map.Internal (line 511, column 9 - line 528, column 136): " + [ ctxs.value0.constructor.name, tree.constructor.name ]);
+                      };
+                      throw new Error("Failed pattern match at Data.Map.Internal (line 508, column 5 - line 528, column 136): " + [ ctxs.constructor.name ]);
+                  };
+                  while (!$tco_done) {
+                      $tco_result = $tco_loop($tco_var_ctxs, $copy_tree);
+                  };
+                  return $tco_result;
+              };
+          };
+          var removeMaxNode = function ($copy_ctx) {
+              return function ($copy_m) {
+                  var $tco_var_ctx = $copy_ctx;
+                  var $tco_done = false;
+                  var $tco_result;
+                  function $tco_loop(ctx, m) {
+                      if (m instanceof Two && (m.value0 instanceof Leaf && m.value3 instanceof Leaf)) {
+                          $tco_done = true;
+                          return up(ctx)(Leaf.value);
+                      };
+                      if (m instanceof Two) {
+                          $tco_var_ctx = new Data_List_Types.Cons(new TwoRight(m.value0, m.value1, m.value2), ctx);
+                          $copy_m = m.value3;
+                          return;
+                      };
+                      if (m instanceof Three && (m.value0 instanceof Leaf && (m.value3 instanceof Leaf && m.value6 instanceof Leaf))) {
+                          $tco_done = true;
+                          return up(new Data_List_Types.Cons(new TwoRight(Leaf.value, m.value1, m.value2), ctx))(Leaf.value);
+                      };
+                      if (m instanceof Three) {
+                          $tco_var_ctx = new Data_List_Types.Cons(new ThreeRight(m.value0, m.value1, m.value2, m.value3, m.value4, m.value5), ctx);
+                          $copy_m = m.value6;
+                          return;
+                      };
+                      throw new Error("Failed pattern match at Data.Map.Internal (line 540, column 5 - line 544, column 107): " + [ m.constructor.name ]);
+                  };
+                  while (!$tco_done) {
+                      $tco_result = $tco_loop($tco_var_ctx, $copy_m);
+                  };
+                  return $tco_result;
+              };
+          };
+          var maxNode = function ($copy_m) {
+              var $tco_done = false;
+              var $tco_result;
+              function $tco_loop(m) {
+                  if (m instanceof Two && m.value3 instanceof Leaf) {
+                      $tco_done = true;
+                      return {
+                          key: m.value1,
+                          value: m.value2
+                      };
+                  };
+                  if (m instanceof Two) {
+                      $copy_m = m.value3;
+                      return;
+                  };
+                  if (m instanceof Three && m.value6 instanceof Leaf) {
+                      $tco_done = true;
+                      return {
+                          key: m.value4,
+                          value: m.value5
+                      };
+                  };
+                  if (m instanceof Three) {
+                      $copy_m = m.value6;
+                      return;
+                  };
+                  throw new Error("Failed pattern match at Data.Map.Internal (line 531, column 33 - line 535, column 45): " + [ m.constructor.name ]);
+              };
+              while (!$tco_done) {
+                  $tco_result = $tco_loop($copy_m);
+              };
+              return $tco_result;
+          };
+          var comp = Data_Ord.compare(dictOrd);
+          var down = function ($copy_ctx) {
+              return function ($copy_m) {
+                  var $tco_var_ctx = $copy_ctx;
+                  var $tco_done = false;
+                  var $tco_result;
+                  function $tco_loop(ctx, m) {
+                      if (m instanceof Leaf) {
+                          $tco_done = true;
+                          return Data_Maybe.Nothing.value;
+                      };
+                      if (m instanceof Two) {
+                          var v = comp(k)(m.value1);
+                          if (m.value3 instanceof Leaf && v instanceof Data_Ordering.EQ) {
+                              $tco_done = true;
+                              return new Data_Maybe.Just(new Data_Tuple.Tuple(m.value2, up(ctx)(Leaf.value)));
+                          };
+                          if (v instanceof Data_Ordering.EQ) {
+                              var max = maxNode(m.value0);
+                              $tco_done = true;
+                              return new Data_Maybe.Just(new Data_Tuple.Tuple(m.value2, removeMaxNode(new Data_List_Types.Cons(new TwoLeft(max.key, max.value, m.value3), ctx))(m.value0)));
+                          };
+                          if (v instanceof Data_Ordering.LT) {
+                              $tco_var_ctx = new Data_List_Types.Cons(new TwoLeft(m.value1, m.value2, m.value3), ctx);
+                              $copy_m = m.value0;
+                              return;
+                          };
+                          $tco_var_ctx = new Data_List_Types.Cons(new TwoRight(m.value0, m.value1, m.value2), ctx);
+                          $copy_m = m.value3;
+                          return;
+                      };
+                      if (m instanceof Three) {
+                          var leaves = (function () {
+                              if (m.value0 instanceof Leaf && (m.value3 instanceof Leaf && m.value6 instanceof Leaf)) {
+                                  return true;
+                              };
+                              return false;
+                          })();
+                          var v = comp(k)(m.value4);
+                          var v3 = comp(k)(m.value1);
+                          if (leaves && v3 instanceof Data_Ordering.EQ) {
+                              $tco_done = true;
+                              return new Data_Maybe.Just(new Data_Tuple.Tuple(m.value2, fromZipper(dictOrd)(ctx)(new Two(Leaf.value, m.value4, m.value5, Leaf.value))));
+                          };
+                          if (leaves && v instanceof Data_Ordering.EQ) {
+                              $tco_done = true;
+                              return new Data_Maybe.Just(new Data_Tuple.Tuple(m.value5, fromZipper(dictOrd)(ctx)(new Two(Leaf.value, m.value1, m.value2, Leaf.value))));
+                          };
+                          if (v3 instanceof Data_Ordering.EQ) {
+                              var max = maxNode(m.value0);
+                              $tco_done = true;
+                              return new Data_Maybe.Just(new Data_Tuple.Tuple(m.value2, removeMaxNode(new Data_List_Types.Cons(new ThreeLeft(max.key, max.value, m.value3, m.value4, m.value5, m.value6), ctx))(m.value0)));
+                          };
+                          if (v instanceof Data_Ordering.EQ) {
+                              var max = maxNode(m.value3);
+                              $tco_done = true;
+                              return new Data_Maybe.Just(new Data_Tuple.Tuple(m.value5, removeMaxNode(new Data_List_Types.Cons(new ThreeMiddle(m.value0, m.value1, m.value2, max.key, max.value, m.value6), ctx))(m.value3)));
+                          };
+                          if (v3 instanceof Data_Ordering.LT) {
+                              $tco_var_ctx = new Data_List_Types.Cons(new ThreeLeft(m.value1, m.value2, m.value3, m.value4, m.value5, m.value6), ctx);
+                              $copy_m = m.value0;
+                              return;
+                          };
+                          if (v3 instanceof Data_Ordering.GT && v instanceof Data_Ordering.LT) {
+                              $tco_var_ctx = new Data_List_Types.Cons(new ThreeMiddle(m.value0, m.value1, m.value2, m.value4, m.value5, m.value6), ctx);
+                              $copy_m = m.value3;
+                              return;
+                          };
+                          $tco_var_ctx = new Data_List_Types.Cons(new ThreeRight(m.value0, m.value1, m.value2, m.value3, m.value4, m.value5), ctx);
+                          $copy_m = m.value6;
+                          return;
+                      };
+                      throw new Error("Failed pattern match at Data.Map.Internal (line 481, column 34 - line 504, column 80): " + [ m.constructor.name ]);
+                  };
+                  while (!$tco_done) {
+                      $tco_result = $tco_loop($tco_var_ctx, $copy_m);
+                  };
+                  return $tco_result;
+              };
+          };
+          return down(Data_List_Types.Nil.value);
+      };
+  };
   var empty = Leaf.value;
   var fromFoldable = function (dictOrd) {
       return function (dictFoldable) {
@@ -5887,9 +6165,19 @@ var PS = {};
           })(empty);
       };
   };
+  var $$delete = function (dictOrd) {
+      return function (k) {
+          return function (m) {
+              return Data_Maybe.maybe(m)(Data_Tuple.snd)(pop(dictOrd)(k)(m));
+          };
+      };
+  };
   exports["empty"] = empty;
+  exports["insert"] = insert;
   exports["lookup"] = lookup;
   exports["fromFoldable"] = fromFoldable;
+  exports["delete"] = $$delete;
+  exports["member"] = member;
   exports["keys"] = keys;
 })(PS);
 (function($PS) {
@@ -5899,8 +6187,23 @@ var PS = {};
   var Data_Foldable = $PS["Data.Foldable"];
   var Data_List_Types = $PS["Data.List.Types"];
   var Data_Map_Internal = $PS["Data.Map.Internal"];
+  var Data_Unit = $PS["Data.Unit"];
   var toList = function (v) {
       return Data_Map_Internal.keys(v);
+  };
+  var member = function (dictOrd) {
+      return function (a) {
+          return function (v) {
+              return Data_Map_Internal.member(dictOrd)(a)(v);
+          };
+      };
+  };
+  var insert = function (dictOrd) {
+      return function (a) {
+          return function (v) {
+              return Data_Map_Internal.insert(dictOrd)(a)(Data_Unit.unit)(v);
+          };
+      };
   };
   var foldableSet = new Data_Foldable.Foldable(function (dictMonoid) {
       return function (f) {
@@ -5925,7 +6228,26 @@ var PS = {};
       };
   });
   var empty = Data_Map_Internal.empty;
-  exports["empty"] = empty;
+  var fromFoldable = function (dictFoldable) {
+      return function (dictOrd) {
+          return Data_Foldable.foldl(dictFoldable)(function (m) {
+              return function (a) {
+                  return insert(dictOrd)(a)(m);
+              };
+          })(empty);
+      };
+  };
+  var $$delete = function (dictOrd) {
+      return function (a) {
+          return function (v) {
+              return Data_Map_Internal["delete"](dictOrd)(a)(v);
+          };
+      };
+  };
+  exports["fromFoldable"] = fromFoldable;
+  exports["insert"] = insert;
+  exports["member"] = member;
+  exports["delete"] = $$delete;
   exports["foldableSet"] = foldableSet;
 })(PS);
 (function(exports) {
@@ -6266,32 +6588,6 @@ var PS = {};
   var exports = $PS["Data.String.Unsafe"];
   var $foreign = $PS["Data.String.Unsafe"];
   exports["charAt"] = $foreign.charAt;
-})(PS);
-(function($PS) {
-  "use strict";
-  $PS["Data.Tuple"] = $PS["Data.Tuple"] || {};
-  var exports = $PS["Data.Tuple"];                         
-  var Tuple = (function () {
-      function Tuple(value0, value1) {
-          this.value0 = value0;
-          this.value1 = value1;
-      };
-      Tuple.create = function (value0) {
-          return function (value1) {
-              return new Tuple(value0, value1);
-          };
-      };
-      return Tuple;
-  })();
-  var snd = function (v) {
-      return v.value1;
-  };                                                                                                    
-  var fst = function (v) {
-      return v.value0;
-  };
-  exports["Tuple"] = Tuple;
-  exports["fst"] = fst;
-  exports["snd"] = snd;
 })(PS);
 (function(exports) {
   "use strict";
@@ -6646,11 +6942,13 @@ var PS = {};
   var height = $foreign.unsafeMkProps("height");  
   var frameBorder = $foreign.unsafeMkProps("frameBorder");
   var disabled = $foreign.unsafeMkProps("disabled");
-  var className = $foreign.unsafeMkProps("className");    
+  var className = $foreign.unsafeMkProps("className");
+  var checked = $foreign.unsafeMkProps("checked");        
   var autoComplete = $foreign.unsafeMkProps("autoComplete");
   var _type = $foreign.unsafeMkProps("type");
   var _id = $foreign.unsafeMkProps("id");
   exports["autoComplete"] = autoComplete;
+  exports["checked"] = checked;
   exports["className"] = className;
   exports["disabled"] = disabled;
   exports["frameBorder"] = frameBorder;
@@ -7048,6 +7346,187 @@ var PS = {};
   exports["onMsg"] = onMsg;
   exports["send"] = send;
 })(PS);
+(function($PS) {
+  "use strict";
+  $PS["Model"] = $PS["Model"] || {};
+  var exports = $PS["Model"];
+  var Data_Eq = $PS["Data.Eq"];
+  var Data_Ord = $PS["Data.Ord"];
+  var Data_Ordering = $PS["Data.Ordering"];
+  var Data_Show = $PS["Data.Show"];                
+  var Medical = (function () {
+      function Medical() {
+
+      };
+      Medical.value = new Medical();
+      return Medical;
+  })();
+  var Police = (function () {
+      function Police() {
+
+      };
+      Police.value = new Police();
+      return Police;
+  })();
+  var Firefighter = (function () {
+      function Firefighter() {
+
+      };
+      Firefighter.value = new Firefighter();
+      return Firefighter;
+  })();
+  var Army = (function () {
+      function Army() {
+
+      };
+      Army.value = new Army();
+      return Army;
+  })();
+  var Farmacy = (function () {
+      function Farmacy() {
+
+      };
+      Farmacy.value = new Farmacy();
+      return Farmacy;
+  })();
+  var Cashier = (function () {
+      function Cashier() {
+
+      };
+      Cashier.value = new Cashier();
+      return Cashier;
+  })();
+  var Regular = (function () {
+      function Regular() {
+
+      };
+      Regular.value = new Regular();
+      return Regular;
+  })();
+  var showPassengerType = new Data_Show.Show(function (v) {
+      if (v instanceof Medical) {
+          return "key.medical";
+      };
+      if (v instanceof Police) {
+          return "key.police";
+      };
+      if (v instanceof Firefighter) {
+          return "key.firefighter";
+      };
+      if (v instanceof Army) {
+          return "key.army";
+      };
+      if (v instanceof Farmacy) {
+          return "key.farmacy";
+      };
+      if (v instanceof Cashier) {
+          return "key.cashier";
+      };
+      if (v instanceof Regular) {
+          return "key.regular";
+      };
+      throw new Error("Failed pattern match at Model (line 8, column 1 - line 16, column 31): " + [ v.constructor.name ]);
+  });
+  var eqPassengerType = new Data_Eq.Eq(function (x) {
+      return function (y) {
+          if (x instanceof Medical && y instanceof Medical) {
+              return true;
+          };
+          if (x instanceof Police && y instanceof Police) {
+              return true;
+          };
+          if (x instanceof Firefighter && y instanceof Firefighter) {
+              return true;
+          };
+          if (x instanceof Army && y instanceof Army) {
+              return true;
+          };
+          if (x instanceof Farmacy && y instanceof Farmacy) {
+              return true;
+          };
+          if (x instanceof Cashier && y instanceof Cashier) {
+              return true;
+          };
+          if (x instanceof Regular && y instanceof Regular) {
+              return true;
+          };
+          return false;
+      };
+  });
+  var ordPassengerType = new Data_Ord.Ord(function () {
+      return eqPassengerType;
+  }, function (x) {
+      return function (y) {
+          if (x instanceof Medical && y instanceof Medical) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof Medical) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof Medical) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof Police && y instanceof Police) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof Police) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof Police) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof Firefighter && y instanceof Firefighter) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof Firefighter) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof Firefighter) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof Army && y instanceof Army) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof Army) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof Army) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof Farmacy && y instanceof Farmacy) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof Farmacy) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof Farmacy) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof Cashier && y instanceof Cashier) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof Cashier) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof Cashier) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof Regular && y instanceof Regular) {
+              return Data_Ordering.EQ.value;
+          };
+          throw new Error("Failed pattern match at Model (line 18, column 1 - line 18, column 54): " + [ x.constructor.name, y.constructor.name ]);
+      };
+  });
+  exports["Medical"] = Medical;
+  exports["Police"] = Police;
+  exports["Firefighter"] = Firefighter;
+  exports["Army"] = Army;
+  exports["Farmacy"] = Farmacy;
+  exports["Cashier"] = Cashier;
+  exports["Regular"] = Regular;
+  exports["showPassengerType"] = showPassengerType;
+  exports["ordPassengerType"] = ordPassengerType;
+})(PS);
 (function(exports) {
   /* global exports */
   "use strict";
@@ -7310,6 +7789,7 @@ var PS = {};
   var Control_Bind = $PS["Control.Bind"];
   var Data_Array = $PS["Data.Array"];
   var Data_Either = $PS["Data.Either"];
+  var Data_Foldable = $PS["Data.Foldable"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_JSDate = $PS["Data.JSDate"];
   var Data_Maybe = $PS["Data.Maybe"];
@@ -7324,6 +7804,7 @@ var PS = {};
   var Global = $PS["Global"];
   var Lib_React = $PS["Lib.React"];
   var Lib_WebSocket = $PS["Lib.WebSocket"];
+  var Model = $PS["Model"];
   var Proto_Decode = $PS["Proto.Decode"];
   var React = $PS["React"];
   var React_DOM = $PS["React.DOM"];
@@ -7367,7 +7848,30 @@ var PS = {};
                   seats: s.seats,
                   from: s.from,
                   to: s.to,
-                  types: Data_Array.fromFoldable(Data_Set.foldableSet)(s.types)
+                  types: Data_Functor.mapFlipped(Data_Functor.functorArray)(Data_Array.fromFoldable(Data_Set.foldableSet)(s.types))(function (v) {
+                      if (v instanceof Model.Medical) {
+                          return Api_Pull.Medical.value;
+                      };
+                      if (v instanceof Model.Police) {
+                          return Api_Pull.Police.value;
+                      };
+                      if (v instanceof Model.Firefighter) {
+                          return Api_Pull.Firefighter.value;
+                      };
+                      if (v instanceof Model.Army) {
+                          return Api_Pull.Army.value;
+                      };
+                      if (v instanceof Model.Farmacy) {
+                          return Api_Pull.Farmacy.value;
+                      };
+                      if (v instanceof Model.Cashier) {
+                          return Api_Pull.Cashier.value;
+                      };
+                      if (v instanceof Model.Regular) {
+                          return Api_Pull.Regular.value;
+                      };
+                      throw new Error("Failed pattern match at App.Driver (line 103, column 47 - line 110, column 31): " + [ v.constructor.name ]);
+                  })
               });
               return Lib_WebSocket.send(p.ws)(Api_Pull.encodePull(driver))();
           };
@@ -7387,9 +7891,9 @@ var PS = {};
                           seats: v1.seats,
                           from: v1.from,
                           to: v1.to,
+                          types: v1.types,
                           mapQ: v1.mapQ,
-                          routeN: v1.routeN,
-                          types: v1.types
+                          routeN: v1.routeN
                       };
                   });
               }), React_DOM_Props.value(state.name) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text(props.keyText("key.phone")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), React_DOM_Props.value(state.phone), Lib_React.onChangeValue(function (v) {
@@ -7403,9 +7907,9 @@ var PS = {};
                           seats: v1.seats,
                           from: v1.from,
                           to: v1.to,
+                          types: v1.types,
                           mapQ: v1.mapQ,
-                          routeN: v1.routeN,
-                          types: v1.types
+                          routeN: v1.routeN
                       };
                   });
               }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("carPlate") ])([ React_DOM.text(props.keyText("key.car_plate")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("carPlate"), React_DOM_Props.autoComplete("carPlate"), React_DOM_Props.required(true), React_DOM_Props.value(state.carPlate), Lib_React.onChangeValue(function (v) {
@@ -7419,9 +7923,9 @@ var PS = {};
                           seats: v1.seats,
                           from: v1.from,
                           to: v1.to,
+                          types: v1.types,
                           mapQ: v1.mapQ,
-                          routeN: v1.routeN,
-                          types: v1.types
+                          routeN: v1.routeN
                       };
                   });
               }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_plate.hint")) ]) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-8") ])([ React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-6 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React_DOM.input([ React_DOM_Props["_type"]("datetime-local"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
@@ -7435,9 +7939,9 @@ var PS = {};
                           seats: v1.seats,
                           from: v1.from,
                           to: v1.to,
+                          types: v1.types,
                           mapQ: v1.mapQ,
-                          routeN: v1.routeN,
-                          types: v1.types
+                          routeN: v1.routeN
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lap") ])([ React_DOM.text(props.keyText("key.lap")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lap"), React_DOM_Props.min("2"), React_DOM_Props.max("10"), React_DOM_Props.value("3"), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.lap)), Lib_React.onChangeValueInt(function (v) {
@@ -7451,9 +7955,9 @@ var PS = {};
                           seats: v1.seats,
                           from: v1.from,
                           to: v1.to,
+                          types: v1.types,
                           mapQ: v1.mapQ,
-                          routeN: v1.routeN,
-                          types: v1.types
+                          routeN: v1.routeN
                       };
                   });
               }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.lap.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("seats") ])([ React_DOM.text(props.keyText("key.seats")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("seats"), React_DOM_Props.min("1"), React_DOM_Props.max("5"), React_DOM_Props.value("1"), React_DOM_Props.disabled(true), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.seats)), Lib_React.onChangeValueInt(function (v) {
@@ -7467,9 +7971,9 @@ var PS = {};
                           seats: v,
                           from: v1.from,
                           to: v1.to,
+                          types: v1.types,
                           mapQ: v1.mapQ,
-                          routeN: v1.routeN,
-                          types: v1.types
+                          routeN: v1.routeN
                       };
                   });
               }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.seats.hint")) ]) ]) ]), React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.route_start")) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-6 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityFrom") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.city), Lib_React.onChangeValue(function (v) {
@@ -7487,9 +7991,9 @@ var PS = {};
                               building: s.from.building
                           },
                           to: s.to,
+                          types: s.types,
                           mapQ: s.mapQ,
-                          routeN: s.routeN,
-                          types: s.types
+                          routeN: s.routeN
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetFrom") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.street), Lib_React.onChangeValue(function (v) {
@@ -7507,9 +8011,9 @@ var PS = {};
                               building: s.from.building
                           },
                           to: s.to,
+                          types: s.types,
                           mapQ: s.mapQ,
-                          routeN: s.routeN,
-                          types: s.types
+                          routeN: s.routeN
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("buildingFrom") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("buildingFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.building), Lib_React.onChangeValue(function (v) {
@@ -7527,9 +8031,9 @@ var PS = {};
                               building: v
                           },
                           to: s.to,
+                          types: s.types,
                           mapQ: s.mapQ,
-                          routeN: s.routeN,
-                          types: s.types
+                          routeN: s.routeN
                       };
                   });
               }) ]) ]) ]), React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.route_end")) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-6 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityTo") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.city), Lib_React.onChangeValue(function (v) {
@@ -7547,9 +8051,9 @@ var PS = {};
                               street: s.to.street,
                               building: s.to.building
                           },
+                          types: s.types,
                           mapQ: s.mapQ,
-                          routeN: s.routeN,
-                          types: s.types
+                          routeN: s.routeN
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetTo") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.street), Lib_React.onChangeValue(function (v) {
@@ -7567,9 +8071,9 @@ var PS = {};
                               street: v,
                               building: s.to.building
                           },
+                          types: s.types,
                           mapQ: s.mapQ,
-                          routeN: s.routeN,
-                          types: s.types
+                          routeN: s.routeN
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("houseTo") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("houseTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.building), Lib_React.onChangeValue(function (v) {
@@ -7587,12 +8091,36 @@ var PS = {};
                               street: s.to.street,
                               building: v
                           },
+                          types: s.types,
                           mapQ: s.mapQ,
-                          routeN: s.routeN,
-                          types: s.types
+                          routeN: s.routeN
                       };
                   });
-              }) ]) ]) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4") ])([ React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.passenger")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ Lib_React.cn("form-check-input"), React_DOM_Props["_type"]("checkbox"), React_DOM_Props.value(""), React_DOM_Props["_id"]("c1") ]), React_DOM.label([ Lib_React.cn("form-check-label"), React_DOM_Props.htmlFor("c1") ])([ React_DOM.text("\u041c\u0435\u0434\u0438\u0446\u0438\u043d\u0441\u043a\u0438\u0439 \u0440\u0430\u0431\u043e\u0442\u043d\u0438\u043a") ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ Lib_React.cn("form-check-input"), React_DOM_Props["_type"]("checkbox"), React_DOM_Props.value(""), React_DOM_Props["_id"]("c2") ]), React_DOM.label([ Lib_React.cn("form-check-label"), React_DOM_Props.htmlFor("c2") ])([ React_DOM.text("\u0421\u043e\u0442\u0440\u0443\u0434\u043d\u0438\u043a \u043f\u043e\u043b\u0438\u0446\u0438\u0438") ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ Lib_React.cn("form-check-input"), React_DOM_Props["_type"]("checkbox"), React_DOM_Props.value(""), React_DOM_Props["_id"]("c3") ]), React_DOM.label([ Lib_React.cn("form-check-label"), React_DOM_Props.htmlFor("c3") ])([ React_DOM.text("\u0421\u043e\u0442\u0440\u0443\u0434\u043d\u0438\u043a \u041c\u0427\u0421") ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ Lib_React.cn("form-check-input"), React_DOM_Props["_type"]("checkbox"), React_DOM_Props.value(""), React_DOM_Props["_id"]("c4") ]), React_DOM.label([ Lib_React.cn("form-check-label"), React_DOM_Props.htmlFor("c4") ])([ React_DOM.text("\u0410\u0440\u043c\u0438\u044f") ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ Lib_React.cn("form-check-input"), React_DOM_Props["_type"]("checkbox"), React_DOM_Props.value(""), React_DOM_Props["_id"]("c5") ]), React_DOM.label([ Lib_React.cn("form-check-label"), React_DOM_Props.htmlFor("c5") ])([ React_DOM.text("\u0424\u0430\u0440\u043c\u0430\u0446\u0435\u0432\u0442") ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ Lib_React.cn("form-check-input"), React_DOM_Props["_type"]("checkbox"), React_DOM_Props.value(""), React_DOM_Props["_id"]("c6") ]), React_DOM.label([ Lib_React.cn("form-check-label"), React_DOM_Props.htmlFor("c6") ])([ React_DOM.text("\u0421\u043e\u0442\u0440\u0443\u0434\u043d\u0438\u043a \u0442\u043e\u0440\u0433\u043e\u0432\u043b\u0438") ]) ]) ]) ]), React_DOM.button([ Lib_React.cn("btn btn-secondary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+              }) ]) ]) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4") ])([ React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.passenger")) ]) ]), React_DOM.div([  ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
+                  return React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ Lib_React.cn("form-check-input"), React_DOM_Props["_type"]("checkbox"), React_DOM_Props.value(""), React_DOM_Props["_id"]("c1"), React_DOM_Props.checked(Data_Set.member(Model.ordPassengerType)(v)(state.types)), React_DOM_Props.onChange(function (v1) {
+                      return React.modifyState($$this)(function (v2) {
+                          return {
+                              name: v2.name,
+                              phone: v2.phone,
+                              carPlate: v2.carPlate,
+                              date: v2.date,
+                              lap: v2.lap,
+                              seats: v2.seats,
+                              from: v2.from,
+                              to: v2.to,
+                              types: (function () {
+                                  var $28 = Data_Set.member(Model.ordPassengerType)(v)(state.types);
+                                  if ($28) {
+                                      return Data_Set["delete"](Model.ordPassengerType)(v)(state.types);
+                                  };
+                                  return Data_Set.insert(Model.ordPassengerType)(v)(state.types);
+                              })(),
+                              mapQ: v2.mapQ,
+                              routeN: v2.routeN
+                          };
+                      });
+                  }) ]), React_DOM.label([ Lib_React.cn("form-check-label"), React_DOM_Props.htmlFor("c1") ])([ React_DOM.text(props.keyText(Data_Show.show(Model.showPassengerType)(v))) ]) ]);
+              })([ Model.Medical.value, Model.Police.value, Model.Firefighter.value, Model.Army.value, Model.Farmacy.value, Model.Cashier.value, Model.Regular.value ])) ]) ]), React_DOM.button([ Lib_React.cn("btn btn-secondary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return updateMap($$this);
               }) ])([ React_DOM.text(props.keyText("key.overview_route")) ]), (function () {
                   if (state.mapQ instanceof Data_Maybe.Just) {
@@ -7601,7 +8129,7 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 253, column 11 - line 261, column 30): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 248, column 11 - line 256, column 30): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return sendDriver($$this);
               }) ])([ React_DOM.text(props.keyText("key.add")) ]) ]) ]);
@@ -7631,7 +8159,7 @@ var PS = {};
                           street: "\u041b\u044c\u0432\u0430 \u0422\u043e\u043b\u0441\u0442\u043e\u0433\u043e",
                           building: "1"
                       },
-                      types: Data_Set.empty
+                      types: Data_Set.fromFoldable(Data_Foldable.foldableArray)(Model.ordPassengerType)([ Model.Medical.value, Model.Police.value, Model.Firefighter.value, Model.Army.value, Model.Farmacy.value, Model.Cashier.value, Model.Regular.value ])
                   },
                   render: render($$this),
                   componentDidMount: function __do() {
@@ -7652,9 +8180,9 @@ var PS = {};
                                       seats: v1.seats,
                                       from: v1.from,
                                       to: v1.to,
+                                      types: v1.types,
                                       mapQ: v1.mapQ,
-                                      routeN: new Data_Maybe.Just(v.value0.val.value0.n),
-                                      types: v1.types
+                                      routeN: new Data_Maybe.Just(v.value0.val.value0.n)
                                   };
                               });
                           };
@@ -7669,21 +8197,21 @@ var PS = {};
                                       seats: v1.seats,
                                       from: v1.from,
                                       to: v1.to,
+                                      types: v1.types,
                                       mapQ: v1.mapQ,
-                                      routeN: v1.routeN,
-                                      types: v1.types
+                                      routeN: v1.routeN
                                   };
                               });
                           };
                           if (v instanceof Data_Either.Right) {
                               return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                           };
-                          throw new Error("Failed pattern match at App.Driver (line 74, column 28 - line 78, column 31): " + [ v.constructor.name ]);
+                          throw new Error("Failed pattern match at App.Driver (line 77, column 28 - line 81, column 31): " + [ v.constructor.name ]);
                       })((function () {
-                          var $37 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $38 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($39) {
-                              return $37($38($39));
+                          var $42 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $43 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($44) {
+                              return $42($43($44));
                           };
                       })())();
                   }
@@ -7702,19 +8230,24 @@ var PS = {};
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Bind = $PS["Control.Bind"];
   var Data_Either = $PS["Data.Either"];
+  var Data_Foldable = $PS["Data.Foldable"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_JSDate = $PS["Data.JSDate"];
+  var Data_Map_Internal = $PS["Data.Map.Internal"];
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Monoid = $PS["Data.Monoid"];
+  var Data_Ord = $PS["Data.Ord"];
   var Data_Show = $PS["Data.Show"];
   var Data_String_CodePoints = $PS["Data.String.CodePoints"];
   var Data_Traversable = $PS["Data.Traversable"];
+  var Data_Tuple = $PS["Data.Tuple"];
   var Data_Unit = $PS["Data.Unit"];
   var Effect = $PS["Effect"];
   var Effect_Console = $PS["Effect.Console"];
   var Global = $PS["Global"];
   var Lib_React = $PS["Lib.React"];
   var Lib_WebSocket = $PS["Lib.WebSocket"];
+  var Model = $PS["Model"];
   var Proto_Decode = $PS["Proto.Decode"];
   var React = $PS["React"];
   var React_DOM = $PS["React.DOM"];
@@ -7739,30 +8272,10 @@ var PS = {};
               })();
           };
       };
-      var tpeText = function (v) {
-          if (v instanceof Api_Pull.Medical) {
-              return "Medical";
-          };
-          if (v instanceof Api_Pull.Police) {
-              return "Police";
-          };
-          if (v instanceof Api_Pull.Firefighter) {
-              return "Firefighter";
-          };
-          if (v instanceof Api_Pull.Army) {
-              return "Army";
-          };
-          if (v instanceof Api_Pull.Farmacy) {
-              return "Farmacy";
-          };
-          if (v instanceof Api_Pull.Cashier) {
-              return "Cashier";
-          };
-          if (v instanceof Api_Pull.Regular) {
-              return "Regular";
-          };
-          throw new Error("Failed pattern match at App.Rider (line 99, column 3 - line 99, column 37): " + [ v.constructor.name ]);
-      };
+      var types = [ Model.Medical.value, Model.Police.value, Model.Firefighter.value, Model.Army.value, Model.Farmacy.value, Model.Cashier.value, Model.Regular.value ];
+      var typesMap = Data_Map_Internal.fromFoldable(Data_Ord.ordString)(Data_Foldable.foldableArray)(Data_Functor.map(Data_Functor.functorArray)(function (v) {
+          return new Data_Tuple.Tuple(Data_Show.show(Model.showPassengerType)(v), v);
+      })(types));
       var today = Data_Functor.mapFlipped(Effect.functorEffect)(Control_Bind.bind(Effect.bindEffect)(Data_JSDate.now)(Data_JSDate.toISOString))(Data_String_CodePoints.take(19));
       var sendPassenger = function ($$this) {
           return function __do() {
@@ -7773,7 +8286,30 @@ var PS = {};
                   name: s.name,
                   phone: s.phone,
                   date: Data_JSDate.getTime(d),
-                  tpe: s.tpe,
+                  tpe: (function () {
+                      if (s.tpe instanceof Model.Medical) {
+                          return Api_Pull.Medical.value;
+                      };
+                      if (s.tpe instanceof Model.Police) {
+                          return Api_Pull.Police.value;
+                      };
+                      if (s.tpe instanceof Model.Firefighter) {
+                          return Api_Pull.Firefighter.value;
+                      };
+                      if (s.tpe instanceof Model.Army) {
+                          return Api_Pull.Army.value;
+                      };
+                      if (s.tpe instanceof Model.Farmacy) {
+                          return Api_Pull.Farmacy.value;
+                      };
+                      if (s.tpe instanceof Model.Cashier) {
+                          return Api_Pull.Cashier.value;
+                      };
+                      if (s.tpe instanceof Model.Regular) {
+                          return Api_Pull.Regular.value;
+                      };
+                      throw new Error("Failed pattern match at App.Rider (line 93, column 14 - line 100, column 31): " + [ s.tpe.constructor.name ]);
+                  })(),
                   from: s.from,
                   to: s.to
               });
@@ -7808,63 +8344,21 @@ var PS = {};
                           mapQ: v1.mapQ
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("specialization") ])([ React_DOM.text(props.keyText("key.specialization")) ]), React_DOM.select([ Lib_React.cn("custom-select"), React_DOM_Props["_id"]("type"), React_DOM_Props.value((function () {
-                  if (state.tpe instanceof Api_Pull.Medical) {
-                      return "Medical";
-                  };
-                  if (state.tpe instanceof Api_Pull.Police) {
-                      return "Police";
-                  };
-                  if (state.tpe instanceof Api_Pull.Firefighter) {
-                      return "Firefighter";
-                  };
-                  if (state.tpe instanceof Api_Pull.Army) {
-                      return "Army";
-                  };
-                  if (state.tpe instanceof Api_Pull.Farmacy) {
-                      return "Farmacy";
-                  };
-                  if (state.tpe instanceof Api_Pull.Cashier) {
-                      return "Cashier";
-                  };
-                  if (state.tpe instanceof Api_Pull.Regular) {
-                      return "Regular";
-                  };
-                  throw new Error("Failed pattern match at App.Rider (line 135, column 32 - line 142, column 55): " + [ state.tpe.constructor.name ]);
-              })()), Lib_React.onChangeValue(function (v) {
-                  var tpe = (function () {
-                      if (v === "Medical") {
-                          return Api_Pull.Medical.value;
-                      };
-                      if (v === "Police") {
-                          return Api_Pull.Police.value;
-                      };
-                      if (v === "Firefighter") {
-                          return Api_Pull.Firefighter.value;
-                      };
-                      if (v === "Army") {
-                          return Api_Pull.Army.value;
-                      };
-                      if (v === "Farmacy") {
-                          return Api_Pull.Farmacy.value;
-                      };
-                      if (v === "Cashier") {
-                          return Api_Pull.Cashier.value;
-                      };
-                      return Api_Pull.Regular.value;
-                  })();
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("specialization") ])([ React_DOM.text(props.keyText("key.specialization")) ]), React_DOM.select([ Lib_React.cn("custom-select"), React_DOM_Props["_id"]("type"), React_DOM_Props.value(Data_Show.show(Model.showPassengerType)(state.tpe)), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           name: v1.name,
                           phone: v1.phone,
-                          tpe: tpe,
+                          tpe: Data_Maybe.fromMaybe(Model.Regular.value)(Data_Map_Internal.lookup(Data_Ord.ordString)(v)(typesMap)),
                           date: v1.date,
                           from: v1.from,
                           to: v1.to,
                           mapQ: v1.mapQ
                       };
                   });
-              }) ])([ React_DOM.option([ React_DOM_Props.value("Medical") ])([ React_DOM.text("\u041c\u0435\u0434\u0438\u0446\u0438\u043d\u0441\u043a\u0438\u0439 \u0440\u0430\u0431\u043e\u0442\u043d\u0438\u043a") ]), React_DOM.option([ React_DOM_Props.value("Police") ])([ React_DOM.text("\u0421\u043e\u0442\u0440\u0443\u0434\u043d\u0438\u043a \u043f\u043e\u043b\u0438\u0446\u0438\u0438") ]), React_DOM.option([ React_DOM_Props.value("Firefighter") ])([ React_DOM.text("\u0421\u043e\u0442\u0440\u0443\u0434\u043d\u0438\u043a \u041c\u0427\u0421") ]), React_DOM.option([ React_DOM_Props.value("Army") ])([ React_DOM.text("\u0410\u0440\u043c\u0438\u044f") ]), React_DOM.option([ React_DOM_Props.value("Farmacy") ])([ React_DOM.text("\u0424\u0430\u0440\u043c\u0430\u0446\u0435\u0432\u0442") ]), React_DOM.option([ React_DOM_Props.value("Cashier") ])([ React_DOM.text("\u0421\u043e\u0442\u0440\u0443\u0434\u043d\u0438\u043a \u0442\u043e\u0440\u0433\u043e\u0432\u043b\u0438") ]), React_DOM.option([ React_DOM_Props.value("Regular") ])([ React_DOM.text("\u0414\u0440\u0443\u0433\u043e\u0435") ]) ]) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React_DOM.input([ React_DOM_Props["_type"]("datetime-local"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
+              }) ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
+                  return React_DOM.option([ React_DOM_Props.value(Data_Show.show(Model.showPassengerType)(v)) ])([ React_DOM.text(props.keyText(Data_Show.show(Model.showPassengerType)(v))) ]);
+              })(types)) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React_DOM.input([ React_DOM_Props["_type"]("datetime-local"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           name: v1.name,
@@ -7981,7 +8475,7 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Rider (line 222, column 11 - line 230, column 30): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Rider (line 207, column 11 - line 215, column 30): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return sendPassenger($$this);
               }) ])([ React_DOM.text(props.keyText("key.add")) ]) ]) ]);
@@ -7997,7 +8491,7 @@ var PS = {};
                       name: "",
                       phone: "",
                       date: date,
-                      tpe: Api_Pull.Medical.value,
+                      tpe: Model.Medical.value,
                       from: {
                           city: "\u041a\u0438\u0435\u0432",
                           street: "\u0421\u043f\u043e\u0440\u0442\u0438\u0432\u043d\u0430\u044f",
@@ -8020,12 +8514,12 @@ var PS = {};
                           if (v instanceof Data_Either.Right) {
                               return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                           };
-                          throw new Error("Failed pattern match at App.Rider (line 64, column 28 - line 66, column 31): " + [ v.constructor.name ]);
+                          throw new Error("Failed pattern match at App.Rider (line 68, column 28 - line 70, column 31): " + [ v.constructor.name ]);
                       })((function () {
-                          var $29 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $30 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($31) {
-                              return $29($30($31));
+                          var $26 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $27 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($28) {
+                              return $26($27($28));
                           };
                       })())();
                   }
