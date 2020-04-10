@@ -35,8 +35,7 @@ import Lib.WebSocket as WS
 import Api.Pull (encodePull, Pull(Ping, LoginAttempt))
 import Api.Push (decodePush, Push(LoginOk))
 
-import App.Driver (driverClass)
-import App.Rider (riderClass)
+import App.Add (addClass)
 
 type Props =
   { ws :: WebSocket
@@ -71,8 +70,7 @@ appClass = component "App" \this -> do
                 , cn "btn btn-primary"
                 , onClick \_ -> WS.send ws $ encodePull Ping
                 ] [ text "Send" ]
-      , createLeafElement driverClass {ws}
-      , createLeafElement riderClass {ws}
+      , createLeafElement addClass {ws}
       ]
 
 view :: Effect (Foreign -> Effect Unit)
