@@ -355,19 +355,9 @@ var PS = {};
   var append = function (dict) {
       return dict.append;
   };
-  var semigroupFn = function (dictSemigroup) {
-      return new Semigroup(function (f) {
-          return function (g) {
-              return function (x) {
-                  return append(dictSemigroup)(f(x))(g(x));
-              };
-          };
-      });
-  };
   exports["Semigroup"] = Semigroup;
   exports["append"] = append;
   exports["semigroupString"] = semigroupString;
-  exports["semigroupFn"] = semigroupFn;
 })(PS);
 (function($PS) {
   "use strict";
@@ -384,16 +374,8 @@ var PS = {};
   var mempty = function (dict) {
       return dict.mempty;
   };
-  var monoidFn = function (dictMonoid) {
-      return new Monoid(function () {
-          return Data_Semigroup.semigroupFn(dictMonoid.Semigroup0());
-      }, function (v) {
-          return mempty(dictMonoid);
-      });
-  };
   exports["Monoid"] = Monoid;
   exports["mempty"] = mempty;
-  exports["monoidFn"] = monoidFn;
   exports["monoidString"] = monoidString;
 })(PS);
 (function($PS) {
@@ -8457,7 +8439,9 @@ var PS = {};
               state: {
                   sessionid: Data_Monoid.mempty(Data_Maybe.monoidMaybe(Data_Semigroup.semigroupString)),
                   lang: "uk",
-                  keyText: Data_Monoid.mempty(Data_Monoid.monoidFn(Data_Monoid.monoidString))
+                  keyText: function (key) {
+                      return key;
+                  }
               },
               render: render($$this),
               componentDidMount: function __do() {

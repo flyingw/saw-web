@@ -58,7 +58,7 @@ appClass = component "App" \this -> do
     { state: 
       { sessionid: mempty
       , lang: "uk"
-      , keyText: mempty
+      , keyText: \key -> key
       }:: State
     , render: render this
     , componentDidMount: do
