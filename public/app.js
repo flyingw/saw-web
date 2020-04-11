@@ -8099,8 +8099,8 @@ var PS = {};
                           routeN: s.routeN
                       };
                   });
-              }) ]) ]) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4") ])([ React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.passenger")) ]) ]), React_DOM.div([  ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
-                  return React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ Lib_React.cn("form-check-input"), React_DOM_Props["_type"]("checkbox"), React_DOM_Props.value(""), React_DOM_Props["_id"]("c1"), React_DOM_Props.checked(Data_Set.member(Model.ordPassengerType)(v)(state.types)), React_DOM_Props.onChange(function (v1) {
+              }) ]) ]) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4") ])([ React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.passenger")) ]) ]), React_DOM.div([ Lib_React.cn("mb-2") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
+                  return React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ Lib_React.cn("form-check-input"), React_DOM_Props["_type"]("checkbox"), React_DOM_Props.value(""), React_DOM_Props["_id"](Data_Show.show(Model.showPassengerType)(v)), React_DOM_Props.checked(Data_Set.member(Model.ordPassengerType)(v)(state.types)), React_DOM_Props.onChange(function (v1) {
                       return React.modifyState($$this)(function (v2) {
                           return {
                               name: v2.name,
@@ -8122,7 +8122,7 @@ var PS = {};
                               routeN: v2.routeN
                           };
                       });
-                  }) ]), React_DOM.label([ Lib_React.cn("form-check-label"), React_DOM_Props.htmlFor("c1") ])([ React_DOM.text(props.keyText(Data_Show.show(Model.showPassengerType)(v))) ]) ]);
+                  }) ]), React_DOM.label([ Lib_React.cn("form-check-label"), React_DOM_Props.htmlFor(Data_Show.show(Model.showPassengerType)(v)) ])([ React_DOM.text(props.keyText(Data_Show.show(Model.showPassengerType)(v))) ]) ]);
               })([ Model.Medical.value, Model.Police.value, Model.Firefighter.value, Model.Army.value, Model.Farmacy.value, Model.Cashier.value, Model.Regular.value ])) ]) ]), React_DOM.button([ Lib_React.cn("btn btn-secondary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return updateMap($$this);
               }) ])([ React_DOM.text(props.keyText("key.overview_route")) ]), (function () {
@@ -8647,6 +8647,32 @@ var PS = {};
   })();
   exports["addClass"] = addClass;
 })(PS);
+(function($PS) {
+  "use strict";
+  $PS["App.Home"] = $PS["App.Home"] || {};
+  var exports = $PS["App.Home"];
+  var React = $PS["React"];
+  var React_DOM = $PS["React.DOM"];                
+  var homeClass = (function () {
+      var render = function ($$this) {
+          return function __do() {
+              var props = React.getProps($$this)();
+              var state = React.getState($$this)();
+              return React_DOM.div([  ])([ React_DOM.div([  ])([ React_DOM.text("Description here") ]), React_DOM.div([  ])([ React_DOM.text("Login form here") ]) ]);
+          };
+      };
+      return React.component()("Home")(function ($$this) {
+          return function __do() {
+              var props = React.getProps($$this)();
+              return {
+                  state: {},
+                  render: render($$this)
+              };
+          };
+      });
+  })();
+  exports["homeClass"] = homeClass;
+})(PS);
 (function(exports) {
   function wrap(method) {
     return function(d) {
@@ -8858,6 +8884,7 @@ var PS = {};
   var Api_Pull = $PS["Api.Pull"];
   var Api_Push = $PS["Api.Push"];
   var App_Add = $PS["App.Add"];
+  var App_Home = $PS["App.Home"];
   var Control_Alt = $PS["Control.Alt"];
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Bind = $PS["Control.Bind"];
@@ -8865,6 +8892,7 @@ var PS = {};
   var Control_Monad_Except_Trans = $PS["Control.Monad.Except.Trans"];
   var Data_Array = $PS["Data.Array"];
   var Data_Either = $PS["Data.Either"];
+  var Data_Eq = $PS["Data.Eq"];
   var Data_Foldable = $PS["Data.Foldable"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_Identity = $PS["Data.Identity"];
@@ -8874,6 +8902,7 @@ var PS = {};
   var Data_Monoid = $PS["Data.Monoid"];
   var Data_Number_Format = $PS["Data.Number.Format"];
   var Data_Ord = $PS["Data.Ord"];
+  var Data_Ordering = $PS["Data.Ordering"];
   var Data_Semigroup = $PS["Data.Semigroup"];
   var Data_Show = $PS["Data.Show"];
   var Data_String_Common = $PS["Data.String.Common"];
@@ -8897,6 +8926,81 @@ var PS = {};
   var Web_HTML = $PS["Web.HTML"];
   var Web_HTML_HTMLDocument = $PS["Web.HTML.HTMLDocument"];
   var Web_HTML_Window = $PS["Web.HTML.Window"];                
+  var HomeItem = (function () {
+      function HomeItem() {
+
+      };
+      HomeItem.value = new HomeItem();
+      return HomeItem;
+  })();
+  var ViewItem = (function () {
+      function ViewItem() {
+
+      };
+      ViewItem.value = new ViewItem();
+      return ViewItem;
+  })();
+  var AddItem = (function () {
+      function AddItem() {
+
+      };
+      AddItem.value = new AddItem();
+      return AddItem;
+  })();
+  var showMenuItem = new Data_Show.Show(function (v) {
+      if (v instanceof HomeItem) {
+          return "key.menu.home";
+      };
+      if (v instanceof ViewItem) {
+          return "key.menu.view";
+      };
+      if (v instanceof AddItem) {
+          return "key.menu.add";
+      };
+      throw new Error("Failed pattern match at App (line 55, column 1 - line 59, column 33): " + [ v.constructor.name ]);
+  });
+  var eqMenuItem = new Data_Eq.Eq(function (x) {
+      return function (y) {
+          if (x instanceof HomeItem && y instanceof HomeItem) {
+              return true;
+          };
+          if (x instanceof ViewItem && y instanceof ViewItem) {
+              return true;
+          };
+          if (x instanceof AddItem && y instanceof AddItem) {
+              return true;
+          };
+          return false;
+      };
+  });
+  var ordMenuItem = new Data_Ord.Ord(function () {
+      return eqMenuItem;
+  }, function (x) {
+      return function (y) {
+          if (x instanceof HomeItem && y instanceof HomeItem) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof HomeItem) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof HomeItem) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof ViewItem && y instanceof ViewItem) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof ViewItem) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof ViewItem) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof AddItem && y instanceof AddItem) {
+              return Data_Ordering.EQ.value;
+          };
+          throw new Error("Failed pattern match at App (line 61, column 1 - line 61, column 44): " + [ x.constructor.name, y.constructor.name ]);
+      };
+  });
   var appClass = (function () {
       var setLang = function ($$this) {
           return function (lang) {
@@ -8912,7 +9016,8 @@ var PS = {};
                           lang: lang,
                           keyText: function (key) {
                               return Data_Maybe.fromMaybe(key)(Data_Map_Internal.lookup(Data_Ord.ordString)(Data_String_Common.toLower(key))(keys));
-                          }
+                          },
+                          menuItem: v1.menuItem
                       };
                   });
               });
@@ -8922,21 +9027,53 @@ var PS = {};
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([  ])([ React_DOM.nav([ Lib_React.cn("navbar navbar-expand-lg navbar-light bg-light") ])([ React_DOM.ul([ Lib_React.cn("navbar-nav mr-auto mt-2 mt-lg-0") ])([ React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.a([ Lib_React.cn("nav-link"), React_DOM_Props.href("#") ])([ React_DOM.text(state.keyText("key.menu.view")) ]) ]), React_DOM.li([ Lib_React.cn("nav-item active") ])([ React_DOM.a([ Lib_React.cn("nav-link"), React_DOM_Props.href("#") ])([ React_DOM.text(state.keyText("key.menu.add")) ]) ]) ]), React_DOM.div([ Lib_React.cn("btn-group btn-group-sm btn-group-toggle") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
+              return React_DOM.div([  ])([ React_DOM.nav([ Lib_React.cn("navbar navbar-expand-lg navbar-light bg-light") ])([ React_DOM.ul([ Lib_React.cn("navbar-nav mr-auto mt-2 mt-lg-0") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
+                  return React_DOM.li([ Lib_React.cn("nav-item" + (function () {
+                      var $19 = Data_Eq.eq(eqMenuItem)(v)(state.menuItem);
+                      if ($19) {
+                          return " active";
+                      };
+                      return "";
+                  })()) ])([ React_DOM.a([ Lib_React.cn("nav-link"), React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v1) {
+                      return React.modifyState($$this)(function (v2) {
+                          return {
+                              sessionid: v2.sessionid,
+                              lang: v2.lang,
+                              keyText: v2.keyText,
+                              menuItem: v
+                          };
+                      });
+                  }) ])([ React_DOM.text(state.keyText(Data_Show.show(showMenuItem)(v))) ]) ]);
+              })([ HomeItem.value, ViewItem.value, AddItem.value ])), React_DOM.div([ Lib_React.cn("btn-group btn-group-sm btn-group-toggle") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.label([ Lib_React.cn("btn btn-secondary" + (function () {
-                      var $7 = state.lang === v;
-                      if ($7) {
+                      var $20 = state.lang === v;
+                      if ($20) {
                           return " active";
                       };
                       return "";
                   })()) ])([ React_DOM.input([ React_DOM_Props["_type"]("radio"), React_DOM_Props.name("options"), React_DOM_Props.checked(state.lang === v), React_DOM_Props.onClick(function (v1) {
                       return setLang($$this)(v);
                   }) ]), React_DOM.text(state.keyText("key." + v)) ]);
-              })([ "uk", "ru" ])) ]), React_DOM.div([ Lib_React.cn("m-2") ])([ React.createLeafElement()(App_Add.addClass)({
-                  ws: props.ws,
-                  lang: state.lang,
-                  keyText: state.keyText
-              }) ]) ]);
+              })([ "uk", "ru" ])) ]), React_DOM.div([ Lib_React.cn("m-2") ])((function () {
+                  if (state.menuItem instanceof HomeItem) {
+                      return [ React.createLeafElement()(App_Home.homeClass)({
+                          ws: props.ws,
+                          lang: state.lang,
+                          keyText: state.keyText
+                      }) ];
+                  };
+                  if (state.menuItem instanceof ViewItem) {
+                      return [  ];
+                  };
+                  if (state.menuItem instanceof AddItem) {
+                      return [ React.createLeafElement()(App_Add.addClass)({
+                          ws: props.ws,
+                          lang: state.lang,
+                          keyText: state.keyText
+                      }) ];
+                  };
+                  throw new Error("Failed pattern match at App (line 121, column 11 - line 127, column 26): " + [ state.menuItem.constructor.name ]);
+              })()) ]);
           };
       };
       return React.component()("App")(function ($$this) {
@@ -8946,7 +9083,8 @@ var PS = {};
                   lang: "uk",
                   keyText: function (key) {
                       return key;
-                  }
+                  },
+                  menuItem: HomeItem.value
               },
               render: render($$this),
               componentDidMount: function __do() {
@@ -8963,19 +9101,20 @@ var PS = {};
                               return {
                                   sessionid: new Data_Maybe.Just(v.value0.val.value0.sessionid),
                                   lang: v1.lang,
-                                  keyText: v1.keyText
+                                  keyText: v1.keyText,
+                                  menuItem: v1.menuItem
                               };
                           });
                       };
                       if (v instanceof Data_Either.Right) {
                           return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                       };
-                      throw new Error("Failed pattern match at App (line 67, column 28 - line 70, column 31): " + [ v.constructor.name ]);
+                      throw new Error("Failed pattern match at App (line 78, column 28 - line 81, column 31): " + [ v.constructor.name ]);
                   })((function () {
-                      var $18 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                      var $19 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                      return function ($20) {
-                          return $18($19($20));
+                      var $32 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                      var $33 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                      return function ($34) {
+                          return $32($33($34));
                       };
                   })())();
               }
@@ -8997,10 +9136,10 @@ var PS = {};
                               })(keys$prime));
                               return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Functor.map(Data_Functor.functorArray)(function (k) {
                                   return Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(x)(k))(Foreign.readNull))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(readStringLike)))(Data_Functor.map(Data_Maybe.functorMaybe)((function () {
-                                      var $21 = Data_Semigroup.append(Data_Semigroup.semigroupString)(k);
-                                      var $22 = Data_Semigroup.append(Data_Semigroup.semigroupString)("=");
-                                      return function ($23) {
-                                          return $21($22($23));
+                                      var $35 = Data_Semigroup.append(Data_Semigroup.semigroupString)(k);
+                                      var $36 = Data_Semigroup.append(Data_Semigroup.semigroupString)("=");
+                                      return function ($37) {
+                                          return $35($36($37));
                                       };
                                   })()));
                               })(keys)))(function (xs) {
@@ -9024,7 +9163,7 @@ var PS = {};
           var doc = Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.document)();
           var elem = Web_DOM_NonElementParentNode.getElementById("container")(Web_HTML_HTMLDocument.toNonElementParentNode(doc))();
           var container = Data_Maybe.maybe(Effect_Exception["throw"]("container not found"))(Control_Applicative.pure(Effect.applicativeEffect))(elem)();
-          var ws = Lib_WebSocket.create("ridehub.city/ws")();
+          var ws = Lib_WebSocket.create("127.0.0.1:8001/ws")();
           Lib_WebSocket.onOpen(ws)(function (v) {
               return Lib_WebSocket.setBinary(ws);
           })();
@@ -9040,10 +9179,16 @@ var PS = {};
               if (v instanceof Data_Either.Right) {
                   return Lib_WebSocket.send(ws)(Api_Pull.encodePull(v.value0));
               };
-              throw new Error("Failed pattern match at App (line 118, column 17 - line 121, column 34): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at App (line 139, column 17 - line 142, column 34): " + [ v.constructor.name ]);
           };
       };
   })();
+  exports["HomeItem"] = HomeItem;
+  exports["ViewItem"] = ViewItem;
+  exports["AddItem"] = AddItem;
   exports["appClass"] = appClass;
   exports["view"] = view;
+  exports["showMenuItem"] = showMenuItem;
+  exports["eqMenuItem"] = eqMenuItem;
+  exports["ordMenuItem"] = ordMenuItem;
 })(PS);

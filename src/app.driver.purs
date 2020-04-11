@@ -229,13 +229,13 @@ driverClass = component "Driver" \this -> do
             ]
           , div [ cn "col-md-4" ]
             [ div [] [ h6 [] [ text $ props.keyText "key.passenger" ] ]
-            , div [] $
+            , div [ cn "mb-2" ] $
                 map (\v ->
                   div [ cn "form-check" ]
-                  [ input [ cn "form-check-input", _type "checkbox",  value "", _id "c1", checked $ member v state.types 
+                  [ input [ cn "form-check-input", _type "checkbox",  value "", _id $ show v, checked $ member v state.types 
                           , onChange \_ -> modifyState this _ { types = if member v state.types then delete v state.types else insert v state.types }
                           ]
-                  , label  [ cn "form-check-label", htmlFor "c1" ] [ text $ props.keyText $ show v ]
+                  , label  [ cn "form-check-label", htmlFor $ show v ] [ text $ props.keyText $ show v ]
                   ]
                 ) [ Medical, Police, Firefighter, Army, Farmacy, Cashier, Regular ]
             ]

@@ -1,6 +1,6 @@
 module App where
 
-import Prelude (Unit, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=), (/=), (<#>), (<>), (==))
+import Prelude hiding (div)
 
 import Control.Alt ((<|>))
 import Control.Monad.Except (runExcept)
@@ -8,7 +8,6 @@ import Data.Array (filter, sort, catMaybes, take, drop)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), maybe, fromMaybe)
 import Data.Number.Format (toString) as Number
-import Data.Semigroup (append)
 import Data.String.Common (joinWith, split, toLower)
 import Data.String.Pattern (Pattern(Pattern))
 import Data.Map as Map
@@ -38,6 +37,7 @@ import Lib.WebSocket as WS
 import Api.Pull (encodePull, Pull(LoginAttempt))
 import Api.Push (decodePush, Push(LoginOk))
 
+import App.Home (homeClass)
 import App.Add (addClass)
 
 type Props =
@@ -48,7 +48,17 @@ type State =
   { sessionid :: Maybe String
   , lang :: String
   , keyText :: String -> String
+  , menuItem :: MenuItem
   }
+
+data MenuItem = HomeItem | ViewItem | AddItem
+instance showMenuItem :: Show MenuItem where
+  show :: MenuItem -> String
+  show HomeItem = "key.menu.home"
+  show ViewItem = "key.menu.view"
+  show AddItem  = "key.menu.add"
+derive instance eqMenuItem :: Eq MenuItem
+derive instance ordMenuItem :: Ord MenuItem
 
 appClass :: ReactClass Props
 appClass = component "App" \this -> do
@@ -57,6 +67,7 @@ appClass = component "App" \this -> do
       { sessionid: mempty
       , lang: "uk"
       , keyText: \key -> key
+      , menuItem: HomeItem
       }:: State
     , render: render this
     , componentDidMount: do
@@ -87,10 +98,15 @@ appClass = component "App" \this -> do
     state <- getState this
     pure $ div []
       [ nav [ cn "navbar navbar-expand-lg navbar-light bg-light" ]
-        [ ul [ cn "navbar-nav mr-auto mt-2 mt-lg-0" ] 
-          [ li [ cn "nav-item" ] [ a [ cn "nav-link", href "#" ] [ text $ state.keyText "key.menu.view" ] ]
-          , li [ cn "nav-item active" ] [ a [ cn "nav-link", href "#" ] [ text $ state.keyText "key.menu.add" ] ]
-          ]
+        [ ul [ cn "navbar-nav mr-auto mt-2 mt-lg-0" ] $
+            map (\v ->
+              li [ cn $ "nav-item" <> if v == state.menuItem then " active" else "" ]
+              [ a [ cn "nav-link", href "#"
+                  , onClick \_ -> modifyState this _{ menuItem = v }
+                  ] 
+                [ text $ state.keyText $ show v ]
+              ]
+            ) [ HomeItem, ViewItem, AddItem ]
         , div [ cn "btn-group btn-group-sm btn-group-toggle" ] $
             map (\v ->
               label [ cn $ "btn btn-secondary" <> if state.lang == v then " active" else "" ]
@@ -101,9 +117,14 @@ appClass = component "App" \this -> do
               ]
             ) [ "uk", "ru" ]
         ]
-      , div [ cn "m-2"] 
-        [ createLeafElement addClass {ws: ws, lang: state.lang, keyText: state.keyText}
-        ]
+      , div [ cn "m-2"] $
+          case state.menuItem of
+            HomeItem -> [ createLeafElement homeClass {ws: ws, lang: state.lang, keyText: state.keyText} ]
+            ViewItem -> [
+              
+                        ]
+            AddItem  -> [ createLeafElement addClass {ws: ws, lang: state.lang, keyText: state.keyText}
+                        ]
       ]
 
 view :: Effect (Foreign -> Effect Unit)
@@ -111,7 +132,7 @@ view = do
   doc <- window >>= document
   elem <- getElementById "container" $ toNonElementParentNode doc
   container <- maybe (throw "container not found") pure elem
-  ws <- WS.create "ridehub.city/ws"
+   ws <- WS.create "ridehub.city/ws"
   WS.onOpen ws \_ -> WS.setBinary ws
   let element = createLeafElement appClass { ws }
   void $ render element container
