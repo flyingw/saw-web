@@ -6,28 +6,26 @@ module App.Rider
 import Prelude hiding (div)
 
 import Data.Either (Either(Left, Right))
-import Data.Int (ceil)
 import Data.JSDate (parse, now, getTime, toISOString)
 import Data.Maybe (Maybe(Just, Nothing), fromMaybe, isNothing)
-import Data.Monoid (mempty)
 import Data.String (take)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(Tuple))
-import Data.Map (Map, delete, empty, insert, member, fromFoldable, lookup)
+import Data.Map (Map, fromFoldable, lookup)
 import Effect (Effect)
 import Effect.Console (error)
 import Global (encodeURI)
 import React (ReactClass, ReactThis, getProps, getState, modifyState, component)
 import React.DOM (text, div, form, label, input, button, h6, small, iframe, select, option)
-import React.DOM.Props (htmlFor, placeholder, _id, _type, noValidate, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, value, disabled)
+import React.DOM.Props (htmlFor, _id, _type, noValidate, required, autoComplete, value, src, width, height, frameBorder, onClick, disabled)
 
-import Lib.React(cn, targetValue, onChangeValue, onChangeValueInt)
+import Lib.React(cn, onChangeValue)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
 import Model(PassengerType(..))
 import Api (Address)
-import Api.Push (decodePush, Push(Pong))
+import Api.Push (decodePush)
 import Api.Pull as P
 import Api.Pull (Pull(AddPassenger), encodePull)
 
@@ -63,8 +61,8 @@ riderClass = component "Rider" \this -> do
       }
     , render: render this
     , componentDidMount: do
-        props <- getProps this
-        let ws = props.ws
+        p <- getProps this
+        let ws = p.ws
         WS.onMsg ws (\x -> case decodePush x of
           Left y -> error $ show y
           Right _ -> pure unit
@@ -225,7 +223,7 @@ riderClass = component "Rider" \this -> do
           ]
         , div [ cn "alert alert-info col-md-12" ] [ text $ props.keyText "key.add.hint" ]
         , button [ cn "btn btn-primary mb-3", _type "button"
-                --  , disabled $ isNothing state.mapQ
+                 , disabled $ isNothing state.mapQ
                  , onClick \_ -> sendPassenger this 
                  ] 
           [ text $ props.keyText "key.add"

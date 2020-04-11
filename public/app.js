@@ -7873,7 +7873,7 @@ var PS = {};
                       if (v instanceof Model.Regular) {
                           return Api_Pull.Regular.value;
                       };
-                      throw new Error("Failed pattern match at App.Driver (line 103, column 47 - line 110, column 31): " + [ v.constructor.name ]);
+                      throw new Error("Failed pattern match at App.Driver (line 99, column 47 - line 106, column 35): " + [ v.constructor.name ]);
                   })
               });
               return Lib_WebSocket.send(p.ws)(Api_Pull.encodePull(driver))();
@@ -8132,8 +8132,8 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 248, column 11 - line 256, column 30): " + [ state.mapQ.constructor.name ]);
-              })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+                  throw new Error("Failed pattern match at App.Driver (line 244, column 11 - line 252, column 30): " + [ state.mapQ.constructor.name ]);
+              })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.disabled(Data_Maybe.isNothing(state.mapQ)), React_DOM_Props.onClick(function (v) {
                   return sendDriver($$this);
               }) ])([ React_DOM.text(props.keyText("key.add")) ]) ]) ]);
           };
@@ -8166,8 +8166,8 @@ var PS = {};
                   },
                   render: render($$this),
                   componentDidMount: function __do() {
-                      var props1 = React.getProps($$this)();
-                      return Lib_WebSocket.onMsg(props1.ws)(function (x) {
+                      var p = React.getProps($$this)();
+                      return Lib_WebSocket.onMsg(p.ws)(function (x) {
                           var v = Api_Push.decodePush(x);
                           if (v instanceof Data_Either.Left) {
                               return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
@@ -8209,7 +8209,7 @@ var PS = {};
                           if (v instanceof Data_Either.Right) {
                               return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                           };
-                          throw new Error("Failed pattern match at App.Driver (line 77, column 28 - line 81, column 31): " + [ v.constructor.name ]);
+                          throw new Error("Failed pattern match at App.Driver (line 73, column 28 - line 77, column 31): " + [ v.constructor.name ]);
                       })((function () {
                           var $42 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
                           var $43 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
@@ -8311,7 +8311,7 @@ var PS = {};
                       if (s.tpe instanceof Model.Regular) {
                           return Api_Pull.Regular.value;
                       };
-                      throw new Error("Failed pattern match at App.Rider (line 93, column 14 - line 100, column 31): " + [ s.tpe.constructor.name ]);
+                      throw new Error("Failed pattern match at App.Rider (line 91, column 14 - line 98, column 31): " + [ s.tpe.constructor.name ]);
                   })(),
                   from: s.from,
                   to: s.to
@@ -8478,8 +8478,8 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Rider (line 207, column 11 - line 215, column 30): " + [ state.mapQ.constructor.name ]);
-              })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+                  throw new Error("Failed pattern match at App.Rider (line 205, column 11 - line 213, column 30): " + [ state.mapQ.constructor.name ]);
+              })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.disabled(Data_Maybe.isNothing(state.mapQ)), React_DOM_Props.onClick(function (v) {
                   return sendPassenger($$this);
               }) ])([ React_DOM.text(props.keyText("key.add")) ]) ]) ]);
           };
@@ -8508,8 +8508,8 @@ var PS = {};
                   },
                   render: render($$this),
                   componentDidMount: function __do() {
-                      var props1 = React.getProps($$this)();
-                      return Lib_WebSocket.onMsg(props1.ws)(function (x) {
+                      var p = React.getProps($$this)();
+                      return Lib_WebSocket.onMsg(p.ws)(function (x) {
                           var v = Api_Push.decodePush(x);
                           if (v instanceof Data_Either.Left) {
                               return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
@@ -8517,7 +8517,7 @@ var PS = {};
                           if (v instanceof Data_Either.Right) {
                               return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                           };
-                          throw new Error("Failed pattern match at App.Rider (line 68, column 28 - line 70, column 31): " + [ v.constructor.name ]);
+                          throw new Error("Failed pattern match at App.Rider (line 66, column 28 - line 68, column 31): " + [ v.constructor.name ]);
                       })((function () {
                           var $26 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
                           var $27 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
@@ -8582,7 +8582,7 @@ var PS = {};
       if (v instanceof AddR) {
           return "key.passenger";
       };
-      throw new Error("Failed pattern match at App.Add (line 46, column 1 - line 46, column 24): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at App.Add (line 32, column 1 - line 32, column 24): " + [ v.constructor.name ]);
   };
   var eqTab = new Data_Eq.Eq(function (x) {
       return function (y) {
@@ -8629,7 +8629,7 @@ var PS = {};
                   if (state.tab instanceof AddR) {
                       return React.createLeafElement()(App_Rider.riderClass)(props);
                   };
-                  throw new Error("Failed pattern match at App.Add (line 74, column 9 - line 76, column 53): " + [ state.tab.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Add (line 60, column 9 - line 62, column 53): " + [ state.tab.constructor.name ]);
               })() ]);
           };
       };
@@ -8970,7 +8970,7 @@ var PS = {};
                       if (v instanceof Data_Either.Right) {
                           return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                       };
-                      throw new Error("Failed pattern match at App (line 69, column 28 - line 72, column 31): " + [ v.constructor.name ]);
+                      throw new Error("Failed pattern match at App (line 67, column 28 - line 70, column 31): " + [ v.constructor.name ]);
                   })((function () {
                       var $18 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
                       var $19 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
@@ -9040,7 +9040,7 @@ var PS = {};
               if (v instanceof Data_Either.Right) {
                   return Lib_WebSocket.send(ws)(Api_Pull.encodePull(v.value0));
               };
-              throw new Error("Failed pattern match at App (line 120, column 17 - line 123, column 34): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at App (line 118, column 17 - line 121, column 34): " + [ v.constructor.name ]);
           };
       };
   })();

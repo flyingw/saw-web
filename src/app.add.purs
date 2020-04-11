@@ -5,27 +5,13 @@ module App.Add
 
 import Prelude hiding (div)
 
-import Data.Eq (class Eq)
-import Data.Either (Either(Left, Right))
-import Data.Maybe (Maybe, fromMaybe)
-import Data.Traversable (sequence)
-import Data.JSDate (parse, now, getTime, toISOString)
-import Data.Monoid (mempty)
-import Data.String (take)
-import Effect (Effect)
-import Effect.Console (error)
 import React (ReactClass, getProps, getState, modifyState, component, createLeafElement)
-import React.DOM (text, div, ul, li, a, form)
+import React.DOM (text, div, ul, li, a)
 import React.DOM.Props (href, onClick)
-import React.SyntheticEvent (preventDefault, stopPropagation) as R
+import React.SyntheticEvent (preventDefault) as R
 
-import Lib.React(cn, targetValue, onChangeValue, onChangeValueInt)
+import Lib.React(cn)
 import Lib.WebSocket (WebSocket)
-import Lib.WebSocket as WS
-
-import Api (Address)
-import Api.Push (decodePush, Push(Pong))
-import Api.Pull (PassengerType(Medical), encodePull)
 
 import App.Driver (driverClass)
 import App.Rider (riderClass)

@@ -3,16 +3,12 @@ module App.Driver
   , Props
   ) where
 
-import Prelude hiding (div)
-
-import Data.Tuple (Tuple(Tuple))
+import Prelude hiding (div, min, max)
 import Data.Array (fromFoldable) as Array
-import Data.Set (Set, delete, empty, insert, member, fromFoldable)
+import Data.Set (Set, delete, insert, member, fromFoldable)
 import Data.Either (Either(Left, Right))
-import Data.Int (ceil)
 import Data.JSDate (parse, now, getTime, toISOString)
 import Data.Maybe (Maybe(Just, Nothing), fromMaybe, isNothing)
-import Data.Monoid (mempty)
 import Data.String (take)
 import Data.Traversable (sequence)
 import Effect (Effect)
@@ -20,9 +16,9 @@ import Effect.Console (error)
 import Global (encodeURI)
 import React (ReactClass, ReactThis, getProps, getState, modifyState, component)
 import React.DOM (text, div, form, label, input, button, h6, small, iframe)
-import React.DOM.Props (htmlFor, placeholder, _id, _type, noValidate, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, value, disabled, checked)
+import React.DOM.Props (htmlFor, _id, _type, noValidate, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, disabled, checked)
 
-import Lib.React(cn, targetValue, onChangeValue, onChangeValueInt)
+import Lib.React(cn, onChangeValue, onChangeValueInt)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
@@ -30,7 +26,7 @@ import Model(PassengerType(..))
 import Api (Address)
 import Api.Pull as P
 import Api.Pull (Pull(AddDriver), encodePull)
-import Api.Push (decodePush, Push(Pong, AddRouteOk, LoginOk))
+import Api.Push (decodePush, Push(AddRouteOk, LoginOk))
 
 type Props =
   { ws :: WebSocket
@@ -72,8 +68,8 @@ driverClass = component "Driver" \this -> do
       } :: State
     , render: render this
     , componentDidMount: do
-        props <- getProps this
-        let ws = props.ws
+        p <- getProps this
+        let ws = p.ws
         WS.onMsg ws (\x -> case decodePush x of
           Left y -> error $ show y
           Right { val: AddRouteOk r } -> modifyState this _{ routeN=Just r.n }
@@ -101,13 +97,13 @@ driverClass = component "Driver" \this -> do
       , from: s.from
       , to: s.to
       , types: Array.fromFoldable s.types <#> case _ of
-          Medical -> P.Medical
-          Police -> P.Police
+          Medical     -> P.Medical
+          Police      -> P.Police
           Firefighter -> P.Firefighter
-          Army -> P.Army
-          Farmacy -> P.Farmacy
-          Cashier -> P.Cashier
-          Regular -> P.Regular
+          Army        -> P.Army
+          Farmacy     -> P.Farmacy
+          Cashier     -> P.Cashier
+          Regular     -> P.Regular
       }
     WS.send p.ws $ encodePull driver
 
@@ -266,7 +262,7 @@ driverClass = component "Driver" \this -> do
           ]
         , div [ cn "alert alert-info col-md-12" ] [ text $ props.keyText "key.add.hint" ]
         , button [ cn "btn btn-primary mb-3", _type "button"
-                --  , disabled $ isNothing state.mapQ
+                 , disabled $ isNothing state.mapQ
                  , onClick \_ -> sendDriver this 
                  ] 
           [ text $ props.keyText "key.add"

@@ -1,16 +1,14 @@
 module App where
 
-import Prelude (Unit, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=), (/=), (<$>), (<#>), (<>), (==))
+import Prelude (Unit, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=), (/=), (<#>), (<>), (==))
 
 import Control.Alt ((<|>))
 import Control.Monad.Except (runExcept)
 import Data.Array (filter, sort, catMaybes, take, drop)
 import Data.Either (Either(..))
-import Data.Functor ((<#>))
-import Data.Maybe (Maybe(..), maybe)
+import Data.Maybe (Maybe(..), maybe, fromMaybe)
 import Data.Number.Format (toString) as Number
 import Data.Semigroup (append)
-import Data.Maybe (fromMaybe)
 import Data.String.Common (joinWith, split, toLower)
 import Data.String.Pattern (Pattern(Pattern))
 import Data.Map as Map
@@ -24,8 +22,8 @@ import Foreign (fail) as F
 import Foreign.Keys (keys) as F
 import Foreign.Index ((!)) as F
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
-import React.DOM (button, div, text, nav, form, ul, li, a, label, input)
-import React.DOM.Props (_type, onClick, _data, _id, name, checked, href)
+import React.DOM (div, text, nav, ul, li, a, label, input)
+import React.DOM.Props (_type, onClick, name, checked, href)
 import ReactDOM (render)
 import Web.DOM.NonElementParentNode (getElementById)
 import Web.HTML (window)
@@ -37,7 +35,7 @@ import Lib.React (cn)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
-import Api.Pull (encodePull, Pull(Ping, LoginAttempt))
+import Api.Pull (encodePull, Pull(LoginAttempt))
 import Api.Push (decodePush, Push(LoginOk))
 
 import App.Add (addClass)
