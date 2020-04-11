@@ -4727,7 +4727,6 @@ var PS = {};
       };
       throw new Error("Failed pattern match at Api.Pull (line 26, column 1 - line 26, column 33): " + [ v.constructor.name ]);
   };
-  exports["Ping"] = Ping;
   exports["LoginAttempt"] = LoginAttempt;
   exports["AddDriver"] = AddDriver;
   exports["AddPassenger"] = AddPassenger;
@@ -6935,6 +6934,7 @@ var PS = {};
       return $foreign.unsafeMkProps("onChange")(Effect_Uncurried.mkEffectFn1(f));
   };                                          
   var noValidate = $foreign.unsafeMkProps("noValidate");
+  var name = $foreign.unsafeMkProps("name");          
   var min = $foreign.unsafeMkProps("min");            
   var max = $foreign.unsafeMkProps("max");            
   var htmlFor = $foreign.unsafeMkProps("htmlFor");  
@@ -6958,6 +6958,7 @@ var PS = {};
   exports["_id"] = _id;
   exports["max"] = max;
   exports["min"] = min;
+  exports["name"] = name;
   exports["noValidate"] = noValidate;
   exports["required"] = required;
   exports["src"] = src;
@@ -7748,7 +7749,8 @@ var PS = {};
               return createElement(tag)(React_DOM_Props.unsafeFromPropsArray(props));
           };
       };
-  };                                  
+  };
+  var nav = mkDOM(false)("nav");      
   var option = mkDOM(false)("option");
   var select = mkDOM(false)("select");
   var small = mkDOM(false)("small");
@@ -7774,6 +7776,7 @@ var PS = {};
   exports["input"] = input;
   exports["label"] = label;
   exports["li"] = li;
+  exports["nav"] = nav;
   exports["option"] = option;
   exports["select"] = select;
   exports["small"] = small;
@@ -8919,13 +8922,21 @@ var PS = {};
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([  ])([ React_DOM.button([ React_DOM_Props["_type"]("button"), Lib_React.cn("btn btn-primary"), React_DOM_Props.onClick(function (v) {
-                  return Lib_WebSocket.send(props.ws)(Api_Pull.encodePull(Api_Pull.Ping.value));
-              }) ])([ React_DOM.text("Send") ]), React.createLeafElement()(App_Add.addClass)({
+              return React_DOM.div([  ])([ React_DOM.nav([ Lib_React.cn("navbar navbar-expand-lg navbar-light bg-light") ])([ React_DOM.ul([ Lib_React.cn("navbar-nav mr-auto mt-2 mt-lg-0") ])([ React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.a([ Lib_React.cn("nav-link"), React_DOM_Props.href("#") ])([ React_DOM.text(state.keyText("key.menu.view")) ]) ]), React_DOM.li([ Lib_React.cn("nav-item active") ])([ React_DOM.a([ Lib_React.cn("nav-link"), React_DOM_Props.href("#") ])([ React_DOM.text(state.keyText("key.menu.add")) ]) ]) ]), React_DOM.div([ Lib_React.cn("btn-group btn-group-sm btn-group-toggle") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
+                  return React_DOM.label([ Lib_React.cn("btn btn-secondary" + (function () {
+                      var $7 = state.lang === v;
+                      if ($7) {
+                          return " active";
+                      };
+                      return "";
+                  })()) ])([ React_DOM.input([ React_DOM_Props["_type"]("radio"), React_DOM_Props.name("options"), React_DOM_Props.checked(state.lang === v), React_DOM_Props.onClick(function (v1) {
+                      return setLang($$this)(v);
+                  }) ]), React_DOM.text(state.keyText("key." + v)) ]);
+              })([ "uk", "ru" ])) ]), React_DOM.div([ Lib_React.cn("m-2") ])([ React.createLeafElement()(App_Add.addClass)({
                   ws: props.ws,
                   lang: state.lang,
                   keyText: state.keyText
-              }) ]);
+              }) ]) ]);
           };
       };
       return React.component()("App")(function ($$this) {
@@ -8961,10 +8972,10 @@ var PS = {};
                       };
                       throw new Error("Failed pattern match at App (line 69, column 28 - line 72, column 31): " + [ v.constructor.name ]);
                   })((function () {
-                      var $17 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                      var $18 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                      return function ($19) {
-                          return $17($18($19));
+                      var $18 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                      var $19 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                      return function ($20) {
+                          return $18($19($20));
                       };
                   })())();
               }
@@ -8986,10 +8997,10 @@ var PS = {};
                               })(keys$prime));
                               return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Functor.map(Data_Functor.functorArray)(function (k) {
                                   return Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(x)(k))(Foreign.readNull))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(readStringLike)))(Data_Functor.map(Data_Maybe.functorMaybe)((function () {
-                                      var $20 = Data_Semigroup.append(Data_Semigroup.semigroupString)(k);
-                                      var $21 = Data_Semigroup.append(Data_Semigroup.semigroupString)("=");
-                                      return function ($22) {
-                                          return $20($21($22));
+                                      var $21 = Data_Semigroup.append(Data_Semigroup.semigroupString)(k);
+                                      var $22 = Data_Semigroup.append(Data_Semigroup.semigroupString)("=");
+                                      return function ($23) {
+                                          return $21($22($23));
                                       };
                                   })()));
                               })(keys)))(function (xs) {
@@ -9029,7 +9040,7 @@ var PS = {};
               if (v instanceof Data_Either.Right) {
                   return Lib_WebSocket.send(ws)(Api_Pull.encodePull(v.value0));
               };
-              throw new Error("Failed pattern match at App (line 107, column 17 - line 110, column 34): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at App (line 120, column 17 - line 123, column 34): " + [ v.constructor.name ]);
           };
       };
   })();

@@ -1,6 +1,6 @@
 module App where
 
-import Prelude (Unit, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=), (/=), (<$>), (<#>), (<>))
+import Prelude (Unit, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=), (/=), (<$>), (<#>), (<>), (==))
 
 import Control.Alt ((<|>))
 import Control.Monad.Except (runExcept)
@@ -24,8 +24,8 @@ import Foreign (fail) as F
 import Foreign.Keys (keys) as F
 import Foreign.Index ((!)) as F
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
-import React.DOM (button, div, text)
-import React.DOM.Props (_type, onClick)
+import React.DOM (button, div, text, nav, form, ul, li, a, label, input)
+import React.DOM.Props (_type, onClick, _data, _id, name, checked, href)
 import ReactDOM (render)
 import Web.DOM.NonElementParentNode (getElementById)
 import Web.HTML (window)
@@ -88,11 +88,24 @@ appClass = component "App" \this -> do
     let ws = props.ws
     state <- getState this
     pure $ div []
-      [ button  [ _type "button"
-                , cn "btn btn-primary"
-                , onClick \_ -> WS.send ws $ encodePull Ping
-                ] [ text "Send" ]
-      , createLeafElement addClass {ws: ws, lang: state.lang, keyText: state.keyText}
+      [ nav [ cn "navbar navbar-expand-lg navbar-light bg-light" ]
+        [ ul [ cn "navbar-nav mr-auto mt-2 mt-lg-0" ] 
+          [ li [ cn "nav-item" ] [ a [ cn "nav-link", href "#" ] [ text $ state.keyText "key.menu.view" ] ]
+          , li [ cn "nav-item active" ] [ a [ cn "nav-link", href "#" ] [ text $ state.keyText "key.menu.add" ] ]
+          ]
+        , div [ cn "btn-group btn-group-sm btn-group-toggle" ] $
+            map (\v ->
+              label [ cn $ "btn btn-secondary" <> if state.lang == v then " active" else "" ]
+              [ input [ _type "radio", name "options", checked $ state.lang == v
+                      , onClick \_ -> setLang this v
+                      ]
+              , text $ state.keyText $ "key." <> v
+              ]
+            ) [ "uk", "ru" ]
+        ]
+      , div [ cn "m-2"] 
+        [ createLeafElement addClass {ws: ws, lang: state.lang, keyText: state.keyText}
+        ]
       ]
 
 view :: Effect (Foreign -> Effect Unit)
