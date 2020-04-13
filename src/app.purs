@@ -146,7 +146,7 @@ view = do
     xs                <- sequence $ map (\k -> x F.! k >>= readNull >>= traverse readStringLike <#> map (append k <<< append "=")) keys
     data_check_string <- pure $ joinWith "\n" $ catMaybes xs
     name              <- x F.! "first_name" >>= readNullOrUndefined >>= traverse readString
-    id                <- x F.! "id" >>= readString
+    id                <- x F.! "id" >>= readStringLike
     pure $ LoginAttempt { data_check_string, hash, auth_date, name, id }
     where
     readStringLike :: Foreign -> F String
