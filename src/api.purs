@@ -1,7 +1,8 @@
 module Api
-  ( Address 
+  ( PassengerType(..) 
   ) where
 
+import Data.Eq (class Eq)
 
-
-type Address = { city :: String, street :: String, building :: String }
+data PassengerType = Medical | Police | Firefighter | Army | Farmacy | Cashier | Regular
+derive instance eqPassengerType :: Eq PassengerType

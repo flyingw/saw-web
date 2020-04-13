@@ -3,12 +3,12 @@ module App.Driver
   , Props
   ) where
 
-import Prelude hiding (div, min, max)
-import Data.Array (fromFoldable) as Array
-import Data.Set (Set, delete, insert, member, fromFoldable)
-import Data.Either (Either(Left, Right))
+import Prelude (Unit, bind, map, mempty, pure, show, unit, ($), (<#>), (<<<), (<>), (>>=))
+
+import Data.Array (fromFoldable, elem, delete, (:))
+import Data.Either (Either(..))
 import Data.JSDate (parse, now, getTime, toISOString)
-import Data.Maybe (Maybe(Just, Nothing), fromMaybe, isNothing)
+import Data.Maybe (Maybe(..), fromMaybe, isNothing)
 import Data.String (take)
 import Data.Traversable (sequence)
 import Effect (Effect)
@@ -22,11 +22,11 @@ import Lib.React(cn, onChangeValue, onChangeValueInt)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
-import Model(PassengerType(..))
-import Api (Address)
-import Api.Pull as P
-import Api.Pull (Pull(AddDriver), encodePull)
-import Api.Push (decodePush, Push(AddRouteOk, LoginOk))
+import Api (PassengerType(..))
+import Api.Pull (Pull(AddDriver), encodePull, Address)
+import Api.Push (decodePush, Push(LoginOk))
+
+import Keys (keyPassengerType)
 
 type Props =
   { ws :: WebSocket
@@ -45,7 +45,7 @@ type State =
   , seats :: Int
   , from :: Address
   , to :: Address
-  , types :: Set PassengerType
+  , types :: Array PassengerType
   }
 
 driverClass :: ReactClass Props
@@ -72,7 +72,7 @@ driverClass = component "Driver" \this -> do
         let ws = p.ws
         WS.onMsg ws (\x -> case decodePush x of
           Left y -> error $ show y
-          Right { val: AddRouteOk r } -> modifyState this _{ routeN=Just r.n }
+          -- Right { val: AddRouteOk r } -> modifyState this _{ routeN=Just r.n }
           Right { val: LoginOk {name: Just name}} -> modifyState this _{ name=name }
           Right _ -> pure unit
         ) (sequence <<< map error)
@@ -96,14 +96,7 @@ driverClass = component "Driver" \this -> do
       , seats: s.seats
       , from: s.from
       , to: s.to
-      , types: Array.fromFoldable s.types <#> case _ of
-          Medical     -> P.Medical
-          Police      -> P.Police
-          Firefighter -> P.Firefighter
-          Army        -> P.Army
-          Farmacy     -> P.Farmacy
-          Cashier     -> P.Cashier
-          Regular     -> P.Regular
+      , types: s.types
       }
     WS.send p.ws $ encodePull driver
 
@@ -232,10 +225,10 @@ driverClass = component "Driver" \this -> do
             , div [ cn "mb-2" ] $
                 map (\v ->
                   div [ cn "form-check" ]
-                  [ input [ cn "form-check-input", _type "checkbox",  value "", _id $ show v, checked $ member v state.types 
-                          , onChange \_ -> modifyState this _ { types = if member v state.types then delete v state.types else insert v state.types }
+                  [ input [ cn "form-check-input", _type "checkbox",  value "", _id $ keyPassengerType v, checked $ elem v state.types 
+                          , onChange \_ -> modifyState this _ { types = if elem v state.types then delete v state.types else v : state.types }
                           ]
-                  , label  [ cn "form-check-label", htmlFor $ show v ] [ text $ props.keyText $ show v ]
+                  , label  [ cn "form-check-label", htmlFor $ keyPassengerType v ] [ text $ props.keyText $ keyPassengerType v ]
                   ]
                 ) [ Medical, Police, Firefighter, Army, Farmacy, Cashier, Regular ]
             ]

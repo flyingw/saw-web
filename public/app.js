@@ -334,50 +334,6 @@ var PS = {};
   exports["identity"] = identity;
   exports["categoryFn"] = categoryFn;
 })(PS);
-(function(exports) {
-  "use strict";
-
-  exports.concatString = function (s1) {
-    return function (s2) {
-      return s1 + s2;
-    };
-  };
-})(PS["Data.Semigroup"] = PS["Data.Semigroup"] || {});
-(function($PS) {
-  "use strict";
-  $PS["Data.Semigroup"] = $PS["Data.Semigroup"] || {};
-  var exports = $PS["Data.Semigroup"];
-  var $foreign = $PS["Data.Semigroup"];
-  var Semigroup = function (append) {
-      this.append = append;
-  }; 
-  var semigroupString = new Semigroup($foreign.concatString);
-  var append = function (dict) {
-      return dict.append;
-  };
-  exports["Semigroup"] = Semigroup;
-  exports["append"] = append;
-  exports["semigroupString"] = semigroupString;
-})(PS);
-(function($PS) {
-  "use strict";
-  $PS["Data.Monoid"] = $PS["Data.Monoid"] || {};
-  var exports = $PS["Data.Monoid"];
-  var Data_Semigroup = $PS["Data.Semigroup"];
-  var Monoid = function (Semigroup0, mempty) {
-      this.Semigroup0 = Semigroup0;
-      this.mempty = mempty;
-  };                 
-  var monoidString = new Monoid(function () {
-      return Data_Semigroup.semigroupString;
-  }, "");
-  var mempty = function (dict) {
-      return dict.mempty;
-  };
-  exports["Monoid"] = Monoid;
-  exports["mempty"] = mempty;
-  exports["monoidString"] = monoidString;
-})(PS);
 (function($PS) {
   "use strict";
   $PS["Data.Maybe"] = $PS["Data.Maybe"] || {};
@@ -387,9 +343,7 @@ var PS = {};
   var Control_Bind = $PS["Control.Bind"];
   var Control_Category = $PS["Control.Category"];
   var Data_Function = $PS["Data.Function"];
-  var Data_Functor = $PS["Data.Functor"];
-  var Data_Monoid = $PS["Data.Monoid"];
-  var Data_Semigroup = $PS["Data.Semigroup"];      
+  var Data_Functor = $PS["Data.Functor"];          
   var Nothing = (function () {
       function Nothing() {
 
@@ -406,27 +360,6 @@ var PS = {};
       };
       return Just;
   })();
-  var semigroupMaybe = function (dictSemigroup) {
-      return new Data_Semigroup.Semigroup(function (v) {
-          return function (v1) {
-              if (v instanceof Nothing) {
-                  return v1;
-              };
-              if (v1 instanceof Nothing) {
-                  return v;
-              };
-              if (v instanceof Just && v1 instanceof Just) {
-                  return new Just(Data_Semigroup.append(dictSemigroup)(v.value0)(v1.value0));
-              };
-              throw new Error("Failed pattern match at Data.Maybe (line 174, column 1 - line 177, column 43): " + [ v.constructor.name, v1.constructor.name ]);
-          };
-      });
-  };
-  var monoidMaybe = function (dictSemigroup) {
-      return new Data_Monoid.Monoid(function () {
-          return semigroupMaybe(dictSemigroup);
-      }, Nothing.value);
-  };
   var maybe = function (v) {
       return function (v1) {
           return function (v2) {
@@ -441,7 +374,6 @@ var PS = {};
       };
   };
   var isNothing = maybe(true)(Data_Function["const"](false));
-  var isJust = maybe(false)(Data_Function["const"](true));
   var functorMaybe = new Data_Functor.Functor(function (v) {
       return function (v1) {
           if (v1 instanceof Just) {
@@ -494,14 +426,12 @@ var PS = {};
   exports["Just"] = Just;
   exports["maybe"] = maybe;
   exports["fromMaybe"] = fromMaybe;
-  exports["isJust"] = isJust;
   exports["isNothing"] = isNothing;
   exports["fromJust"] = fromJust;
   exports["functorMaybe"] = functorMaybe;
   exports["applyMaybe"] = applyMaybe;
   exports["applicativeMaybe"] = applicativeMaybe;
   exports["bindMaybe"] = bindMaybe;
-  exports["monoidMaybe"] = monoidMaybe;
 })(PS);
 (function($PS) {
   "use strict";
@@ -648,6 +578,50 @@ var PS = {};
   exports["ff"] = ff;
   exports["disj"] = disj;
   exports["heytingAlgebraBoolean"] = heytingAlgebraBoolean;
+})(PS);
+(function(exports) {
+  "use strict";
+
+  exports.concatString = function (s1) {
+    return function (s2) {
+      return s1 + s2;
+    };
+  };
+})(PS["Data.Semigroup"] = PS["Data.Semigroup"] || {});
+(function($PS) {
+  "use strict";
+  $PS["Data.Semigroup"] = $PS["Data.Semigroup"] || {};
+  var exports = $PS["Data.Semigroup"];
+  var $foreign = $PS["Data.Semigroup"];
+  var Semigroup = function (append) {
+      this.append = append;
+  }; 
+  var semigroupString = new Semigroup($foreign.concatString);
+  var append = function (dict) {
+      return dict.append;
+  };
+  exports["Semigroup"] = Semigroup;
+  exports["append"] = append;
+  exports["semigroupString"] = semigroupString;
+})(PS);
+(function($PS) {
+  "use strict";
+  $PS["Data.Monoid"] = $PS["Data.Monoid"] || {};
+  var exports = $PS["Data.Monoid"];
+  var Data_Semigroup = $PS["Data.Semigroup"];
+  var Monoid = function (Semigroup0, mempty) {
+      this.Semigroup0 = Semigroup0;
+      this.mempty = mempty;
+  };                 
+  var monoidString = new Monoid(function () {
+      return Data_Semigroup.semigroupString;
+  }, "");
+  var mempty = function (dict) {
+      return dict.mempty;
+  };
+  exports["Monoid"] = Monoid;
+  exports["mempty"] = mempty;
+  exports["monoidString"] = monoidString;
 })(PS);
 (function($PS) {
   "use strict";
@@ -1405,11 +1379,47 @@ var PS = {};
     return xs.length;
   };
 
+  //------------------------------------------------------------------------------
+  // Extending arrays ------------------------------------------------------------
+  //------------------------------------------------------------------------------
+
+  exports.cons = function (e) {
+    return function (l) {
+      return [e].concat(l);
+    };
+  };
+
   exports.snoc = function (l) {
     return function (e) {
       var l1 = l.slice();
       l1.push(e);
       return l1;
+    };
+  };
+
+  exports.findIndexImpl = function (just) {
+    return function (nothing) {
+      return function (f) {
+        return function (xs) {
+          for (var i = 0, l = xs.length; i < l; i++) {
+            if (f(xs[i])) return just(i);
+          }
+          return nothing;
+        };
+      };
+    };
+  };
+
+  exports._deleteAt = function (just) {
+    return function (nothing) {
+      return function (i) {
+        return function (l) {
+          if (i < 0 || i >= l.length) return nothing;
+          var l1 = l.slice();
+          l1.splice(i, 1);
+          return just(l1);
+        };
+      };
     };
   };
 
@@ -1446,6 +1456,38 @@ var PS = {};
 (function(exports) {
   "use strict";
 
+  var refEq = function (r1) {
+    return function (r2) {
+      return r1 === r2;
+    };
+  };                            
+  exports.eqIntImpl = refEq;   
+  exports.eqCharImpl = refEq;
+  exports.eqStringImpl = refEq;
+})(PS["Data.Eq"] = PS["Data.Eq"] || {});
+(function($PS) {
+  "use strict";
+  $PS["Data.Eq"] = $PS["Data.Eq"] || {};
+  var exports = $PS["Data.Eq"];
+  var $foreign = $PS["Data.Eq"];
+  var Eq = function (eq) {
+      this.eq = eq;
+  }; 
+  var eqString = new Eq($foreign.eqStringImpl);
+  var eqInt = new Eq($foreign.eqIntImpl);
+  var eqChar = new Eq($foreign.eqCharImpl);
+  var eq = function (dict) {
+      return dict.eq;
+  };
+  exports["Eq"] = Eq;
+  exports["eq"] = eq;
+  exports["eqInt"] = eqInt;
+  exports["eqChar"] = eqChar;
+  exports["eqString"] = eqString;
+})(PS);
+(function(exports) {
+  "use strict";
+
   exports.foldrArray = function (f) {
     return function (init) {
       return function (xs) {
@@ -1477,7 +1519,9 @@ var PS = {};
   $PS["Data.Foldable"] = $PS["Data.Foldable"] || {};
   var exports = $PS["Data.Foldable"];
   var $foreign = $PS["Data.Foldable"];
+  var Data_Eq = $PS["Data.Eq"];
   var Data_Functor = $PS["Data.Functor"];
+  var Data_HeytingAlgebra = $PS["Data.HeytingAlgebra"];
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Monoid = $PS["Data.Monoid"];
   var Data_Monoid_Disj = $PS["Data.Monoid.Disj"];
@@ -1579,12 +1623,21 @@ var PS = {};
           return Data_Newtype.alaF(Data_Functor.functorFn)(Data_Functor.functorFn)(Data_Newtype.newtypeDisj)(Data_Newtype.newtypeDisj)(Data_Monoid_Disj.Disj)(foldMap(dictFoldable)(Data_Monoid_Disj.monoidDisj(dictHeytingAlgebra)));
       };
   };
+  var elem = function (dictFoldable) {
+      return function (dictEq) {
+          var $204 = any(dictFoldable)(Data_HeytingAlgebra.heytingAlgebraBoolean);
+          var $205 = Data_Eq.eq(dictEq);
+          return function ($206) {
+              return $204($205($206));
+          };
+      };
+  };
   exports["Foldable"] = Foldable;
   exports["foldr"] = foldr;
   exports["foldl"] = foldl;
-  exports["foldMap"] = foldMap;
   exports["intercalate"] = intercalate;
   exports["any"] = any;
+  exports["elem"] = elem;
   exports["foldableArray"] = foldableArray;
   exports["foldableMaybe"] = foldableMaybe;
 })(PS);
@@ -1606,38 +1659,6 @@ var PS = {};
   exports.ordStringImpl = unsafeCompareImpl;
   exports.ordCharImpl = unsafeCompareImpl;
 })(PS["Data.Ord"] = PS["Data.Ord"] || {});
-(function(exports) {
-  "use strict";
-
-  var refEq = function (r1) {
-    return function (r2) {
-      return r1 === r2;
-    };
-  };                            
-  exports.eqIntImpl = refEq;   
-  exports.eqCharImpl = refEq;
-  exports.eqStringImpl = refEq;
-})(PS["Data.Eq"] = PS["Data.Eq"] || {});
-(function($PS) {
-  "use strict";
-  $PS["Data.Eq"] = $PS["Data.Eq"] || {};
-  var exports = $PS["Data.Eq"];
-  var $foreign = $PS["Data.Eq"];
-  var Eq = function (eq) {
-      this.eq = eq;
-  }; 
-  var eqString = new Eq($foreign.eqStringImpl);
-  var eqInt = new Eq($foreign.eqIntImpl);
-  var eqChar = new Eq($foreign.eqCharImpl);
-  var eq = function (dict) {
-      return dict.eq;
-  };
-  exports["Eq"] = Eq;
-  exports["eq"] = eq;
-  exports["eqInt"] = eqInt;
-  exports["eqChar"] = eqChar;
-  exports["eqString"] = eqString;
-})(PS);
 (function($PS) {
   "use strict";
   $PS["Data.Ordering"] = $PS["Data.Ordering"] || {};
@@ -1703,6 +1724,7 @@ var PS = {};
   var $foreign = $PS["Data.Array"];
   var Control_Bind = $PS["Control.Bind"];
   var Control_Category = $PS["Control.Category"];
+  var Data_Eq = $PS["Data.Eq"];
   var Data_Foldable = $PS["Data.Foldable"];
   var Data_Function = $PS["Data.Function"];
   var Data_Maybe = $PS["Data.Maybe"];
@@ -1739,6 +1761,23 @@ var PS = {};
   var fromFoldable = function (dictFoldable) {
       return $foreign.fromFoldableImpl(Data_Foldable.foldr(dictFoldable));
   };
+  var findIndex = $foreign.findIndexImpl(Data_Maybe.Just.create)(Data_Maybe.Nothing.value);
+  var deleteAt = $foreign["_deleteAt"](Data_Maybe.Just.create)(Data_Maybe.Nothing.value);
+  var deleteBy = function (v) {
+      return function (v1) {
+          return function (v2) {
+              if (v2.length === 0) {
+                  return [  ];
+              };
+              return Data_Maybe.maybe(v2)(function (i) {
+                  return Data_Maybe.fromJust()(deleteAt(i)(v2));
+              })(findIndex(v(v1))(v2));
+          };
+      };
+  };
+  var $$delete = function (dictEq) {
+      return deleteBy(Data_Eq.eq(dictEq));
+  };
   var concatMap = Data_Function.flip(Control_Bind.bind(Control_Bind.bindArray));
   var mapMaybe = function (f) {
       return concatMap((function () {
@@ -1754,7 +1793,9 @@ var PS = {};
   exports["concatMap"] = concatMap;
   exports["catMaybes"] = catMaybes;
   exports["sort"] = sort;
+  exports["delete"] = $$delete;
   exports["length"] = $foreign.length;
+  exports["cons"] = $foreign.cons;
   exports["snoc"] = $foreign.snoc;
   exports["filter"] = $foreign.filter;
   exports["take"] = $foreign.take;
@@ -2259,8 +2300,6 @@ var PS = {};
   $PS["Data.List.Types"] = $PS["Data.List.Types"] || {};
   var exports = $PS["Data.List.Types"];
   var Control_Alt = $PS["Control.Alt"];
-  var Control_Applicative = $PS["Control.Applicative"];
-  var Control_Apply = $PS["Control.Apply"];
   var Control_Plus = $PS["Control.Plus"];
   var Data_Foldable = $PS["Data.Foldable"];
   var Data_Function = $PS["Data.Function"];
@@ -2412,25 +2451,7 @@ var PS = {};
       return new Data_Show.Show(function (v) {
           return "(NonEmptyList " + (Data_Show.show(Data_NonEmpty.showNonEmpty(dictShow)(showList(dictShow)))(v) + ")");
       });
-  }; 
-  var applyList = new Control_Apply.Apply(function () {
-      return functorList;
-  }, function (v) {
-      return function (v1) {
-          if (v instanceof Nil) {
-              return Nil.value;
-          };
-          if (v instanceof Cons) {
-              return Data_Semigroup.append(semigroupList)(Data_Functor.map(functorList)(v.value0)(v1))(Control_Apply.apply(applyList)(v.value1)(v1));
-          };
-          throw new Error("Failed pattern match at Data.List.Types (line 155, column 1 - line 157, column 48): " + [ v.constructor.name, v1.constructor.name ]);
-      };
-  });
-  var applicativeList = new Control_Applicative.Applicative(function () {
-      return applyList;
-  }, function (a) {
-      return new Cons(a, Nil.value);
-  });                                              
+  };                                               
   var altList = new Control_Alt.Alt(function () {
       return functorList;
   }, Data_Semigroup.append(semigroupList));
@@ -2440,9 +2461,7 @@ var PS = {};
   exports["Nil"] = Nil;
   exports["Cons"] = Cons;
   exports["NonEmptyList"] = NonEmptyList;
-  exports["semigroupList"] = semigroupList;
   exports["foldableList"] = foldableList;
-  exports["applicativeList"] = applicativeList;
   exports["plusList"] = plusList;
   exports["showNonEmptyList"] = showNonEmptyList;
   exports["semigroupNonEmptyList"] = semigroupNonEmptyList;
@@ -4299,6 +4318,95 @@ var PS = {};
   };
   exports["getEff"] = getEff;
 })(PS);
+(function($PS) {
+  "use strict";
+  $PS["Api"] = $PS["Api"] || {};
+  var exports = $PS["Api"];
+  var Data_Eq = $PS["Data.Eq"];                
+  var Medical = (function () {
+      function Medical() {
+
+      };
+      Medical.value = new Medical();
+      return Medical;
+  })();
+  var Police = (function () {
+      function Police() {
+
+      };
+      Police.value = new Police();
+      return Police;
+  })();
+  var Firefighter = (function () {
+      function Firefighter() {
+
+      };
+      Firefighter.value = new Firefighter();
+      return Firefighter;
+  })();
+  var Army = (function () {
+      function Army() {
+
+      };
+      Army.value = new Army();
+      return Army;
+  })();
+  var Farmacy = (function () {
+      function Farmacy() {
+
+      };
+      Farmacy.value = new Farmacy();
+      return Farmacy;
+  })();
+  var Cashier = (function () {
+      function Cashier() {
+
+      };
+      Cashier.value = new Cashier();
+      return Cashier;
+  })();
+  var Regular = (function () {
+      function Regular() {
+
+      };
+      Regular.value = new Regular();
+      return Regular;
+  })();
+  var eqPassengerType = new Data_Eq.Eq(function (x) {
+      return function (y) {
+          if (x instanceof Medical && y instanceof Medical) {
+              return true;
+          };
+          if (x instanceof Police && y instanceof Police) {
+              return true;
+          };
+          if (x instanceof Firefighter && y instanceof Firefighter) {
+              return true;
+          };
+          if (x instanceof Army && y instanceof Army) {
+              return true;
+          };
+          if (x instanceof Farmacy && y instanceof Farmacy) {
+              return true;
+          };
+          if (x instanceof Cashier && y instanceof Cashier) {
+              return true;
+          };
+          if (x instanceof Regular && y instanceof Regular) {
+              return true;
+          };
+          return false;
+      };
+  });
+  exports["Medical"] = Medical;
+  exports["Police"] = Police;
+  exports["Firefighter"] = Firefighter;
+  exports["Army"] = Army;
+  exports["Farmacy"] = Farmacy;
+  exports["Cashier"] = Cashier;
+  exports["Regular"] = Regular;
+  exports["eqPassengerType"] = eqPassengerType;
+})(PS);
 (function(exports) {
   "use strict"
 
@@ -4565,60 +4673,12 @@ var PS = {};
   "use strict";
   $PS["Api.Pull"] = $PS["Api.Pull"] || {};
   var exports = $PS["Api.Pull"];
+  var Api = $PS["Api"];
   var Data_Array = $PS["Data.Array"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_Maybe = $PS["Data.Maybe"];
   var Proto_Encode = $PS["Proto.Encode"];
   var Proto_Uint8ArrayExt = $PS["Proto.Uint8ArrayExt"];                
-  var Medical = (function () {
-      function Medical() {
-
-      };
-      Medical.value = new Medical();
-      return Medical;
-  })();
-  var Police = (function () {
-      function Police() {
-
-      };
-      Police.value = new Police();
-      return Police;
-  })();
-  var Firefighter = (function () {
-      function Firefighter() {
-
-      };
-      Firefighter.value = new Firefighter();
-      return Firefighter;
-  })();
-  var Army = (function () {
-      function Army() {
-
-      };
-      Army.value = new Army();
-      return Army;
-  })();
-  var Farmacy = (function () {
-      function Farmacy() {
-
-      };
-      Farmacy.value = new Farmacy();
-      return Farmacy;
-  })();
-  var Cashier = (function () {
-      function Cashier() {
-
-      };
-      Cashier.value = new Cashier();
-      return Cashier;
-  })();
-  var Regular = (function () {
-      function Regular() {
-
-      };
-      Regular.value = new Regular();
-      return Regular;
-  })();
   var Ping = (function () {
       function Ping() {
 
@@ -4653,6 +4713,24 @@ var PS = {};
       };
       return AddPassenger;
   })();
+  var GetFreeDrivers = (function () {
+      function GetFreeDrivers(value0) {
+          this.value0 = value0;
+      };
+      GetFreeDrivers.create = function (value0) {
+          return new GetFreeDrivers(value0);
+      };
+      return GetFreeDrivers;
+  })();
+  var GetFreePassengers = (function () {
+      function GetFreePassengers(value0) {
+          this.value0 = value0;
+      };
+      GetFreePassengers.create = function (value0) {
+          return new GetFreePassengers(value0);
+      };
+      return GetFreePassengers;
+  })();
   var encodeRegular = Proto_Encode.uint32(0);
   var encodePolice = Proto_Encode.uint32(0);
   var encodePing = Proto_Encode.uint32(0);
@@ -4660,7 +4738,15 @@ var PS = {};
   var encodeLoginAttempt = function (msg) {
       var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.data_check_string), Proto_Encode.uint32(18), Proto_Encode.string(msg.hash), Proto_Encode.uint32(25), Proto_Encode["double"](msg.auth_date), Data_Maybe.fromMaybe(Proto_Uint8ArrayExt.fromArray([  ]))(Data_Functor.map(Data_Maybe.functorMaybe)(function (x) {
           return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(34), Proto_Encode.string(x) ]);
-      })(msg.name)) ]);
+      })(msg.name)), Proto_Encode.uint32(42), Proto_Encode.string(msg.id) ]);
+      return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
+  };
+  var encodeGetFreePassengers = function (msg) {
+      var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(9), Proto_Encode["double"](msg.date) ]);
+      return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
+  };
+  var encodeGetFreeDrivers = function (msg) {
+      var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(9), Proto_Encode["double"](msg.date) ]);
       return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
   };
   var encodeFirefighter = Proto_Encode.uint32(0);
@@ -4668,35 +4754,35 @@ var PS = {};
   var encodeCashier = Proto_Encode.uint32(0);
   var encodeArmy = Proto_Encode.uint32(0);
   var encodePassengerType = function (v) {
-      if (v instanceof Medical) {
+      if (v instanceof Api.Medical) {
           var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(10), encodeMedical ]);
           return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
       };
-      if (v instanceof Police) {
+      if (v instanceof Api.Police) {
           var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(18), encodePolice ]);
           return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
       };
-      if (v instanceof Firefighter) {
+      if (v instanceof Api.Firefighter) {
           var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(26), encodeFirefighter ]);
           return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
       };
-      if (v instanceof Army) {
+      if (v instanceof Api.Army) {
           var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(34), encodeArmy ]);
           return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
       };
-      if (v instanceof Farmacy) {
+      if (v instanceof Api.Farmacy) {
           var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(42), encodeFarmacy ]);
           return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
       };
-      if (v instanceof Cashier) {
+      if (v instanceof Api.Cashier) {
           var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(50), encodeCashier ]);
           return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
       };
-      if (v instanceof Regular) {
+      if (v instanceof Api.Regular) {
           var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(58), encodeRegular ]);
           return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 83, column 1 - line 83, column 51): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Api.Pull (line 89, column 1 - line 89, column 51): " + [ v.constructor.name ]);
   };
   var encodeAddress = function (msg) {
       var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.city), Proto_Encode.uint32(18), Proto_Encode.string(msg.street), Proto_Encode.uint32(26), Proto_Encode.string(msg.building) ]);
@@ -4725,18 +4811,17 @@ var PS = {};
       if (v instanceof AddPassenger) {
           return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(162), encodeAddPassenger(v.value0) ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 26, column 1 - line 26, column 33): " + [ v.constructor.name ]);
+      if (v instanceof GetFreeDrivers) {
+          return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(242), encodeGetFreeDrivers(v.value0) ]);
+      };
+      if (v instanceof GetFreePassengers) {
+          return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(322), encodeGetFreePassengers(v.value0) ]);
+      };
+      throw new Error("Failed pattern match at Api.Pull (line 28, column 1 - line 28, column 33): " + [ v.constructor.name ]);
   };
   exports["LoginAttempt"] = LoginAttempt;
   exports["AddDriver"] = AddDriver;
   exports["AddPassenger"] = AddPassenger;
-  exports["Medical"] = Medical;
-  exports["Police"] = Police;
-  exports["Firefighter"] = Firefighter;
-  exports["Army"] = Army;
-  exports["Farmacy"] = Farmacy;
-  exports["Cashier"] = Cashier;
-  exports["Regular"] = Regular;
   exports["encodePull"] = encodePull;
 })(PS);
 (function($PS) {
@@ -4834,10 +4919,41 @@ var PS = {};
   exports["tailRecM3"] = tailRecM3;
   exports["monadRecEither"] = monadRecEither;
 })(PS);
+(function(exports) {
+  "use strict"
+
+  var TWO_TO_32 = 4294967296
+  var TWO_TO_52 = 4503599627370496
+
+  exports.joinFloat64 = function(bitsLow) {
+    return function(bitsHigh) {
+      var sign = ((bitsHigh >> 31) * 2 + 1)
+      var exp = (bitsHigh >>> 20) & 0x7FF
+      var mant = TWO_TO_32 * (bitsHigh & 0xFFFFF) + bitsLow
+
+      if (exp == 0x7FF) {
+        if (mant) {
+          return NaN
+        } else {
+          return sign * Infinity
+        }
+      }
+
+      if (exp == 0) {
+        // Denormal.
+        return sign * Math.pow(2, -1074) * mant
+      } else {
+        return sign * Math.pow(2, exp - 1075) *
+               (mant + TWO_TO_52)
+      }
+    }
+  }
+})(PS["Proto.Decode"] = PS["Proto.Decode"] || {});
 (function($PS) {
   "use strict";
   $PS["Proto.Decode"] = $PS["Proto.Decode"] || {};
   var exports = $PS["Proto.Decode"];
+  var $foreign = $PS["Proto.Decode"];
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Bind = $PS["Control.Bind"];
   var Data_Bifunctor = $PS["Data.Bifunctor"];
@@ -5077,7 +5193,8 @@ var PS = {};
               });
           });
       };
-  };                 
+  };
+  var int32 = uint32;
   var skipType = function (v) {
       return function (v1) {
           return function (v2) {
@@ -5122,6 +5239,32 @@ var PS = {};
           };
       };
   };
+  var $$double = function (xs) {
+      return function (pos) {
+          var fixedUint32 = function (pos1) {
+              return Control_Bind.bind(Data_Either.bindEither)(index(xs)(pos1 + 0 | 0))(function (a) {
+                  return Control_Bind.bind(Data_Either.bindEither)(index(xs)(pos1 + 1 | 0))(function (b) {
+                      return Control_Bind.bind(Data_Either.bindEither)(index(xs)(pos1 + 2 | 0))(function (c) {
+                          return Control_Bind.bind(Data_Either.bindEither)(index(xs)(pos1 + 3 | 0))(function (d) {
+                              return Control_Applicative.pure(Data_Either.applicativeEither)({
+                                  pos: pos1 + 4 | 0,
+                                  val: (a << 0 | b << 8 | c << 16 | d << 24) >>> 0
+                              });
+                          });
+                      });
+                  });
+              });
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(fixedUint32(pos))(function (v) {
+              return Control_Bind.bind(Data_Either.bindEither)(fixedUint32(v.pos))(function (v1) {
+                  return Control_Applicative.pure(Data_Either.applicativeEither)({
+                      pos: v1.pos,
+                      val: $foreign.joinFloat64(v.val)(v1.val)
+                  });
+              });
+          });
+      };
+  };
   var bytes = function (xs) {
       return function (pos0) {
           return Control_Bind.bind(Data_Either.bindEither)(uint32(xs)(pos0))(function (v) {
@@ -5150,7 +5293,9 @@ var PS = {};
   };
   exports["BadType"] = BadType;
   exports["MissingFields"] = MissingFields;
+  exports["int32"] = int32;
   exports["uint32"] = uint32;
+  exports["double"] = $$double;
   exports["string"] = string;
   exports["skipType"] = skipType;
   exports["showError"] = showError;
@@ -5159,9 +5304,11 @@ var PS = {};
   "use strict";
   $PS["Api.Push"] = $PS["Api.Push"] || {};
   var exports = $PS["Api.Push"];
+  var Api = $PS["Api"];
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Bind = $PS["Control.Bind"];
   var Control_Monad_Rec_Class = $PS["Control.Monad.Rec.Class"];
+  var Data_Array = $PS["Data.Array"];
   var Data_Either = $PS["Data.Either"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_Maybe = $PS["Data.Maybe"];
@@ -5192,7 +5339,65 @@ var PS = {};
       };
       return AddRouteOk;
   })();
+  var FreeDrivers = (function () {
+      function FreeDrivers(value0) {
+          this.value0 = value0;
+      };
+      FreeDrivers.create = function (value0) {
+          return new FreeDrivers(value0);
+      };
+      return FreeDrivers;
+  })();
+  var FreePassengers = (function () {
+      function FreePassengers(value0) {
+          this.value0 = value0;
+      };
+      FreePassengers.create = function (value0) {
+          return new FreePassengers(value0);
+      };
+      return FreePassengers;
+  })();
+  var decodeRegular = function (_xs_) {
+      return function (pos0) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+              return Control_Applicative.pure(Data_Either.applicativeEither)({
+                  pos: v.pos + v.val | 0,
+                  val: Data_Unit.unit
+              });
+          });
+      };
+  };
   var decodePong = function (_xs_) {
+      return function (pos0) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+              return Control_Applicative.pure(Data_Either.applicativeEither)({
+                  pos: v.pos + v.val | 0,
+                  val: Data_Unit.unit
+              });
+          });
+      };
+  };
+  var decodePolice = function (_xs_) {
+      return function (pos0) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+              return Control_Applicative.pure(Data_Either.applicativeEither)({
+                  pos: v.pos + v.val | 0,
+                  val: Data_Unit.unit
+              });
+          });
+      };
+  };
+  var decodeMedical = function (_xs_) {
+      return function (pos0) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+              return Control_Applicative.pure(Data_Either.applicativeEither)({
+                  pos: v.pos + v.val | 0,
+                  val: Data_Unit.unit
+              });
+          });
+      };
+  };
+  var decodeFirefighter = function (_xs_) {
       return function (pos0) {
           return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
               return Control_Applicative.pure(Data_Either.applicativeEither)({
@@ -5215,6 +5420,61 @@ var PS = {};
           };
       };
   };
+  var decodeLocation = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (acc) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                              var v1 = v.val >>> 3;
+                              if (v1 === 1) {
+                                  return decodeFieldLoop(end)(Proto_Decode["double"](_xs_)(v.pos))(function (val) {
+                                      return {
+                                          lat: new Data_Maybe.Just(val),
+                                          lng: acc.lng
+                                      };
+                                  });
+                              };
+                              if (v1 === 2) {
+                                  return decodeFieldLoop(end)(Proto_Decode["double"](_xs_)(v.pos))(function (val) {
+                                      return {
+                                          lng: new Data_Maybe.Just(val),
+                                          lat: acc.lat
+                                      };
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v.pos)(v.val & 7))(function (v2) {
+                                  return acc;
+                              });
+                          });
+                      };
+                      return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                          pos: pos1,
+                          val: acc
+                      }));
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+              return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
+                  lat: Data_Maybe.Nothing.value,
+                  lng: Data_Maybe.Nothing.value
+              })(v.pos))(function (v1) {
+                  if (v1.val.lat instanceof Data_Maybe.Just && v1.val.lng instanceof Data_Maybe.Just) {
+                      return Control_Applicative.pure(Data_Either.applicativeEither)({
+                          pos: v1.pos,
+                          val: {
+                              lat: v1.val.lat.value0,
+                              lng: v1.val.lng.value0
+                          }
+                      });
+                  };
+                  return Data_Either.Left.create(new Proto_Decode.MissingFields("Location"));
+              });
+          });
+      };
+  };
   var decodeLoginOk = function (_xs_) {
       return function (pos0) {
           var decode = function (end) {
@@ -5226,16 +5486,7 @@ var PS = {};
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
                                       return {
-                                          sessionid: new Data_Maybe.Just(val),
-                                          name: acc.name
-                                      };
-                                  });
-                              };
-                              if (v1 === 2) {
-                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
-                                      return {
-                                          name: new Data_Maybe.Just(val),
-                                          sessionid: acc.sessionid
+                                          name: new Data_Maybe.Just(val)
                                       };
                                   });
                               };
@@ -5252,25 +5503,13 @@ var PS = {};
               };
           };
           return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
-              return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
-                  sessionid: Data_Maybe.Nothing.value,
+              return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
                   name: Data_Maybe.Nothing.value
-              })(v.pos))(function (v1) {
-                  if (v1.val.sessionid instanceof Data_Maybe.Just) {
-                      return Control_Applicative.pure(Data_Either.applicativeEither)({
-                          pos: v1.pos,
-                          val: {
-                              sessionid: v1.val.sessionid.value0,
-                              name: v1.val.name
-                          }
-                      });
-                  };
-                  return Data_Either.Left.create(new Proto_Decode.MissingFields("LoginOk"));
-              });
+              })(v.pos);
           });
       };
   };
-  var decodeAddress = function (_xs_) {
+  var decodeRouteInfo = function (_xs_) {
       return function (pos0) {
           var decode = function (end) {
               return function (acc) {
@@ -5281,27 +5520,91 @@ var PS = {};
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
                                       return {
-                                          city: new Data_Maybe.Just(val),
-                                          building: acc.building,
-                                          street: acc.street
+                                          fromAddress: new Data_Maybe.Just(val),
+                                          distance: acc.distance,
+                                          duration: acc.duration,
+                                          fromLocation: acc.fromLocation,
+                                          steps: acc.steps,
+                                          toAddress: acc.toAddress,
+                                          toLocation: acc.toLocation
                                       };
                                   });
                               };
                               if (v1 === 2) {
-                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                  return decodeFieldLoop(end)(decodeLocation(_xs_)(v.pos))(function (val) {
                                       return {
-                                          street: new Data_Maybe.Just(val),
-                                          building: acc.building,
-                                          city: acc.city
+                                          fromLocation: new Data_Maybe.Just(val),
+                                          distance: acc.distance,
+                                          duration: acc.duration,
+                                          fromAddress: acc.fromAddress,
+                                          steps: acc.steps,
+                                          toAddress: acc.toAddress,
+                                          toLocation: acc.toLocation
                                       };
                                   });
                               };
                               if (v1 === 3) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
                                       return {
-                                          building: new Data_Maybe.Just(val),
-                                          city: acc.city,
-                                          street: acc.street
+                                          toAddress: new Data_Maybe.Just(val),
+                                          distance: acc.distance,
+                                          duration: acc.duration,
+                                          fromAddress: acc.fromAddress,
+                                          fromLocation: acc.fromLocation,
+                                          steps: acc.steps,
+                                          toLocation: acc.toLocation
+                                      };
+                                  });
+                              };
+                              if (v1 === 4) {
+                                  return decodeFieldLoop(end)(decodeLocation(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          toLocation: new Data_Maybe.Just(val),
+                                          distance: acc.distance,
+                                          duration: acc.duration,
+                                          fromAddress: acc.fromAddress,
+                                          fromLocation: acc.fromLocation,
+                                          steps: acc.steps,
+                                          toAddress: acc.toAddress
+                                      };
+                                  });
+                              };
+                              if (v1 === 5) {
+                                  return decodeFieldLoop(end)(Proto_Decode.int32(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          distance: new Data_Maybe.Just(val),
+                                          duration: acc.duration,
+                                          fromAddress: acc.fromAddress,
+                                          fromLocation: acc.fromLocation,
+                                          steps: acc.steps,
+                                          toAddress: acc.toAddress,
+                                          toLocation: acc.toLocation
+                                      };
+                                  });
+                              };
+                              if (v1 === 6) {
+                                  return decodeFieldLoop(end)(Proto_Decode.int32(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          duration: new Data_Maybe.Just(val),
+                                          distance: acc.distance,
+                                          fromAddress: acc.fromAddress,
+                                          fromLocation: acc.fromLocation,
+                                          steps: acc.steps,
+                                          toAddress: acc.toAddress,
+                                          toLocation: acc.toLocation
+                                      };
+                                  });
+                              };
+                              if (v1 === 7) {
+                                  return decodeFieldLoop(end)(decodeLocation(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          steps: Data_Array.snoc(acc.steps)(val),
+                                          distance: acc.distance,
+                                          duration: acc.duration,
+                                          fromAddress: acc.fromAddress,
+                                          fromLocation: acc.fromLocation,
+                                          toAddress: acc.toAddress,
+                                          toLocation: acc.toLocation
                                       };
                                   });
                               };
@@ -5319,22 +5622,597 @@ var PS = {};
           };
           return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
               return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
-                  city: Data_Maybe.Nothing.value,
-                  street: Data_Maybe.Nothing.value,
-                  building: Data_Maybe.Nothing.value
+                  fromAddress: Data_Maybe.Nothing.value,
+                  fromLocation: Data_Maybe.Nothing.value,
+                  toAddress: Data_Maybe.Nothing.value,
+                  toLocation: Data_Maybe.Nothing.value,
+                  distance: Data_Maybe.Nothing.value,
+                  duration: Data_Maybe.Nothing.value,
+                  steps: [  ]
               })(v.pos))(function (v1) {
-                  if (v1.val.city instanceof Data_Maybe.Just && (v1.val.street instanceof Data_Maybe.Just && v1.val.building instanceof Data_Maybe.Just)) {
+                  if (v1.val.fromAddress instanceof Data_Maybe.Just && (v1.val.fromLocation instanceof Data_Maybe.Just && (v1.val.toAddress instanceof Data_Maybe.Just && (v1.val.toLocation instanceof Data_Maybe.Just && (v1.val.distance instanceof Data_Maybe.Just && v1.val.duration instanceof Data_Maybe.Just))))) {
                       return Control_Applicative.pure(Data_Either.applicativeEither)({
                           pos: v1.pos,
                           val: {
-                              city: v1.val.city.value0,
-                              street: v1.val.street.value0,
-                              building: v1.val.building.value0
+                              fromAddress: v1.val.fromAddress.value0,
+                              fromLocation: v1.val.fromLocation.value0,
+                              toAddress: v1.val.toAddress.value0,
+                              toLocation: v1.val.toLocation.value0,
+                              distance: v1.val.distance.value0,
+                              duration: v1.val.duration.value0,
+                              steps: v1.val.steps
                           }
                       });
                   };
-                  return Data_Either.Left.create(new Proto_Decode.MissingFields("Address"));
+                  return Data_Either.Left.create(new Proto_Decode.MissingFields("RouteInfo"));
               });
+          });
+      };
+  };
+  var decodeFarmacy = function (_xs_) {
+      return function (pos0) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+              return Control_Applicative.pure(Data_Either.applicativeEither)({
+                  pos: v.pos + v.val | 0,
+                  val: Data_Unit.unit
+              });
+          });
+      };
+  };
+  var decodeCashier = function (_xs_) {
+      return function (pos0) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+              return Control_Applicative.pure(Data_Either.applicativeEither)({
+                  pos: v.pos + v.val | 0,
+                  val: Data_Unit.unit
+              });
+          });
+      };
+  };
+  var decodeArmy = function (_xs_) {
+      return function (pos0) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+              return Control_Applicative.pure(Data_Either.applicativeEither)({
+                  pos: v.pos + v.val | 0,
+                  val: Data_Unit.unit
+              });
+          });
+      };
+  };
+  var decodePassengerType = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (v) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v1) {
+                              var v2 = v1.val >>> 3;
+                              if (v2 === 1) {
+                                  return decodeFieldLoop(end)(decodeMedical(_xs_)(v1.pos))(function (v3) {
+                                      return new Data_Maybe.Just(Api.Medical.value);
+                                  });
+                              };
+                              if (v2 === 2) {
+                                  return decodeFieldLoop(end)(decodePolice(_xs_)(v1.pos))(function (v3) {
+                                      return new Data_Maybe.Just(Api.Police.value);
+                                  });
+                              };
+                              if (v2 === 3) {
+                                  return decodeFieldLoop(end)(decodeFirefighter(_xs_)(v1.pos))(function (v3) {
+                                      return new Data_Maybe.Just(Api.Firefighter.value);
+                                  });
+                              };
+                              if (v2 === 4) {
+                                  return decodeFieldLoop(end)(decodeArmy(_xs_)(v1.pos))(function (v3) {
+                                      return new Data_Maybe.Just(Api.Army.value);
+                                  });
+                              };
+                              if (v2 === 5) {
+                                  return decodeFieldLoop(end)(decodeFarmacy(_xs_)(v1.pos))(function (v3) {
+                                      return new Data_Maybe.Just(Api.Farmacy.value);
+                                  });
+                              };
+                              if (v2 === 6) {
+                                  return decodeFieldLoop(end)(decodeCashier(_xs_)(v1.pos))(function (v3) {
+                                      return new Data_Maybe.Just(Api.Cashier.value);
+                                  });
+                              };
+                              if (v2 === 7) {
+                                  return decodeFieldLoop(end)(decodeRegular(_xs_)(v1.pos))(function (v3) {
+                                      return new Data_Maybe.Just(Api.Regular.value);
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v1.pos)(v1.val & 7))(function (v3) {
+                                  return v;
+                              });
+                          });
+                      };
+                      if (v instanceof Data_Maybe.Just) {
+                          return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                              pos: pos1,
+                              val: v.value0
+                          }));
+                      };
+                      if (v instanceof Data_Maybe.Nothing) {
+                          return Data_Either.Left.create(new Proto_Decode.MissingFields("PassengerType"));
+                      };
+                      throw new Error("Failed pattern match at Api.Push (line 172, column 5 - line 172, column 159): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+              return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)(Data_Maybe.Nothing.value)(v.pos);
+          });
+      };
+  };
+  var decodeDriverInfo = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (acc) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                              var v1 = v.val >>> 3;
+                              if (v1 === 1) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          id: new Data_Maybe.Just(val),
+                                          carPlate: acc.carPlate,
+                                          date: acc.date,
+                                          lap: acc.lap,
+                                          name: acc.name,
+                                          phone: acc.phone,
+                                          routes: acc.routes,
+                                          types: acc.types,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              if (v1 === 2) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          user: new Data_Maybe.Just(val),
+                                          carPlate: acc.carPlate,
+                                          date: acc.date,
+                                          id: acc.id,
+                                          lap: acc.lap,
+                                          name: acc.name,
+                                          phone: acc.phone,
+                                          routes: acc.routes,
+                                          types: acc.types
+                                      };
+                                  });
+                              };
+                              if (v1 === 3) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          name: new Data_Maybe.Just(val),
+                                          carPlate: acc.carPlate,
+                                          date: acc.date,
+                                          id: acc.id,
+                                          lap: acc.lap,
+                                          phone: acc.phone,
+                                          routes: acc.routes,
+                                          types: acc.types,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              if (v1 === 4) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          phone: new Data_Maybe.Just(val),
+                                          carPlate: acc.carPlate,
+                                          date: acc.date,
+                                          id: acc.id,
+                                          lap: acc.lap,
+                                          name: acc.name,
+                                          routes: acc.routes,
+                                          types: acc.types,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              if (v1 === 5) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          carPlate: new Data_Maybe.Just(val),
+                                          date: acc.date,
+                                          id: acc.id,
+                                          lap: acc.lap,
+                                          name: acc.name,
+                                          phone: acc.phone,
+                                          routes: acc.routes,
+                                          types: acc.types,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              if (v1 === 6) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          date: new Data_Maybe.Just(val),
+                                          carPlate: acc.carPlate,
+                                          id: acc.id,
+                                          lap: acc.lap,
+                                          name: acc.name,
+                                          phone: acc.phone,
+                                          routes: acc.routes,
+                                          types: acc.types,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              if (v1 === 7) {
+                                  return decodeFieldLoop(end)(Proto_Decode.int32(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          lap: new Data_Maybe.Just(val),
+                                          carPlate: acc.carPlate,
+                                          date: acc.date,
+                                          id: acc.id,
+                                          name: acc.name,
+                                          phone: acc.phone,
+                                          routes: acc.routes,
+                                          types: acc.types,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              if (v1 === 8) {
+                                  return decodeFieldLoop(end)(decodeRouteInfo(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          routes: Data_Array.snoc(acc.routes)(val),
+                                          carPlate: acc.carPlate,
+                                          date: acc.date,
+                                          id: acc.id,
+                                          lap: acc.lap,
+                                          name: acc.name,
+                                          phone: acc.phone,
+                                          types: acc.types,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              if (v1 === 9) {
+                                  return decodeFieldLoop(end)(decodePassengerType(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          types: Data_Array.snoc(acc.types)(val),
+                                          carPlate: acc.carPlate,
+                                          date: acc.date,
+                                          id: acc.id,
+                                          lap: acc.lap,
+                                          name: acc.name,
+                                          phone: acc.phone,
+                                          routes: acc.routes,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v.pos)(v.val & 7))(function (v2) {
+                                  return acc;
+                              });
+                          });
+                      };
+                      return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                          pos: pos1,
+                          val: acc
+                      }));
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+              return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
+                  id: Data_Maybe.Nothing.value,
+                  user: Data_Maybe.Nothing.value,
+                  name: Data_Maybe.Nothing.value,
+                  phone: Data_Maybe.Nothing.value,
+                  carPlate: Data_Maybe.Nothing.value,
+                  date: Data_Maybe.Nothing.value,
+                  lap: Data_Maybe.Nothing.value,
+                  routes: [  ],
+                  types: [  ]
+              })(v.pos))(function (v1) {
+                  if (v1.val.id instanceof Data_Maybe.Just && (v1.val.user instanceof Data_Maybe.Just && (v1.val.name instanceof Data_Maybe.Just && (v1.val.phone instanceof Data_Maybe.Just && (v1.val.carPlate instanceof Data_Maybe.Just && (v1.val.date instanceof Data_Maybe.Just && v1.val.lap instanceof Data_Maybe.Just)))))) {
+                      return Control_Applicative.pure(Data_Either.applicativeEither)({
+                          pos: v1.pos,
+                          val: {
+                              id: v1.val.id.value0,
+                              user: v1.val.user.value0,
+                              name: v1.val.name.value0,
+                              phone: v1.val.phone.value0,
+                              carPlate: v1.val.carPlate.value0,
+                              date: v1.val.date.value0,
+                              lap: v1.val.lap.value0,
+                              routes: v1.val.routes,
+                              types: v1.val.types
+                          }
+                      });
+                  };
+                  return Data_Either.Left.create(new Proto_Decode.MissingFields("DriverInfo"));
+              });
+          });
+      };
+  };
+  var decodeFreeDrivers = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (acc) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                              var v1 = v.val >>> 3;
+                              if (v1 === 1) {
+                                  return decodeFieldLoop(end)(decodeDriverInfo(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          freeDrivers: Data_Array.snoc(acc.freeDrivers)(val)
+                                      };
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v.pos)(v.val & 7))(function (v2) {
+                                  return acc;
+                              });
+                          });
+                      };
+                      return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                          pos: pos1,
+                          val: acc
+                      }));
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+              return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
+                  freeDrivers: [  ]
+              })(v.pos);
+          });
+      };
+  };
+  var decodePassengerInfo = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (acc) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                              var v1 = v.val >>> 3;
+                              if (v1 === 1) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          id: new Data_Maybe.Just(val),
+                                          date: acc.date,
+                                          fromAddress: acc.fromAddress,
+                                          fromLocation: acc.fromLocation,
+                                          name: acc.name,
+                                          phone: acc.phone,
+                                          toAddress: acc.toAddress,
+                                          toLocation: acc.toLocation,
+                                          tpe: acc.tpe,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              if (v1 === 2) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          user: new Data_Maybe.Just(val),
+                                          date: acc.date,
+                                          fromAddress: acc.fromAddress,
+                                          fromLocation: acc.fromLocation,
+                                          id: acc.id,
+                                          name: acc.name,
+                                          phone: acc.phone,
+                                          toAddress: acc.toAddress,
+                                          toLocation: acc.toLocation,
+                                          tpe: acc.tpe
+                                      };
+                                  });
+                              };
+                              if (v1 === 3) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          name: new Data_Maybe.Just(val),
+                                          date: acc.date,
+                                          fromAddress: acc.fromAddress,
+                                          fromLocation: acc.fromLocation,
+                                          id: acc.id,
+                                          phone: acc.phone,
+                                          toAddress: acc.toAddress,
+                                          toLocation: acc.toLocation,
+                                          tpe: acc.tpe,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              if (v1 === 4) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          phone: new Data_Maybe.Just(val),
+                                          date: acc.date,
+                                          fromAddress: acc.fromAddress,
+                                          fromLocation: acc.fromLocation,
+                                          id: acc.id,
+                                          name: acc.name,
+                                          toAddress: acc.toAddress,
+                                          toLocation: acc.toLocation,
+                                          tpe: acc.tpe,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              if (v1 === 5) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          date: new Data_Maybe.Just(val),
+                                          fromAddress: acc.fromAddress,
+                                          fromLocation: acc.fromLocation,
+                                          id: acc.id,
+                                          name: acc.name,
+                                          phone: acc.phone,
+                                          toAddress: acc.toAddress,
+                                          toLocation: acc.toLocation,
+                                          tpe: acc.tpe,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              if (v1 === 6) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          fromAddress: new Data_Maybe.Just(val),
+                                          date: acc.date,
+                                          fromLocation: acc.fromLocation,
+                                          id: acc.id,
+                                          name: acc.name,
+                                          phone: acc.phone,
+                                          toAddress: acc.toAddress,
+                                          toLocation: acc.toLocation,
+                                          tpe: acc.tpe,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              if (v1 === 7) {
+                                  return decodeFieldLoop(end)(decodeLocation(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          fromLocation: new Data_Maybe.Just(val),
+                                          date: acc.date,
+                                          fromAddress: acc.fromAddress,
+                                          id: acc.id,
+                                          name: acc.name,
+                                          phone: acc.phone,
+                                          toAddress: acc.toAddress,
+                                          toLocation: acc.toLocation,
+                                          tpe: acc.tpe,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              if (v1 === 8) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          toAddress: new Data_Maybe.Just(val),
+                                          date: acc.date,
+                                          fromAddress: acc.fromAddress,
+                                          fromLocation: acc.fromLocation,
+                                          id: acc.id,
+                                          name: acc.name,
+                                          phone: acc.phone,
+                                          toLocation: acc.toLocation,
+                                          tpe: acc.tpe,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              if (v1 === 9) {
+                                  return decodeFieldLoop(end)(decodeLocation(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          toLocation: new Data_Maybe.Just(val),
+                                          date: acc.date,
+                                          fromAddress: acc.fromAddress,
+                                          fromLocation: acc.fromLocation,
+                                          id: acc.id,
+                                          name: acc.name,
+                                          phone: acc.phone,
+                                          toAddress: acc.toAddress,
+                                          tpe: acc.tpe,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              if (v1 === 10) {
+                                  return decodeFieldLoop(end)(decodePassengerType(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          tpe: new Data_Maybe.Just(val),
+                                          date: acc.date,
+                                          fromAddress: acc.fromAddress,
+                                          fromLocation: acc.fromLocation,
+                                          id: acc.id,
+                                          name: acc.name,
+                                          phone: acc.phone,
+                                          toAddress: acc.toAddress,
+                                          toLocation: acc.toLocation,
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v.pos)(v.val & 7))(function (v2) {
+                                  return acc;
+                              });
+                          });
+                      };
+                      return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                          pos: pos1,
+                          val: acc
+                      }));
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+              return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
+                  id: Data_Maybe.Nothing.value,
+                  user: Data_Maybe.Nothing.value,
+                  name: Data_Maybe.Nothing.value,
+                  phone: Data_Maybe.Nothing.value,
+                  date: Data_Maybe.Nothing.value,
+                  fromAddress: Data_Maybe.Nothing.value,
+                  fromLocation: Data_Maybe.Nothing.value,
+                  toAddress: Data_Maybe.Nothing.value,
+                  toLocation: Data_Maybe.Nothing.value,
+                  tpe: Data_Maybe.Nothing.value
+              })(v.pos))(function (v1) {
+                  if (v1.val.id instanceof Data_Maybe.Just && (v1.val.user instanceof Data_Maybe.Just && (v1.val.name instanceof Data_Maybe.Just && (v1.val.phone instanceof Data_Maybe.Just && (v1.val.date instanceof Data_Maybe.Just && (v1.val.fromAddress instanceof Data_Maybe.Just && (v1.val.fromLocation instanceof Data_Maybe.Just && (v1.val.toAddress instanceof Data_Maybe.Just && (v1.val.toLocation instanceof Data_Maybe.Just && v1.val.tpe instanceof Data_Maybe.Just))))))))) {
+                      return Control_Applicative.pure(Data_Either.applicativeEither)({
+                          pos: v1.pos,
+                          val: {
+                              id: v1.val.id.value0,
+                              user: v1.val.user.value0,
+                              name: v1.val.name.value0,
+                              phone: v1.val.phone.value0,
+                              date: v1.val.date.value0,
+                              fromAddress: v1.val.fromAddress.value0,
+                              fromLocation: v1.val.fromLocation.value0,
+                              toAddress: v1.val.toAddress.value0,
+                              toLocation: v1.val.toLocation.value0,
+                              tpe: v1.val.tpe.value0
+                          }
+                      });
+                  };
+                  return Data_Either.Left.create(new Proto_Decode.MissingFields("PassengerInfo"));
+              });
+          });
+      };
+  };
+  var decodeFreePassengers = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (acc) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                              var v1 = v.val >>> 3;
+                              if (v1 === 1) {
+                                  return decodeFieldLoop(end)(decodePassengerInfo(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          freePassengers: Data_Array.snoc(acc.freePassengers)(val)
+                                      };
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v.pos)(v.val & 7))(function (v2) {
+                                  return acc;
+                              });
+                          });
+                      };
+                      return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                          pos: pos1,
+                          val: acc
+                      }));
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+              return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
+                  freePassengers: [  ]
+              })(v.pos);
           });
       };
   };
@@ -5349,16 +6227,7 @@ var PS = {};
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
                                       return {
-                                          n: new Data_Maybe.Just(val),
-                                          from: acc.from
-                                      };
-                                  });
-                              };
-                              if (v1 === 2) {
-                                  return decodeFieldLoop(end)(decodeAddress(_xs_)(v.pos))(function (val) {
-                                      return {
-                                          from: new Data_Maybe.Just(val),
-                                          n: acc.n
+                                          id: new Data_Maybe.Just(val)
                                       };
                                   });
                               };
@@ -5376,15 +6245,13 @@ var PS = {};
           };
           return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
               return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
-                  n: Data_Maybe.Nothing.value,
-                  from: Data_Maybe.Nothing.value
+                  id: Data_Maybe.Nothing.value
               })(v.pos))(function (v1) {
-                  if (v1.val.n instanceof Data_Maybe.Just && v1.val.from instanceof Data_Maybe.Just) {
+                  if (v1.val.id instanceof Data_Maybe.Just) {
                       return Control_Applicative.pure(Data_Either.applicativeEither)({
                           pos: v1.pos,
                           val: {
-                              n: v1.val.n.value0,
-                              from: v1.val.from.value0
+                              id: v1.val.id.value0
                           }
                       });
                   };
@@ -5417,11 +6284,16 @@ var PS = {};
           if (v1 === 10) {
               return decode(decodeAddRouteOk(_xs_)(v.pos))(AddRouteOk.create);
           };
+          if (v1 === 30) {
+              return decode(decodeFreeDrivers(_xs_)(v.pos))(FreeDrivers.create);
+          };
+          if (v1 === 40) {
+              return decode(decodeFreePassengers(_xs_)(v.pos))(FreePassengers.create);
+          };
           return Data_Either.Left.create(new Proto_Decode.BadType(v1));
       });
   };
   exports["LoginOk"] = LoginOk;
-  exports["AddRouteOk"] = AddRouteOk;
   exports["decodePush"] = decodePush;
 })(PS);
 (function(exports) {
@@ -5463,791 +6335,6 @@ var PS = {};
   exports["toISOString"] = toISOString;
   exports["now"] = $foreign.now;
   exports["parse"] = $foreign.parse;
-})(PS);
-(function($PS) {
-  "use strict";
-  $PS["Data.Tuple"] = $PS["Data.Tuple"] || {};
-  var exports = $PS["Data.Tuple"];                         
-  var Tuple = (function () {
-      function Tuple(value0, value1) {
-          this.value0 = value0;
-          this.value1 = value1;
-      };
-      Tuple.create = function (value0) {
-          return function (value1) {
-              return new Tuple(value0, value1);
-          };
-      };
-      return Tuple;
-  })();
-  var snd = function (v) {
-      return v.value1;
-  };                                                                                                    
-  var fst = function (v) {
-      return v.value0;
-  };
-  exports["Tuple"] = Tuple;
-  exports["fst"] = fst;
-  exports["snd"] = snd;
-})(PS);
-(function($PS) {
-  "use strict";
-  $PS["Data.Map.Internal"] = $PS["Data.Map.Internal"] || {};
-  var exports = $PS["Data.Map.Internal"];
-  var Control_Applicative = $PS["Control.Applicative"];
-  var Data_Foldable = $PS["Data.Foldable"];
-  var Data_List_Types = $PS["Data.List.Types"];
-  var Data_Maybe = $PS["Data.Maybe"];
-  var Data_Ord = $PS["Data.Ord"];
-  var Data_Ordering = $PS["Data.Ordering"];
-  var Data_Semigroup = $PS["Data.Semigroup"];
-  var Data_Tuple = $PS["Data.Tuple"];                          
-  var Leaf = (function () {
-      function Leaf() {
-
-      };
-      Leaf.value = new Leaf();
-      return Leaf;
-  })();
-  var Two = (function () {
-      function Two(value0, value1, value2, value3) {
-          this.value0 = value0;
-          this.value1 = value1;
-          this.value2 = value2;
-          this.value3 = value3;
-      };
-      Two.create = function (value0) {
-          return function (value1) {
-              return function (value2) {
-                  return function (value3) {
-                      return new Two(value0, value1, value2, value3);
-                  };
-              };
-          };
-      };
-      return Two;
-  })();
-  var Three = (function () {
-      function Three(value0, value1, value2, value3, value4, value5, value6) {
-          this.value0 = value0;
-          this.value1 = value1;
-          this.value2 = value2;
-          this.value3 = value3;
-          this.value4 = value4;
-          this.value5 = value5;
-          this.value6 = value6;
-      };
-      Three.create = function (value0) {
-          return function (value1) {
-              return function (value2) {
-                  return function (value3) {
-                      return function (value4) {
-                          return function (value5) {
-                              return function (value6) {
-                                  return new Three(value0, value1, value2, value3, value4, value5, value6);
-                              };
-                          };
-                      };
-                  };
-              };
-          };
-      };
-      return Three;
-  })();
-  var TwoLeft = (function () {
-      function TwoLeft(value0, value1, value2) {
-          this.value0 = value0;
-          this.value1 = value1;
-          this.value2 = value2;
-      };
-      TwoLeft.create = function (value0) {
-          return function (value1) {
-              return function (value2) {
-                  return new TwoLeft(value0, value1, value2);
-              };
-          };
-      };
-      return TwoLeft;
-  })();
-  var TwoRight = (function () {
-      function TwoRight(value0, value1, value2) {
-          this.value0 = value0;
-          this.value1 = value1;
-          this.value2 = value2;
-      };
-      TwoRight.create = function (value0) {
-          return function (value1) {
-              return function (value2) {
-                  return new TwoRight(value0, value1, value2);
-              };
-          };
-      };
-      return TwoRight;
-  })();
-  var ThreeLeft = (function () {
-      function ThreeLeft(value0, value1, value2, value3, value4, value5) {
-          this.value0 = value0;
-          this.value1 = value1;
-          this.value2 = value2;
-          this.value3 = value3;
-          this.value4 = value4;
-          this.value5 = value5;
-      };
-      ThreeLeft.create = function (value0) {
-          return function (value1) {
-              return function (value2) {
-                  return function (value3) {
-                      return function (value4) {
-                          return function (value5) {
-                              return new ThreeLeft(value0, value1, value2, value3, value4, value5);
-                          };
-                      };
-                  };
-              };
-          };
-      };
-      return ThreeLeft;
-  })();
-  var ThreeMiddle = (function () {
-      function ThreeMiddle(value0, value1, value2, value3, value4, value5) {
-          this.value0 = value0;
-          this.value1 = value1;
-          this.value2 = value2;
-          this.value3 = value3;
-          this.value4 = value4;
-          this.value5 = value5;
-      };
-      ThreeMiddle.create = function (value0) {
-          return function (value1) {
-              return function (value2) {
-                  return function (value3) {
-                      return function (value4) {
-                          return function (value5) {
-                              return new ThreeMiddle(value0, value1, value2, value3, value4, value5);
-                          };
-                      };
-                  };
-              };
-          };
-      };
-      return ThreeMiddle;
-  })();
-  var ThreeRight = (function () {
-      function ThreeRight(value0, value1, value2, value3, value4, value5) {
-          this.value0 = value0;
-          this.value1 = value1;
-          this.value2 = value2;
-          this.value3 = value3;
-          this.value4 = value4;
-          this.value5 = value5;
-      };
-      ThreeRight.create = function (value0) {
-          return function (value1) {
-              return function (value2) {
-                  return function (value3) {
-                      return function (value4) {
-                          return function (value5) {
-                              return new ThreeRight(value0, value1, value2, value3, value4, value5);
-                          };
-                      };
-                  };
-              };
-          };
-      };
-      return ThreeRight;
-  })();
-  var KickUp = (function () {
-      function KickUp(value0, value1, value2, value3) {
-          this.value0 = value0;
-          this.value1 = value1;
-          this.value2 = value2;
-          this.value3 = value3;
-      };
-      KickUp.create = function (value0) {
-          return function (value1) {
-              return function (value2) {
-                  return function (value3) {
-                      return new KickUp(value0, value1, value2, value3);
-                  };
-              };
-          };
-      };
-      return KickUp;
-  })();
-  var lookup = function (dictOrd) {
-      return function (k) {
-          var comp = Data_Ord.compare(dictOrd);
-          var go = function ($copy_v) {
-              var $tco_done = false;
-              var $tco_result;
-              function $tco_loop(v) {
-                  if (v instanceof Leaf) {
-                      $tco_done = true;
-                      return Data_Maybe.Nothing.value;
-                  };
-                  if (v instanceof Two) {
-                      var v2 = comp(k)(v.value1);
-                      if (v2 instanceof Data_Ordering.EQ) {
-                          $tco_done = true;
-                          return new Data_Maybe.Just(v.value2);
-                      };
-                      if (v2 instanceof Data_Ordering.LT) {
-                          $copy_v = v.value0;
-                          return;
-                      };
-                      $copy_v = v.value3;
-                      return;
-                  };
-                  if (v instanceof Three) {
-                      var v3 = comp(k)(v.value1);
-                      if (v3 instanceof Data_Ordering.EQ) {
-                          $tco_done = true;
-                          return new Data_Maybe.Just(v.value2);
-                      };
-                      var v4 = comp(k)(v.value4);
-                      if (v4 instanceof Data_Ordering.EQ) {
-                          $tco_done = true;
-                          return new Data_Maybe.Just(v.value5);
-                      };
-                      if (v3 instanceof Data_Ordering.LT) {
-                          $copy_v = v.value0;
-                          return;
-                      };
-                      if (v4 instanceof Data_Ordering.GT) {
-                          $copy_v = v.value6;
-                          return;
-                      };
-                      $copy_v = v.value3;
-                      return;
-                  };
-                  throw new Error("Failed pattern match at Data.Map.Internal (line 200, column 5 - line 200, column 22): " + [ v.constructor.name ]);
-              };
-              while (!$tco_done) {
-                  $tco_result = $tco_loop($copy_v);
-              };
-              return $tco_result;
-          };
-          return go;
-      };
-  };
-  var member = function (dictOrd) {
-      return function (k) {
-          return function (m) {
-              return Data_Maybe.isJust(lookup(dictOrd)(k)(m));
-          };
-      };
-  };
-  var keys = function (v) {
-      if (v instanceof Leaf) {
-          return Data_List_Types.Nil.value;
-      };
-      if (v instanceof Two) {
-          return Data_Semigroup.append(Data_List_Types.semigroupList)(keys(v.value0))(Data_Semigroup.append(Data_List_Types.semigroupList)(Control_Applicative.pure(Data_List_Types.applicativeList)(v.value1))(keys(v.value3)));
-      };
-      if (v instanceof Three) {
-          return Data_Semigroup.append(Data_List_Types.semigroupList)(keys(v.value0))(Data_Semigroup.append(Data_List_Types.semigroupList)(Control_Applicative.pure(Data_List_Types.applicativeList)(v.value1))(Data_Semigroup.append(Data_List_Types.semigroupList)(keys(v.value3))(Data_Semigroup.append(Data_List_Types.semigroupList)(Control_Applicative.pure(Data_List_Types.applicativeList)(v.value4))(keys(v.value6)))));
-      };
-      throw new Error("Failed pattern match at Data.Map.Internal (line 606, column 1 - line 606, column 38): " + [ v.constructor.name ]);
-  }; 
-  var fromZipper = function ($copy_dictOrd) {
-      return function ($copy_v) {
-          return function ($copy_tree) {
-              var $tco_var_dictOrd = $copy_dictOrd;
-              var $tco_var_v = $copy_v;
-              var $tco_done = false;
-              var $tco_result;
-              function $tco_loop(dictOrd, v, tree) {
-                  if (v instanceof Data_List_Types.Nil) {
-                      $tco_done = true;
-                      return tree;
-                  };
-                  if (v instanceof Data_List_Types.Cons) {
-                      if (v.value0 instanceof TwoLeft) {
-                          $tco_var_dictOrd = dictOrd;
-                          $tco_var_v = v.value1;
-                          $copy_tree = new Two(tree, v.value0.value0, v.value0.value1, v.value0.value2);
-                          return;
-                      };
-                      if (v.value0 instanceof TwoRight) {
-                          $tco_var_dictOrd = dictOrd;
-                          $tco_var_v = v.value1;
-                          $copy_tree = new Two(v.value0.value0, v.value0.value1, v.value0.value2, tree);
-                          return;
-                      };
-                      if (v.value0 instanceof ThreeLeft) {
-                          $tco_var_dictOrd = dictOrd;
-                          $tco_var_v = v.value1;
-                          $copy_tree = new Three(tree, v.value0.value0, v.value0.value1, v.value0.value2, v.value0.value3, v.value0.value4, v.value0.value5);
-                          return;
-                      };
-                      if (v.value0 instanceof ThreeMiddle) {
-                          $tco_var_dictOrd = dictOrd;
-                          $tco_var_v = v.value1;
-                          $copy_tree = new Three(v.value0.value0, v.value0.value1, v.value0.value2, tree, v.value0.value3, v.value0.value4, v.value0.value5);
-                          return;
-                      };
-                      if (v.value0 instanceof ThreeRight) {
-                          $tco_var_dictOrd = dictOrd;
-                          $tco_var_v = v.value1;
-                          $copy_tree = new Three(v.value0.value0, v.value0.value1, v.value0.value2, v.value0.value3, v.value0.value4, v.value0.value5, tree);
-                          return;
-                      };
-                      throw new Error("Failed pattern match at Data.Map.Internal (line 418, column 3 - line 423, column 88): " + [ v.value0.constructor.name ]);
-                  };
-                  throw new Error("Failed pattern match at Data.Map.Internal (line 415, column 1 - line 415, column 80): " + [ v.constructor.name, tree.constructor.name ]);
-              };
-              while (!$tco_done) {
-                  $tco_result = $tco_loop($tco_var_dictOrd, $tco_var_v, $copy_tree);
-              };
-              return $tco_result;
-          };
-      };
-  };
-  var insert = function (dictOrd) {
-      return function (k) {
-          return function (v) {
-              var up = function ($copy_v1) {
-                  return function ($copy_v2) {
-                      var $tco_var_v1 = $copy_v1;
-                      var $tco_done = false;
-                      var $tco_result;
-                      function $tco_loop(v1, v2) {
-                          if (v1 instanceof Data_List_Types.Nil) {
-                              $tco_done = true;
-                              return new Two(v2.value0, v2.value1, v2.value2, v2.value3);
-                          };
-                          if (v1 instanceof Data_List_Types.Cons) {
-                              if (v1.value0 instanceof TwoLeft) {
-                                  $tco_done = true;
-                                  return fromZipper(dictOrd)(v1.value1)(new Three(v2.value0, v2.value1, v2.value2, v2.value3, v1.value0.value0, v1.value0.value1, v1.value0.value2));
-                              };
-                              if (v1.value0 instanceof TwoRight) {
-                                  $tco_done = true;
-                                  return fromZipper(dictOrd)(v1.value1)(new Three(v1.value0.value0, v1.value0.value1, v1.value0.value2, v2.value0, v2.value1, v2.value2, v2.value3));
-                              };
-                              if (v1.value0 instanceof ThreeLeft) {
-                                  $tco_var_v1 = v1.value1;
-                                  $copy_v2 = new KickUp(new Two(v2.value0, v2.value1, v2.value2, v2.value3), v1.value0.value0, v1.value0.value1, new Two(v1.value0.value2, v1.value0.value3, v1.value0.value4, v1.value0.value5));
-                                  return;
-                              };
-                              if (v1.value0 instanceof ThreeMiddle) {
-                                  $tco_var_v1 = v1.value1;
-                                  $copy_v2 = new KickUp(new Two(v1.value0.value0, v1.value0.value1, v1.value0.value2, v2.value0), v2.value1, v2.value2, new Two(v2.value3, v1.value0.value3, v1.value0.value4, v1.value0.value5));
-                                  return;
-                              };
-                              if (v1.value0 instanceof ThreeRight) {
-                                  $tco_var_v1 = v1.value1;
-                                  $copy_v2 = new KickUp(new Two(v1.value0.value0, v1.value0.value1, v1.value0.value2, v1.value0.value3), v1.value0.value4, v1.value0.value5, new Two(v2.value0, v2.value1, v2.value2, v2.value3));
-                                  return;
-                              };
-                              throw new Error("Failed pattern match at Data.Map.Internal (line 454, column 5 - line 459, column 108): " + [ v1.value0.constructor.name, v2.constructor.name ]);
-                          };
-                          throw new Error("Failed pattern match at Data.Map.Internal (line 451, column 3 - line 451, column 56): " + [ v1.constructor.name, v2.constructor.name ]);
-                      };
-                      while (!$tco_done) {
-                          $tco_result = $tco_loop($tco_var_v1, $copy_v2);
-                      };
-                      return $tco_result;
-                  };
-              };
-              var comp = Data_Ord.compare(dictOrd);
-              var down = function ($copy_ctx) {
-                  return function ($copy_v1) {
-                      var $tco_var_ctx = $copy_ctx;
-                      var $tco_done = false;
-                      var $tco_result;
-                      function $tco_loop(ctx, v1) {
-                          if (v1 instanceof Leaf) {
-                              $tco_done = true;
-                              return up(ctx)(new KickUp(Leaf.value, k, v, Leaf.value));
-                          };
-                          if (v1 instanceof Two) {
-                              var v2 = comp(k)(v1.value1);
-                              if (v2 instanceof Data_Ordering.EQ) {
-                                  $tco_done = true;
-                                  return fromZipper(dictOrd)(ctx)(new Two(v1.value0, k, v, v1.value3));
-                              };
-                              if (v2 instanceof Data_Ordering.LT) {
-                                  $tco_var_ctx = new Data_List_Types.Cons(new TwoLeft(v1.value1, v1.value2, v1.value3), ctx);
-                                  $copy_v1 = v1.value0;
-                                  return;
-                              };
-                              $tco_var_ctx = new Data_List_Types.Cons(new TwoRight(v1.value0, v1.value1, v1.value2), ctx);
-                              $copy_v1 = v1.value3;
-                              return;
-                          };
-                          if (v1 instanceof Three) {
-                              var v3 = comp(k)(v1.value1);
-                              if (v3 instanceof Data_Ordering.EQ) {
-                                  $tco_done = true;
-                                  return fromZipper(dictOrd)(ctx)(new Three(v1.value0, k, v, v1.value3, v1.value4, v1.value5, v1.value6));
-                              };
-                              var v4 = comp(k)(v1.value4);
-                              if (v4 instanceof Data_Ordering.EQ) {
-                                  $tco_done = true;
-                                  return fromZipper(dictOrd)(ctx)(new Three(v1.value0, v1.value1, v1.value2, v1.value3, k, v, v1.value6));
-                              };
-                              if (v3 instanceof Data_Ordering.LT) {
-                                  $tco_var_ctx = new Data_List_Types.Cons(new ThreeLeft(v1.value1, v1.value2, v1.value3, v1.value4, v1.value5, v1.value6), ctx);
-                                  $copy_v1 = v1.value0;
-                                  return;
-                              };
-                              if (v3 instanceof Data_Ordering.GT && v4 instanceof Data_Ordering.LT) {
-                                  $tco_var_ctx = new Data_List_Types.Cons(new ThreeMiddle(v1.value0, v1.value1, v1.value2, v1.value4, v1.value5, v1.value6), ctx);
-                                  $copy_v1 = v1.value3;
-                                  return;
-                              };
-                              $tco_var_ctx = new Data_List_Types.Cons(new ThreeRight(v1.value0, v1.value1, v1.value2, v1.value3, v1.value4, v1.value5), ctx);
-                              $copy_v1 = v1.value6;
-                              return;
-                          };
-                          throw new Error("Failed pattern match at Data.Map.Internal (line 434, column 3 - line 434, column 55): " + [ ctx.constructor.name, v1.constructor.name ]);
-                      };
-                      while (!$tco_done) {
-                          $tco_result = $tco_loop($tco_var_ctx, $copy_v1);
-                      };
-                      return $tco_result;
-                  };
-              };
-              return down(Data_List_Types.Nil.value);
-          };
-      };
-  };
-  var pop = function (dictOrd) {
-      return function (k) {
-          var up = function ($copy_ctxs) {
-              return function ($copy_tree) {
-                  var $tco_var_ctxs = $copy_ctxs;
-                  var $tco_done = false;
-                  var $tco_result;
-                  function $tco_loop(ctxs, tree) {
-                      if (ctxs instanceof Data_List_Types.Nil) {
-                          $tco_done = true;
-                          return tree;
-                      };
-                      if (ctxs instanceof Data_List_Types.Cons) {
-                          if (ctxs.value0 instanceof TwoLeft && (ctxs.value0.value2 instanceof Leaf && tree instanceof Leaf)) {
-                              $tco_done = true;
-                              return fromZipper(dictOrd)(ctxs.value1)(new Two(Leaf.value, ctxs.value0.value0, ctxs.value0.value1, Leaf.value));
-                          };
-                          if (ctxs.value0 instanceof TwoRight && (ctxs.value0.value0 instanceof Leaf && tree instanceof Leaf)) {
-                              $tco_done = true;
-                              return fromZipper(dictOrd)(ctxs.value1)(new Two(Leaf.value, ctxs.value0.value1, ctxs.value0.value2, Leaf.value));
-                          };
-                          if (ctxs.value0 instanceof TwoLeft && ctxs.value0.value2 instanceof Two) {
-                              $tco_var_ctxs = ctxs.value1;
-                              $copy_tree = new Three(tree, ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2.value0, ctxs.value0.value2.value1, ctxs.value0.value2.value2, ctxs.value0.value2.value3);
-                              return;
-                          };
-                          if (ctxs.value0 instanceof TwoRight && ctxs.value0.value0 instanceof Two) {
-                              $tco_var_ctxs = ctxs.value1;
-                              $copy_tree = new Three(ctxs.value0.value0.value0, ctxs.value0.value0.value1, ctxs.value0.value0.value2, ctxs.value0.value0.value3, ctxs.value0.value1, ctxs.value0.value2, tree);
-                              return;
-                          };
-                          if (ctxs.value0 instanceof TwoLeft && ctxs.value0.value2 instanceof Three) {
-                              $tco_done = true;
-                              return fromZipper(dictOrd)(ctxs.value1)(new Two(new Two(tree, ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2.value0), ctxs.value0.value2.value1, ctxs.value0.value2.value2, new Two(ctxs.value0.value2.value3, ctxs.value0.value2.value4, ctxs.value0.value2.value5, ctxs.value0.value2.value6)));
-                          };
-                          if (ctxs.value0 instanceof TwoRight && ctxs.value0.value0 instanceof Three) {
-                              $tco_done = true;
-                              return fromZipper(dictOrd)(ctxs.value1)(new Two(new Two(ctxs.value0.value0.value0, ctxs.value0.value0.value1, ctxs.value0.value0.value2, ctxs.value0.value0.value3), ctxs.value0.value0.value4, ctxs.value0.value0.value5, new Two(ctxs.value0.value0.value6, ctxs.value0.value1, ctxs.value0.value2, tree)));
-                          };
-                          if (ctxs.value0 instanceof ThreeLeft && (ctxs.value0.value2 instanceof Leaf && (ctxs.value0.value5 instanceof Leaf && tree instanceof Leaf))) {
-                              $tco_done = true;
-                              return fromZipper(dictOrd)(ctxs.value1)(new Three(Leaf.value, ctxs.value0.value0, ctxs.value0.value1, Leaf.value, ctxs.value0.value3, ctxs.value0.value4, Leaf.value));
-                          };
-                          if (ctxs.value0 instanceof ThreeMiddle && (ctxs.value0.value0 instanceof Leaf && (ctxs.value0.value5 instanceof Leaf && tree instanceof Leaf))) {
-                              $tco_done = true;
-                              return fromZipper(dictOrd)(ctxs.value1)(new Three(Leaf.value, ctxs.value0.value1, ctxs.value0.value2, Leaf.value, ctxs.value0.value3, ctxs.value0.value4, Leaf.value));
-                          };
-                          if (ctxs.value0 instanceof ThreeRight && (ctxs.value0.value0 instanceof Leaf && (ctxs.value0.value3 instanceof Leaf && tree instanceof Leaf))) {
-                              $tco_done = true;
-                              return fromZipper(dictOrd)(ctxs.value1)(new Three(Leaf.value, ctxs.value0.value1, ctxs.value0.value2, Leaf.value, ctxs.value0.value4, ctxs.value0.value5, Leaf.value));
-                          };
-                          if (ctxs.value0 instanceof ThreeLeft && ctxs.value0.value2 instanceof Two) {
-                              $tco_done = true;
-                              return fromZipper(dictOrd)(ctxs.value1)(new Two(new Three(tree, ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2.value0, ctxs.value0.value2.value1, ctxs.value0.value2.value2, ctxs.value0.value2.value3), ctxs.value0.value3, ctxs.value0.value4, ctxs.value0.value5));
-                          };
-                          if (ctxs.value0 instanceof ThreeMiddle && ctxs.value0.value0 instanceof Two) {
-                              $tco_done = true;
-                              return fromZipper(dictOrd)(ctxs.value1)(new Two(new Three(ctxs.value0.value0.value0, ctxs.value0.value0.value1, ctxs.value0.value0.value2, ctxs.value0.value0.value3, ctxs.value0.value1, ctxs.value0.value2, tree), ctxs.value0.value3, ctxs.value0.value4, ctxs.value0.value5));
-                          };
-                          if (ctxs.value0 instanceof ThreeMiddle && ctxs.value0.value5 instanceof Two) {
-                              $tco_done = true;
-                              return fromZipper(dictOrd)(ctxs.value1)(new Two(ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2, new Three(tree, ctxs.value0.value3, ctxs.value0.value4, ctxs.value0.value5.value0, ctxs.value0.value5.value1, ctxs.value0.value5.value2, ctxs.value0.value5.value3)));
-                          };
-                          if (ctxs.value0 instanceof ThreeRight && ctxs.value0.value3 instanceof Two) {
-                              $tco_done = true;
-                              return fromZipper(dictOrd)(ctxs.value1)(new Two(ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2, new Three(ctxs.value0.value3.value0, ctxs.value0.value3.value1, ctxs.value0.value3.value2, ctxs.value0.value3.value3, ctxs.value0.value4, ctxs.value0.value5, tree)));
-                          };
-                          if (ctxs.value0 instanceof ThreeLeft && ctxs.value0.value2 instanceof Three) {
-                              $tco_done = true;
-                              return fromZipper(dictOrd)(ctxs.value1)(new Three(new Two(tree, ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2.value0), ctxs.value0.value2.value1, ctxs.value0.value2.value2, new Two(ctxs.value0.value2.value3, ctxs.value0.value2.value4, ctxs.value0.value2.value5, ctxs.value0.value2.value6), ctxs.value0.value3, ctxs.value0.value4, ctxs.value0.value5));
-                          };
-                          if (ctxs.value0 instanceof ThreeMiddle && ctxs.value0.value0 instanceof Three) {
-                              $tco_done = true;
-                              return fromZipper(dictOrd)(ctxs.value1)(new Three(new Two(ctxs.value0.value0.value0, ctxs.value0.value0.value1, ctxs.value0.value0.value2, ctxs.value0.value0.value3), ctxs.value0.value0.value4, ctxs.value0.value0.value5, new Two(ctxs.value0.value0.value6, ctxs.value0.value1, ctxs.value0.value2, tree), ctxs.value0.value3, ctxs.value0.value4, ctxs.value0.value5));
-                          };
-                          if (ctxs.value0 instanceof ThreeMiddle && ctxs.value0.value5 instanceof Three) {
-                              $tco_done = true;
-                              return fromZipper(dictOrd)(ctxs.value1)(new Three(ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2, new Two(tree, ctxs.value0.value3, ctxs.value0.value4, ctxs.value0.value5.value0), ctxs.value0.value5.value1, ctxs.value0.value5.value2, new Two(ctxs.value0.value5.value3, ctxs.value0.value5.value4, ctxs.value0.value5.value5, ctxs.value0.value5.value6)));
-                          };
-                          if (ctxs.value0 instanceof ThreeRight && ctxs.value0.value3 instanceof Three) {
-                              $tco_done = true;
-                              return fromZipper(dictOrd)(ctxs.value1)(new Three(ctxs.value0.value0, ctxs.value0.value1, ctxs.value0.value2, new Two(ctxs.value0.value3.value0, ctxs.value0.value3.value1, ctxs.value0.value3.value2, ctxs.value0.value3.value3), ctxs.value0.value3.value4, ctxs.value0.value3.value5, new Two(ctxs.value0.value3.value6, ctxs.value0.value4, ctxs.value0.value5, tree)));
-                          };
-                          throw new Error("Failed pattern match at Data.Map.Internal (line 511, column 9 - line 528, column 136): " + [ ctxs.value0.constructor.name, tree.constructor.name ]);
-                      };
-                      throw new Error("Failed pattern match at Data.Map.Internal (line 508, column 5 - line 528, column 136): " + [ ctxs.constructor.name ]);
-                  };
-                  while (!$tco_done) {
-                      $tco_result = $tco_loop($tco_var_ctxs, $copy_tree);
-                  };
-                  return $tco_result;
-              };
-          };
-          var removeMaxNode = function ($copy_ctx) {
-              return function ($copy_m) {
-                  var $tco_var_ctx = $copy_ctx;
-                  var $tco_done = false;
-                  var $tco_result;
-                  function $tco_loop(ctx, m) {
-                      if (m instanceof Two && (m.value0 instanceof Leaf && m.value3 instanceof Leaf)) {
-                          $tco_done = true;
-                          return up(ctx)(Leaf.value);
-                      };
-                      if (m instanceof Two) {
-                          $tco_var_ctx = new Data_List_Types.Cons(new TwoRight(m.value0, m.value1, m.value2), ctx);
-                          $copy_m = m.value3;
-                          return;
-                      };
-                      if (m instanceof Three && (m.value0 instanceof Leaf && (m.value3 instanceof Leaf && m.value6 instanceof Leaf))) {
-                          $tco_done = true;
-                          return up(new Data_List_Types.Cons(new TwoRight(Leaf.value, m.value1, m.value2), ctx))(Leaf.value);
-                      };
-                      if (m instanceof Three) {
-                          $tco_var_ctx = new Data_List_Types.Cons(new ThreeRight(m.value0, m.value1, m.value2, m.value3, m.value4, m.value5), ctx);
-                          $copy_m = m.value6;
-                          return;
-                      };
-                      throw new Error("Failed pattern match at Data.Map.Internal (line 540, column 5 - line 544, column 107): " + [ m.constructor.name ]);
-                  };
-                  while (!$tco_done) {
-                      $tco_result = $tco_loop($tco_var_ctx, $copy_m);
-                  };
-                  return $tco_result;
-              };
-          };
-          var maxNode = function ($copy_m) {
-              var $tco_done = false;
-              var $tco_result;
-              function $tco_loop(m) {
-                  if (m instanceof Two && m.value3 instanceof Leaf) {
-                      $tco_done = true;
-                      return {
-                          key: m.value1,
-                          value: m.value2
-                      };
-                  };
-                  if (m instanceof Two) {
-                      $copy_m = m.value3;
-                      return;
-                  };
-                  if (m instanceof Three && m.value6 instanceof Leaf) {
-                      $tco_done = true;
-                      return {
-                          key: m.value4,
-                          value: m.value5
-                      };
-                  };
-                  if (m instanceof Three) {
-                      $copy_m = m.value6;
-                      return;
-                  };
-                  throw new Error("Failed pattern match at Data.Map.Internal (line 531, column 33 - line 535, column 45): " + [ m.constructor.name ]);
-              };
-              while (!$tco_done) {
-                  $tco_result = $tco_loop($copy_m);
-              };
-              return $tco_result;
-          };
-          var comp = Data_Ord.compare(dictOrd);
-          var down = function ($copy_ctx) {
-              return function ($copy_m) {
-                  var $tco_var_ctx = $copy_ctx;
-                  var $tco_done = false;
-                  var $tco_result;
-                  function $tco_loop(ctx, m) {
-                      if (m instanceof Leaf) {
-                          $tco_done = true;
-                          return Data_Maybe.Nothing.value;
-                      };
-                      if (m instanceof Two) {
-                          var v = comp(k)(m.value1);
-                          if (m.value3 instanceof Leaf && v instanceof Data_Ordering.EQ) {
-                              $tco_done = true;
-                              return new Data_Maybe.Just(new Data_Tuple.Tuple(m.value2, up(ctx)(Leaf.value)));
-                          };
-                          if (v instanceof Data_Ordering.EQ) {
-                              var max = maxNode(m.value0);
-                              $tco_done = true;
-                              return new Data_Maybe.Just(new Data_Tuple.Tuple(m.value2, removeMaxNode(new Data_List_Types.Cons(new TwoLeft(max.key, max.value, m.value3), ctx))(m.value0)));
-                          };
-                          if (v instanceof Data_Ordering.LT) {
-                              $tco_var_ctx = new Data_List_Types.Cons(new TwoLeft(m.value1, m.value2, m.value3), ctx);
-                              $copy_m = m.value0;
-                              return;
-                          };
-                          $tco_var_ctx = new Data_List_Types.Cons(new TwoRight(m.value0, m.value1, m.value2), ctx);
-                          $copy_m = m.value3;
-                          return;
-                      };
-                      if (m instanceof Three) {
-                          var leaves = (function () {
-                              if (m.value0 instanceof Leaf && (m.value3 instanceof Leaf && m.value6 instanceof Leaf)) {
-                                  return true;
-                              };
-                              return false;
-                          })();
-                          var v = comp(k)(m.value4);
-                          var v3 = comp(k)(m.value1);
-                          if (leaves && v3 instanceof Data_Ordering.EQ) {
-                              $tco_done = true;
-                              return new Data_Maybe.Just(new Data_Tuple.Tuple(m.value2, fromZipper(dictOrd)(ctx)(new Two(Leaf.value, m.value4, m.value5, Leaf.value))));
-                          };
-                          if (leaves && v instanceof Data_Ordering.EQ) {
-                              $tco_done = true;
-                              return new Data_Maybe.Just(new Data_Tuple.Tuple(m.value5, fromZipper(dictOrd)(ctx)(new Two(Leaf.value, m.value1, m.value2, Leaf.value))));
-                          };
-                          if (v3 instanceof Data_Ordering.EQ) {
-                              var max = maxNode(m.value0);
-                              $tco_done = true;
-                              return new Data_Maybe.Just(new Data_Tuple.Tuple(m.value2, removeMaxNode(new Data_List_Types.Cons(new ThreeLeft(max.key, max.value, m.value3, m.value4, m.value5, m.value6), ctx))(m.value0)));
-                          };
-                          if (v instanceof Data_Ordering.EQ) {
-                              var max = maxNode(m.value3);
-                              $tco_done = true;
-                              return new Data_Maybe.Just(new Data_Tuple.Tuple(m.value5, removeMaxNode(new Data_List_Types.Cons(new ThreeMiddle(m.value0, m.value1, m.value2, max.key, max.value, m.value6), ctx))(m.value3)));
-                          };
-                          if (v3 instanceof Data_Ordering.LT) {
-                              $tco_var_ctx = new Data_List_Types.Cons(new ThreeLeft(m.value1, m.value2, m.value3, m.value4, m.value5, m.value6), ctx);
-                              $copy_m = m.value0;
-                              return;
-                          };
-                          if (v3 instanceof Data_Ordering.GT && v instanceof Data_Ordering.LT) {
-                              $tco_var_ctx = new Data_List_Types.Cons(new ThreeMiddle(m.value0, m.value1, m.value2, m.value4, m.value5, m.value6), ctx);
-                              $copy_m = m.value3;
-                              return;
-                          };
-                          $tco_var_ctx = new Data_List_Types.Cons(new ThreeRight(m.value0, m.value1, m.value2, m.value3, m.value4, m.value5), ctx);
-                          $copy_m = m.value6;
-                          return;
-                      };
-                      throw new Error("Failed pattern match at Data.Map.Internal (line 481, column 34 - line 504, column 80): " + [ m.constructor.name ]);
-                  };
-                  while (!$tco_done) {
-                      $tco_result = $tco_loop($tco_var_ctx, $copy_m);
-                  };
-                  return $tco_result;
-              };
-          };
-          return down(Data_List_Types.Nil.value);
-      };
-  };
-  var empty = Leaf.value;
-  var fromFoldable = function (dictOrd) {
-      return function (dictFoldable) {
-          return Data_Foldable.foldl(dictFoldable)(function (m) {
-              return function (v) {
-                  return insert(dictOrd)(v.value0)(v.value1)(m);
-              };
-          })(empty);
-      };
-  };
-  var $$delete = function (dictOrd) {
-      return function (k) {
-          return function (m) {
-              return Data_Maybe.maybe(m)(Data_Tuple.snd)(pop(dictOrd)(k)(m));
-          };
-      };
-  };
-  exports["empty"] = empty;
-  exports["insert"] = insert;
-  exports["lookup"] = lookup;
-  exports["fromFoldable"] = fromFoldable;
-  exports["delete"] = $$delete;
-  exports["member"] = member;
-  exports["keys"] = keys;
-})(PS);
-(function($PS) {
-  "use strict";
-  $PS["Data.Set"] = $PS["Data.Set"] || {};
-  var exports = $PS["Data.Set"];
-  var Data_Foldable = $PS["Data.Foldable"];
-  var Data_List_Types = $PS["Data.List.Types"];
-  var Data_Map_Internal = $PS["Data.Map.Internal"];
-  var Data_Unit = $PS["Data.Unit"];
-  var toList = function (v) {
-      return Data_Map_Internal.keys(v);
-  };
-  var member = function (dictOrd) {
-      return function (a) {
-          return function (v) {
-              return Data_Map_Internal.member(dictOrd)(a)(v);
-          };
-      };
-  };
-  var insert = function (dictOrd) {
-      return function (a) {
-          return function (v) {
-              return Data_Map_Internal.insert(dictOrd)(a)(Data_Unit.unit)(v);
-          };
-      };
-  };
-  var foldableSet = new Data_Foldable.Foldable(function (dictMonoid) {
-      return function (f) {
-          var $65 = Data_Foldable.foldMap(Data_List_Types.foldableList)(dictMonoid)(f);
-          return function ($66) {
-              return $65(toList($66));
-          };
-      };
-  }, function (f) {
-      return function (x) {
-          var $67 = Data_Foldable.foldl(Data_List_Types.foldableList)(f)(x);
-          return function ($68) {
-              return $67(toList($68));
-          };
-      };
-  }, function (f) {
-      return function (x) {
-          var $69 = Data_Foldable.foldr(Data_List_Types.foldableList)(f)(x);
-          return function ($70) {
-              return $69(toList($70));
-          };
-      };
-  });
-  var empty = Data_Map_Internal.empty;
-  var fromFoldable = function (dictFoldable) {
-      return function (dictOrd) {
-          return Data_Foldable.foldl(dictFoldable)(function (m) {
-              return function (a) {
-                  return insert(dictOrd)(a)(m);
-              };
-          })(empty);
-      };
-  };
-  var $$delete = function (dictOrd) {
-      return function (a) {
-          return function (v) {
-              return Data_Map_Internal["delete"](dictOrd)(a)(v);
-          };
-      };
-  };
-  exports["fromFoldable"] = fromFoldable;
-  exports["insert"] = insert;
-  exports["member"] = member;
-  exports["delete"] = $$delete;
-  exports["foldableSet"] = foldableSet;
 })(PS);
 (function(exports) {
   "use strict";
@@ -6588,6 +6675,32 @@ var PS = {};
   var $foreign = $PS["Data.String.Unsafe"];
   exports["charAt"] = $foreign.charAt;
 })(PS);
+(function($PS) {
+  "use strict";
+  $PS["Data.Tuple"] = $PS["Data.Tuple"] || {};
+  var exports = $PS["Data.Tuple"];                         
+  var Tuple = (function () {
+      function Tuple(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      Tuple.create = function (value0) {
+          return function (value1) {
+              return new Tuple(value0, value1);
+          };
+      };
+      return Tuple;
+  })();
+  var snd = function (v) {
+      return v.value1;
+  };                                                                                                    
+  var fst = function (v) {
+      return v.value0;
+  };
+  exports["Tuple"] = Tuple;
+  exports["fst"] = fst;
+  exports["snd"] = snd;
+})(PS);
 (function(exports) {
   "use strict";
 
@@ -6801,6 +6914,37 @@ var PS = {};
   var $foreign = $PS["Effect.Console"];
   exports["error"] = $foreign.error;
 })(PS);
+(function($PS) {
+  "use strict";
+  $PS["Keys"] = $PS["Keys"] || {};
+  var exports = $PS["Keys"];
+  var Api = $PS["Api"];                
+  var keyPassengerType = function (v) {
+      if (v instanceof Api.Medical) {
+          return "key.medical";
+      };
+      if (v instanceof Api.Police) {
+          return "key.police";
+      };
+      if (v instanceof Api.Firefighter) {
+          return "key.firefighter";
+      };
+      if (v instanceof Api.Army) {
+          return "key.army";
+      };
+      if (v instanceof Api.Farmacy) {
+          return "key.farmacy";
+      };
+      if (v instanceof Api.Cashier) {
+          return "key.cashier";
+      };
+      if (v instanceof Api.Regular) {
+          return "key.regular";
+      };
+      throw new Error("Failed pattern match at Keys (line 7, column 1 - line 7, column 44): " + [ v.constructor.name ]);
+  };
+  exports["keyPassengerType"] = keyPassengerType;
+})(PS);
 (function(exports) {
   "use strict";
 
@@ -6975,7 +7119,7 @@ var PS = {};
   var exports = $PS["Lib.React"];
   var Data_Int = $PS["Data.Int"];
   var Data_Maybe = $PS["Data.Maybe"];
-  var React_DOM_Props = $PS["React.DOM.Props"];
+  var React_DOM_Props = $PS["React.DOM.Props"];                
   var onChangeValueInt = function (f) {
       return React_DOM_Props.onChange(function (e) {
           return f(Data_Maybe.fromMaybe(0)(Data_Int.fromString(e.target.value)));
@@ -7347,187 +7491,6 @@ var PS = {};
   exports["onMsg"] = onMsg;
   exports["send"] = send;
 })(PS);
-(function($PS) {
-  "use strict";
-  $PS["Model"] = $PS["Model"] || {};
-  var exports = $PS["Model"];
-  var Data_Eq = $PS["Data.Eq"];
-  var Data_Ord = $PS["Data.Ord"];
-  var Data_Ordering = $PS["Data.Ordering"];
-  var Data_Show = $PS["Data.Show"];                
-  var Medical = (function () {
-      function Medical() {
-
-      };
-      Medical.value = new Medical();
-      return Medical;
-  })();
-  var Police = (function () {
-      function Police() {
-
-      };
-      Police.value = new Police();
-      return Police;
-  })();
-  var Firefighter = (function () {
-      function Firefighter() {
-
-      };
-      Firefighter.value = new Firefighter();
-      return Firefighter;
-  })();
-  var Army = (function () {
-      function Army() {
-
-      };
-      Army.value = new Army();
-      return Army;
-  })();
-  var Farmacy = (function () {
-      function Farmacy() {
-
-      };
-      Farmacy.value = new Farmacy();
-      return Farmacy;
-  })();
-  var Cashier = (function () {
-      function Cashier() {
-
-      };
-      Cashier.value = new Cashier();
-      return Cashier;
-  })();
-  var Regular = (function () {
-      function Regular() {
-
-      };
-      Regular.value = new Regular();
-      return Regular;
-  })();
-  var showPassengerType = new Data_Show.Show(function (v) {
-      if (v instanceof Medical) {
-          return "key.medical";
-      };
-      if (v instanceof Police) {
-          return "key.police";
-      };
-      if (v instanceof Firefighter) {
-          return "key.firefighter";
-      };
-      if (v instanceof Army) {
-          return "key.army";
-      };
-      if (v instanceof Farmacy) {
-          return "key.farmacy";
-      };
-      if (v instanceof Cashier) {
-          return "key.cashier";
-      };
-      if (v instanceof Regular) {
-          return "key.regular";
-      };
-      throw new Error("Failed pattern match at Model (line 8, column 1 - line 16, column 31): " + [ v.constructor.name ]);
-  });
-  var eqPassengerType = new Data_Eq.Eq(function (x) {
-      return function (y) {
-          if (x instanceof Medical && y instanceof Medical) {
-              return true;
-          };
-          if (x instanceof Police && y instanceof Police) {
-              return true;
-          };
-          if (x instanceof Firefighter && y instanceof Firefighter) {
-              return true;
-          };
-          if (x instanceof Army && y instanceof Army) {
-              return true;
-          };
-          if (x instanceof Farmacy && y instanceof Farmacy) {
-              return true;
-          };
-          if (x instanceof Cashier && y instanceof Cashier) {
-              return true;
-          };
-          if (x instanceof Regular && y instanceof Regular) {
-              return true;
-          };
-          return false;
-      };
-  });
-  var ordPassengerType = new Data_Ord.Ord(function () {
-      return eqPassengerType;
-  }, function (x) {
-      return function (y) {
-          if (x instanceof Medical && y instanceof Medical) {
-              return Data_Ordering.EQ.value;
-          };
-          if (x instanceof Medical) {
-              return Data_Ordering.LT.value;
-          };
-          if (y instanceof Medical) {
-              return Data_Ordering.GT.value;
-          };
-          if (x instanceof Police && y instanceof Police) {
-              return Data_Ordering.EQ.value;
-          };
-          if (x instanceof Police) {
-              return Data_Ordering.LT.value;
-          };
-          if (y instanceof Police) {
-              return Data_Ordering.GT.value;
-          };
-          if (x instanceof Firefighter && y instanceof Firefighter) {
-              return Data_Ordering.EQ.value;
-          };
-          if (x instanceof Firefighter) {
-              return Data_Ordering.LT.value;
-          };
-          if (y instanceof Firefighter) {
-              return Data_Ordering.GT.value;
-          };
-          if (x instanceof Army && y instanceof Army) {
-              return Data_Ordering.EQ.value;
-          };
-          if (x instanceof Army) {
-              return Data_Ordering.LT.value;
-          };
-          if (y instanceof Army) {
-              return Data_Ordering.GT.value;
-          };
-          if (x instanceof Farmacy && y instanceof Farmacy) {
-              return Data_Ordering.EQ.value;
-          };
-          if (x instanceof Farmacy) {
-              return Data_Ordering.LT.value;
-          };
-          if (y instanceof Farmacy) {
-              return Data_Ordering.GT.value;
-          };
-          if (x instanceof Cashier && y instanceof Cashier) {
-              return Data_Ordering.EQ.value;
-          };
-          if (x instanceof Cashier) {
-              return Data_Ordering.LT.value;
-          };
-          if (y instanceof Cashier) {
-              return Data_Ordering.GT.value;
-          };
-          if (x instanceof Regular && y instanceof Regular) {
-              return Data_Ordering.EQ.value;
-          };
-          throw new Error("Failed pattern match at Model (line 18, column 1 - line 18, column 54): " + [ x.constructor.name, y.constructor.name ]);
-      };
-  });
-  exports["Medical"] = Medical;
-  exports["Police"] = Police;
-  exports["Firefighter"] = Firefighter;
-  exports["Army"] = Army;
-  exports["Farmacy"] = Farmacy;
-  exports["Cashier"] = Cashier;
-  exports["Regular"] = Regular;
-  exports["showPassengerType"] = showPassengerType;
-  exports["ordPassengerType"] = ordPassengerType;
-})(PS);
 (function(exports) {
   /* global exports */
   "use strict";
@@ -7786,6 +7749,7 @@ var PS = {};
   "use strict";
   $PS["App.Driver"] = $PS["App.Driver"] || {};
   var exports = $PS["App.Driver"];
+  var Api = $PS["Api"];
   var Api_Pull = $PS["Api.Pull"];
   var Api_Push = $PS["Api.Push"];
   var Control_Applicative = $PS["Control.Applicative"];
@@ -7797,7 +7761,6 @@ var PS = {};
   var Data_JSDate = $PS["Data.JSDate"];
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Monoid = $PS["Data.Monoid"];
-  var Data_Set = $PS["Data.Set"];
   var Data_Show = $PS["Data.Show"];
   var Data_String_CodePoints = $PS["Data.String.CodePoints"];
   var Data_Traversable = $PS["Data.Traversable"];
@@ -7805,9 +7768,9 @@ var PS = {};
   var Effect = $PS["Effect"];
   var Effect_Console = $PS["Effect.Console"];
   var Global = $PS["Global"];
+  var Keys = $PS["Keys"];
   var Lib_React = $PS["Lib.React"];
   var Lib_WebSocket = $PS["Lib.WebSocket"];
-  var Model = $PS["Model"];
   var Proto_Decode = $PS["Proto.Decode"];
   var React = $PS["React"];
   var React_DOM = $PS["React.DOM"];
@@ -7851,30 +7814,7 @@ var PS = {};
                   seats: s.seats,
                   from: s.from,
                   to: s.to,
-                  types: Data_Functor.mapFlipped(Data_Functor.functorArray)(Data_Array.fromFoldable(Data_Set.foldableSet)(s.types))(function (v) {
-                      if (v instanceof Model.Medical) {
-                          return Api_Pull.Medical.value;
-                      };
-                      if (v instanceof Model.Police) {
-                          return Api_Pull.Police.value;
-                      };
-                      if (v instanceof Model.Firefighter) {
-                          return Api_Pull.Firefighter.value;
-                      };
-                      if (v instanceof Model.Army) {
-                          return Api_Pull.Army.value;
-                      };
-                      if (v instanceof Model.Farmacy) {
-                          return Api_Pull.Farmacy.value;
-                      };
-                      if (v instanceof Model.Cashier) {
-                          return Api_Pull.Cashier.value;
-                      };
-                      if (v instanceof Model.Regular) {
-                          return Api_Pull.Regular.value;
-                      };
-                      throw new Error("Failed pattern match at App.Driver (line 99, column 47 - line 106, column 35): " + [ v.constructor.name ]);
-                  })
+                  types: s.types
               });
               return Lib_WebSocket.send(p.ws)(Api_Pull.encodePull(driver))();
           };
@@ -8100,7 +8040,7 @@ var PS = {};
                       };
                   });
               }) ]) ]) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4") ])([ React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.passenger")) ]) ]), React_DOM.div([ Lib_React.cn("mb-2") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
-                  return React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ Lib_React.cn("form-check-input"), React_DOM_Props["_type"]("checkbox"), React_DOM_Props.value(""), React_DOM_Props["_id"](Data_Show.show(Model.showPassengerType)(v)), React_DOM_Props.checked(Data_Set.member(Model.ordPassengerType)(v)(state.types)), React_DOM_Props.onChange(function (v1) {
+                  return React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ Lib_React.cn("form-check-input"), React_DOM_Props["_type"]("checkbox"), React_DOM_Props.value(""), React_DOM_Props["_id"](Keys.keyPassengerType(v)), React_DOM_Props.checked(Data_Foldable.elem(Data_Foldable.foldableArray)(Api.eqPassengerType)(v)(state.types)), React_DOM_Props.onChange(function (v1) {
                       return React.modifyState($$this)(function (v2) {
                           return {
                               name: v2.name,
@@ -8112,18 +8052,18 @@ var PS = {};
                               from: v2.from,
                               to: v2.to,
                               types: (function () {
-                                  var $28 = Data_Set.member(Model.ordPassengerType)(v)(state.types);
-                                  if ($28) {
-                                      return Data_Set["delete"](Model.ordPassengerType)(v)(state.types);
+                                  var $25 = Data_Foldable.elem(Data_Foldable.foldableArray)(Api.eqPassengerType)(v)(state.types);
+                                  if ($25) {
+                                      return Data_Array["delete"](Api.eqPassengerType)(v)(state.types);
                                   };
-                                  return Data_Set.insert(Model.ordPassengerType)(v)(state.types);
+                                  return Data_Array.cons(v)(state.types);
                               })(),
                               mapQ: v2.mapQ,
                               routeN: v2.routeN
                           };
                       });
-                  }) ]), React_DOM.label([ Lib_React.cn("form-check-label"), React_DOM_Props.htmlFor(Data_Show.show(Model.showPassengerType)(v)) ])([ React_DOM.text(props.keyText(Data_Show.show(Model.showPassengerType)(v))) ]) ]);
-              })([ Model.Medical.value, Model.Police.value, Model.Firefighter.value, Model.Army.value, Model.Farmacy.value, Model.Cashier.value, Model.Regular.value ])) ]) ]), React_DOM.button([ Lib_React.cn("btn btn-secondary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+                  }) ]), React_DOM.label([ Lib_React.cn("form-check-label"), React_DOM_Props.htmlFor(Keys.keyPassengerType(v)) ])([ React_DOM.text(props.keyText(Keys.keyPassengerType(v))) ]) ]);
+              })([ Api.Medical.value, Api.Police.value, Api.Firefighter.value, Api.Army.value, Api.Farmacy.value, Api.Cashier.value, Api.Regular.value ])) ]) ]), React_DOM.button([ Lib_React.cn("btn btn-secondary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return updateMap($$this);
               }) ])([ React_DOM.text(props.keyText("key.overview_route")) ]), (function () {
                   if (state.mapQ instanceof Data_Maybe.Just) {
@@ -8132,7 +8072,7 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 244, column 11 - line 252, column 30): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 237, column 11 - line 245, column 30): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.disabled(Data_Maybe.isNothing(state.mapQ)), React_DOM_Props.onClick(function (v) {
                   return sendDriver($$this);
               }) ])([ React_DOM.text(props.keyText("key.add")) ]) ]) ]);
@@ -8162,7 +8102,7 @@ var PS = {};
                           street: "\u041b\u044c\u0432\u0430 \u0422\u043e\u043b\u0441\u0442\u043e\u0433\u043e",
                           building: "1"
                       },
-                      types: Data_Set.fromFoldable(Data_Foldable.foldableArray)(Model.ordPassengerType)([ Model.Medical.value, Model.Police.value, Model.Firefighter.value, Model.Army.value, Model.Farmacy.value, Model.Cashier.value, Model.Regular.value ])
+                      types: Data_Array.fromFoldable(Data_Foldable.foldableArray)([ Api.Medical.value, Api.Police.value, Api.Firefighter.value, Api.Army.value, Api.Farmacy.value, Api.Cashier.value, Api.Regular.value ])
                   },
                   render: render($$this),
                   componentDidMount: function __do() {
@@ -8171,23 +8111,6 @@ var PS = {};
                           var v = Api_Push.decodePush(x);
                           if (v instanceof Data_Either.Left) {
                               return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
-                          };
-                          if (v instanceof Data_Either.Right && v.value0.val instanceof Api_Push.AddRouteOk) {
-                              return React.modifyState($$this)(function (v1) {
-                                  return {
-                                      name: v1.name,
-                                      phone: v1.phone,
-                                      carPlate: v1.carPlate,
-                                      date: v1.date,
-                                      lap: v1.lap,
-                                      seats: v1.seats,
-                                      from: v1.from,
-                                      to: v1.to,
-                                      types: v1.types,
-                                      mapQ: v1.mapQ,
-                                      routeN: new Data_Maybe.Just(v.value0.val.value0.n)
-                                  };
-                              });
                           };
                           if (v instanceof Data_Either.Right && (v.value0.val instanceof Api_Push.LoginOk && v.value0.val.value0.name instanceof Data_Maybe.Just)) {
                               return React.modifyState($$this)(function (v1) {
@@ -8211,10 +8134,10 @@ var PS = {};
                           };
                           throw new Error("Failed pattern match at App.Driver (line 73, column 28 - line 77, column 31): " + [ v.constructor.name ]);
                       })((function () {
-                          var $42 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $43 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($44) {
-                              return $42($43($44));
+                          var $36 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $37 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($38) {
+                              return $36($37($38));
                           };
                       })())();
                   }
@@ -8226,8 +8149,423 @@ var PS = {};
 })(PS);
 (function($PS) {
   "use strict";
+  $PS["Data.Map.Internal"] = $PS["Data.Map.Internal"] || {};
+  var exports = $PS["Data.Map.Internal"];
+  var Data_Foldable = $PS["Data.Foldable"];
+  var Data_List_Types = $PS["Data.List.Types"];
+  var Data_Maybe = $PS["Data.Maybe"];
+  var Data_Ord = $PS["Data.Ord"];
+  var Data_Ordering = $PS["Data.Ordering"];                    
+  var Leaf = (function () {
+      function Leaf() {
+
+      };
+      Leaf.value = new Leaf();
+      return Leaf;
+  })();
+  var Two = (function () {
+      function Two(value0, value1, value2, value3) {
+          this.value0 = value0;
+          this.value1 = value1;
+          this.value2 = value2;
+          this.value3 = value3;
+      };
+      Two.create = function (value0) {
+          return function (value1) {
+              return function (value2) {
+                  return function (value3) {
+                      return new Two(value0, value1, value2, value3);
+                  };
+              };
+          };
+      };
+      return Two;
+  })();
+  var Three = (function () {
+      function Three(value0, value1, value2, value3, value4, value5, value6) {
+          this.value0 = value0;
+          this.value1 = value1;
+          this.value2 = value2;
+          this.value3 = value3;
+          this.value4 = value4;
+          this.value5 = value5;
+          this.value6 = value6;
+      };
+      Three.create = function (value0) {
+          return function (value1) {
+              return function (value2) {
+                  return function (value3) {
+                      return function (value4) {
+                          return function (value5) {
+                              return function (value6) {
+                                  return new Three(value0, value1, value2, value3, value4, value5, value6);
+                              };
+                          };
+                      };
+                  };
+              };
+          };
+      };
+      return Three;
+  })();
+  var TwoLeft = (function () {
+      function TwoLeft(value0, value1, value2) {
+          this.value0 = value0;
+          this.value1 = value1;
+          this.value2 = value2;
+      };
+      TwoLeft.create = function (value0) {
+          return function (value1) {
+              return function (value2) {
+                  return new TwoLeft(value0, value1, value2);
+              };
+          };
+      };
+      return TwoLeft;
+  })();
+  var TwoRight = (function () {
+      function TwoRight(value0, value1, value2) {
+          this.value0 = value0;
+          this.value1 = value1;
+          this.value2 = value2;
+      };
+      TwoRight.create = function (value0) {
+          return function (value1) {
+              return function (value2) {
+                  return new TwoRight(value0, value1, value2);
+              };
+          };
+      };
+      return TwoRight;
+  })();
+  var ThreeLeft = (function () {
+      function ThreeLeft(value0, value1, value2, value3, value4, value5) {
+          this.value0 = value0;
+          this.value1 = value1;
+          this.value2 = value2;
+          this.value3 = value3;
+          this.value4 = value4;
+          this.value5 = value5;
+      };
+      ThreeLeft.create = function (value0) {
+          return function (value1) {
+              return function (value2) {
+                  return function (value3) {
+                      return function (value4) {
+                          return function (value5) {
+                              return new ThreeLeft(value0, value1, value2, value3, value4, value5);
+                          };
+                      };
+                  };
+              };
+          };
+      };
+      return ThreeLeft;
+  })();
+  var ThreeMiddle = (function () {
+      function ThreeMiddle(value0, value1, value2, value3, value4, value5) {
+          this.value0 = value0;
+          this.value1 = value1;
+          this.value2 = value2;
+          this.value3 = value3;
+          this.value4 = value4;
+          this.value5 = value5;
+      };
+      ThreeMiddle.create = function (value0) {
+          return function (value1) {
+              return function (value2) {
+                  return function (value3) {
+                      return function (value4) {
+                          return function (value5) {
+                              return new ThreeMiddle(value0, value1, value2, value3, value4, value5);
+                          };
+                      };
+                  };
+              };
+          };
+      };
+      return ThreeMiddle;
+  })();
+  var ThreeRight = (function () {
+      function ThreeRight(value0, value1, value2, value3, value4, value5) {
+          this.value0 = value0;
+          this.value1 = value1;
+          this.value2 = value2;
+          this.value3 = value3;
+          this.value4 = value4;
+          this.value5 = value5;
+      };
+      ThreeRight.create = function (value0) {
+          return function (value1) {
+              return function (value2) {
+                  return function (value3) {
+                      return function (value4) {
+                          return function (value5) {
+                              return new ThreeRight(value0, value1, value2, value3, value4, value5);
+                          };
+                      };
+                  };
+              };
+          };
+      };
+      return ThreeRight;
+  })();
+  var KickUp = (function () {
+      function KickUp(value0, value1, value2, value3) {
+          this.value0 = value0;
+          this.value1 = value1;
+          this.value2 = value2;
+          this.value3 = value3;
+      };
+      KickUp.create = function (value0) {
+          return function (value1) {
+              return function (value2) {
+                  return function (value3) {
+                      return new KickUp(value0, value1, value2, value3);
+                  };
+              };
+          };
+      };
+      return KickUp;
+  })();
+  var lookup = function (dictOrd) {
+      return function (k) {
+          var comp = Data_Ord.compare(dictOrd);
+          var go = function ($copy_v) {
+              var $tco_done = false;
+              var $tco_result;
+              function $tco_loop(v) {
+                  if (v instanceof Leaf) {
+                      $tco_done = true;
+                      return Data_Maybe.Nothing.value;
+                  };
+                  if (v instanceof Two) {
+                      var v2 = comp(k)(v.value1);
+                      if (v2 instanceof Data_Ordering.EQ) {
+                          $tco_done = true;
+                          return new Data_Maybe.Just(v.value2);
+                      };
+                      if (v2 instanceof Data_Ordering.LT) {
+                          $copy_v = v.value0;
+                          return;
+                      };
+                      $copy_v = v.value3;
+                      return;
+                  };
+                  if (v instanceof Three) {
+                      var v3 = comp(k)(v.value1);
+                      if (v3 instanceof Data_Ordering.EQ) {
+                          $tco_done = true;
+                          return new Data_Maybe.Just(v.value2);
+                      };
+                      var v4 = comp(k)(v.value4);
+                      if (v4 instanceof Data_Ordering.EQ) {
+                          $tco_done = true;
+                          return new Data_Maybe.Just(v.value5);
+                      };
+                      if (v3 instanceof Data_Ordering.LT) {
+                          $copy_v = v.value0;
+                          return;
+                      };
+                      if (v4 instanceof Data_Ordering.GT) {
+                          $copy_v = v.value6;
+                          return;
+                      };
+                      $copy_v = v.value3;
+                      return;
+                  };
+                  throw new Error("Failed pattern match at Data.Map.Internal (line 200, column 5 - line 200, column 22): " + [ v.constructor.name ]);
+              };
+              while (!$tco_done) {
+                  $tco_result = $tco_loop($copy_v);
+              };
+              return $tco_result;
+          };
+          return go;
+      };
+  }; 
+  var fromZipper = function ($copy_dictOrd) {
+      return function ($copy_v) {
+          return function ($copy_tree) {
+              var $tco_var_dictOrd = $copy_dictOrd;
+              var $tco_var_v = $copy_v;
+              var $tco_done = false;
+              var $tco_result;
+              function $tco_loop(dictOrd, v, tree) {
+                  if (v instanceof Data_List_Types.Nil) {
+                      $tco_done = true;
+                      return tree;
+                  };
+                  if (v instanceof Data_List_Types.Cons) {
+                      if (v.value0 instanceof TwoLeft) {
+                          $tco_var_dictOrd = dictOrd;
+                          $tco_var_v = v.value1;
+                          $copy_tree = new Two(tree, v.value0.value0, v.value0.value1, v.value0.value2);
+                          return;
+                      };
+                      if (v.value0 instanceof TwoRight) {
+                          $tco_var_dictOrd = dictOrd;
+                          $tco_var_v = v.value1;
+                          $copy_tree = new Two(v.value0.value0, v.value0.value1, v.value0.value2, tree);
+                          return;
+                      };
+                      if (v.value0 instanceof ThreeLeft) {
+                          $tco_var_dictOrd = dictOrd;
+                          $tco_var_v = v.value1;
+                          $copy_tree = new Three(tree, v.value0.value0, v.value0.value1, v.value0.value2, v.value0.value3, v.value0.value4, v.value0.value5);
+                          return;
+                      };
+                      if (v.value0 instanceof ThreeMiddle) {
+                          $tco_var_dictOrd = dictOrd;
+                          $tco_var_v = v.value1;
+                          $copy_tree = new Three(v.value0.value0, v.value0.value1, v.value0.value2, tree, v.value0.value3, v.value0.value4, v.value0.value5);
+                          return;
+                      };
+                      if (v.value0 instanceof ThreeRight) {
+                          $tco_var_dictOrd = dictOrd;
+                          $tco_var_v = v.value1;
+                          $copy_tree = new Three(v.value0.value0, v.value0.value1, v.value0.value2, v.value0.value3, v.value0.value4, v.value0.value5, tree);
+                          return;
+                      };
+                      throw new Error("Failed pattern match at Data.Map.Internal (line 418, column 3 - line 423, column 88): " + [ v.value0.constructor.name ]);
+                  };
+                  throw new Error("Failed pattern match at Data.Map.Internal (line 415, column 1 - line 415, column 80): " + [ v.constructor.name, tree.constructor.name ]);
+              };
+              while (!$tco_done) {
+                  $tco_result = $tco_loop($tco_var_dictOrd, $tco_var_v, $copy_tree);
+              };
+              return $tco_result;
+          };
+      };
+  };
+  var insert = function (dictOrd) {
+      return function (k) {
+          return function (v) {
+              var up = function ($copy_v1) {
+                  return function ($copy_v2) {
+                      var $tco_var_v1 = $copy_v1;
+                      var $tco_done = false;
+                      var $tco_result;
+                      function $tco_loop(v1, v2) {
+                          if (v1 instanceof Data_List_Types.Nil) {
+                              $tco_done = true;
+                              return new Two(v2.value0, v2.value1, v2.value2, v2.value3);
+                          };
+                          if (v1 instanceof Data_List_Types.Cons) {
+                              if (v1.value0 instanceof TwoLeft) {
+                                  $tco_done = true;
+                                  return fromZipper(dictOrd)(v1.value1)(new Three(v2.value0, v2.value1, v2.value2, v2.value3, v1.value0.value0, v1.value0.value1, v1.value0.value2));
+                              };
+                              if (v1.value0 instanceof TwoRight) {
+                                  $tco_done = true;
+                                  return fromZipper(dictOrd)(v1.value1)(new Three(v1.value0.value0, v1.value0.value1, v1.value0.value2, v2.value0, v2.value1, v2.value2, v2.value3));
+                              };
+                              if (v1.value0 instanceof ThreeLeft) {
+                                  $tco_var_v1 = v1.value1;
+                                  $copy_v2 = new KickUp(new Two(v2.value0, v2.value1, v2.value2, v2.value3), v1.value0.value0, v1.value0.value1, new Two(v1.value0.value2, v1.value0.value3, v1.value0.value4, v1.value0.value5));
+                                  return;
+                              };
+                              if (v1.value0 instanceof ThreeMiddle) {
+                                  $tco_var_v1 = v1.value1;
+                                  $copy_v2 = new KickUp(new Two(v1.value0.value0, v1.value0.value1, v1.value0.value2, v2.value0), v2.value1, v2.value2, new Two(v2.value3, v1.value0.value3, v1.value0.value4, v1.value0.value5));
+                                  return;
+                              };
+                              if (v1.value0 instanceof ThreeRight) {
+                                  $tco_var_v1 = v1.value1;
+                                  $copy_v2 = new KickUp(new Two(v1.value0.value0, v1.value0.value1, v1.value0.value2, v1.value0.value3), v1.value0.value4, v1.value0.value5, new Two(v2.value0, v2.value1, v2.value2, v2.value3));
+                                  return;
+                              };
+                              throw new Error("Failed pattern match at Data.Map.Internal (line 454, column 5 - line 459, column 108): " + [ v1.value0.constructor.name, v2.constructor.name ]);
+                          };
+                          throw new Error("Failed pattern match at Data.Map.Internal (line 451, column 3 - line 451, column 56): " + [ v1.constructor.name, v2.constructor.name ]);
+                      };
+                      while (!$tco_done) {
+                          $tco_result = $tco_loop($tco_var_v1, $copy_v2);
+                      };
+                      return $tco_result;
+                  };
+              };
+              var comp = Data_Ord.compare(dictOrd);
+              var down = function ($copy_ctx) {
+                  return function ($copy_v1) {
+                      var $tco_var_ctx = $copy_ctx;
+                      var $tco_done = false;
+                      var $tco_result;
+                      function $tco_loop(ctx, v1) {
+                          if (v1 instanceof Leaf) {
+                              $tco_done = true;
+                              return up(ctx)(new KickUp(Leaf.value, k, v, Leaf.value));
+                          };
+                          if (v1 instanceof Two) {
+                              var v2 = comp(k)(v1.value1);
+                              if (v2 instanceof Data_Ordering.EQ) {
+                                  $tco_done = true;
+                                  return fromZipper(dictOrd)(ctx)(new Two(v1.value0, k, v, v1.value3));
+                              };
+                              if (v2 instanceof Data_Ordering.LT) {
+                                  $tco_var_ctx = new Data_List_Types.Cons(new TwoLeft(v1.value1, v1.value2, v1.value3), ctx);
+                                  $copy_v1 = v1.value0;
+                                  return;
+                              };
+                              $tco_var_ctx = new Data_List_Types.Cons(new TwoRight(v1.value0, v1.value1, v1.value2), ctx);
+                              $copy_v1 = v1.value3;
+                              return;
+                          };
+                          if (v1 instanceof Three) {
+                              var v3 = comp(k)(v1.value1);
+                              if (v3 instanceof Data_Ordering.EQ) {
+                                  $tco_done = true;
+                                  return fromZipper(dictOrd)(ctx)(new Three(v1.value0, k, v, v1.value3, v1.value4, v1.value5, v1.value6));
+                              };
+                              var v4 = comp(k)(v1.value4);
+                              if (v4 instanceof Data_Ordering.EQ) {
+                                  $tco_done = true;
+                                  return fromZipper(dictOrd)(ctx)(new Three(v1.value0, v1.value1, v1.value2, v1.value3, k, v, v1.value6));
+                              };
+                              if (v3 instanceof Data_Ordering.LT) {
+                                  $tco_var_ctx = new Data_List_Types.Cons(new ThreeLeft(v1.value1, v1.value2, v1.value3, v1.value4, v1.value5, v1.value6), ctx);
+                                  $copy_v1 = v1.value0;
+                                  return;
+                              };
+                              if (v3 instanceof Data_Ordering.GT && v4 instanceof Data_Ordering.LT) {
+                                  $tco_var_ctx = new Data_List_Types.Cons(new ThreeMiddle(v1.value0, v1.value1, v1.value2, v1.value4, v1.value5, v1.value6), ctx);
+                                  $copy_v1 = v1.value3;
+                                  return;
+                              };
+                              $tco_var_ctx = new Data_List_Types.Cons(new ThreeRight(v1.value0, v1.value1, v1.value2, v1.value3, v1.value4, v1.value5), ctx);
+                              $copy_v1 = v1.value6;
+                              return;
+                          };
+                          throw new Error("Failed pattern match at Data.Map.Internal (line 434, column 3 - line 434, column 55): " + [ ctx.constructor.name, v1.constructor.name ]);
+                      };
+                      while (!$tco_done) {
+                          $tco_result = $tco_loop($tco_var_ctx, $copy_v1);
+                      };
+                      return $tco_result;
+                  };
+              };
+              return down(Data_List_Types.Nil.value);
+          };
+      };
+  };
+  var empty = Leaf.value;
+  var fromFoldable = function (dictOrd) {
+      return function (dictFoldable) {
+          return Data_Foldable.foldl(dictFoldable)(function (m) {
+              return function (v) {
+                  return insert(dictOrd)(v.value0)(v.value1)(m);
+              };
+          })(empty);
+      };
+  };
+  exports["lookup"] = lookup;
+  exports["fromFoldable"] = fromFoldable;
+})(PS);
+(function($PS) {
+  "use strict";
   $PS["App.Rider"] = $PS["App.Rider"] || {};
   var exports = $PS["App.Rider"];
+  var Api = $PS["Api"];
   var Api_Pull = $PS["Api.Pull"];
   var Api_Push = $PS["Api.Push"];
   var Control_Applicative = $PS["Control.Applicative"];
@@ -8248,9 +8586,9 @@ var PS = {};
   var Effect = $PS["Effect"];
   var Effect_Console = $PS["Effect.Console"];
   var Global = $PS["Global"];
+  var Keys = $PS["Keys"];
   var Lib_React = $PS["Lib.React"];
   var Lib_WebSocket = $PS["Lib.WebSocket"];
-  var Model = $PS["Model"];
   var Proto_Decode = $PS["Proto.Decode"];
   var React = $PS["React"];
   var React_DOM = $PS["React.DOM"];
@@ -8275,9 +8613,9 @@ var PS = {};
               })();
           };
       };
-      var types = [ Model.Medical.value, Model.Police.value, Model.Firefighter.value, Model.Army.value, Model.Farmacy.value, Model.Cashier.value, Model.Regular.value ];
+      var types = [ Api.Medical.value, Api.Police.value, Api.Firefighter.value, Api.Army.value, Api.Farmacy.value, Api.Cashier.value, Api.Regular.value ];
       var typesMap = Data_Map_Internal.fromFoldable(Data_Ord.ordString)(Data_Foldable.foldableArray)(Data_Functor.map(Data_Functor.functorArray)(function (v) {
-          return new Data_Tuple.Tuple(Data_Show.show(Model.showPassengerType)(v), v);
+          return new Data_Tuple.Tuple(Keys.keyPassengerType(v), v);
       })(types));
       var today = Data_Functor.mapFlipped(Effect.functorEffect)(Control_Bind.bind(Effect.bindEffect)(Data_JSDate.now)(Data_JSDate.toISOString))(Data_String_CodePoints.take(19));
       var sendPassenger = function ($$this) {
@@ -8289,30 +8627,7 @@ var PS = {};
                   name: s.name,
                   phone: s.phone,
                   date: Data_JSDate.getTime(d),
-                  tpe: (function () {
-                      if (s.tpe instanceof Model.Medical) {
-                          return Api_Pull.Medical.value;
-                      };
-                      if (s.tpe instanceof Model.Police) {
-                          return Api_Pull.Police.value;
-                      };
-                      if (s.tpe instanceof Model.Firefighter) {
-                          return Api_Pull.Firefighter.value;
-                      };
-                      if (s.tpe instanceof Model.Army) {
-                          return Api_Pull.Army.value;
-                      };
-                      if (s.tpe instanceof Model.Farmacy) {
-                          return Api_Pull.Farmacy.value;
-                      };
-                      if (s.tpe instanceof Model.Cashier) {
-                          return Api_Pull.Cashier.value;
-                      };
-                      if (s.tpe instanceof Model.Regular) {
-                          return Api_Pull.Regular.value;
-                      };
-                      throw new Error("Failed pattern match at App.Rider (line 91, column 14 - line 98, column 31): " + [ s.tpe.constructor.name ]);
-                  })(),
+                  tpe: s.tpe,
                   from: s.from,
                   to: s.to
               });
@@ -8347,12 +8662,12 @@ var PS = {};
                           mapQ: v1.mapQ
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("specialization") ])([ React_DOM.text(props.keyText("key.specialization")) ]), React_DOM.select([ Lib_React.cn("custom-select"), React_DOM_Props["_id"]("type"), React_DOM_Props.value(Data_Show.show(Model.showPassengerType)(state.tpe)), Lib_React.onChangeValue(function (v) {
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("specialization") ])([ React_DOM.text(props.keyText("key.specialization")) ]), React_DOM.select([ Lib_React.cn("custom-select"), React_DOM_Props["_id"]("type"), React_DOM_Props.value(Keys.keyPassengerType(state.tpe)), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           name: v1.name,
                           phone: v1.phone,
-                          tpe: Data_Maybe.fromMaybe(Model.Regular.value)(Data_Map_Internal.lookup(Data_Ord.ordString)(v)(typesMap)),
+                          tpe: Data_Maybe.fromMaybe(Api.Regular.value)(Data_Map_Internal.lookup(Data_Ord.ordString)(v)(typesMap)),
                           date: v1.date,
                           from: v1.from,
                           to: v1.to,
@@ -8360,7 +8675,7 @@ var PS = {};
                       };
                   });
               }) ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
-                  return React_DOM.option([ React_DOM_Props.value(Data_Show.show(Model.showPassengerType)(v)) ])([ React_DOM.text(props.keyText(Data_Show.show(Model.showPassengerType)(v))) ]);
+                  return React_DOM.option([ React_DOM_Props.value(Keys.keyPassengerType(v)) ])([ React_DOM.text(props.keyText(Keys.keyPassengerType(v))) ]);
               })(types)) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React_DOM.input([ React_DOM_Props["_type"]("datetime-local"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
@@ -8478,7 +8793,7 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Rider (line 205, column 11 - line 213, column 30): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Rider (line 198, column 11 - line 206, column 30): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.disabled(Data_Maybe.isNothing(state.mapQ)), React_DOM_Props.onClick(function (v) {
                   return sendPassenger($$this);
               }) ])([ React_DOM.text(props.keyText("key.add")) ]) ]) ]);
@@ -8494,7 +8809,7 @@ var PS = {};
                       name: "",
                       phone: "",
                       date: date,
-                      tpe: Model.Medical.value,
+                      tpe: Api.Medical.value,
                       from: {
                           city: "\u041a\u0438\u0435\u0432",
                           street: "\u0421\u043f\u043e\u0440\u0442\u0438\u0432\u043d\u0430\u044f",
@@ -8519,10 +8834,10 @@ var PS = {};
                           };
                           throw new Error("Failed pattern match at App.Rider (line 66, column 28 - line 68, column 31): " + [ v.constructor.name ]);
                       })((function () {
-                          var $26 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $27 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($28) {
-                              return $26($27($28));
+                          var $25 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $26 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($27) {
+                              return $25($26($27));
                           };
                       })())();
                   }
@@ -8899,7 +9214,6 @@ var PS = {};
   var Data_List_Types = $PS["Data.List.Types"];
   var Data_Map_Internal = $PS["Data.Map.Internal"];
   var Data_Maybe = $PS["Data.Maybe"];
-  var Data_Monoid = $PS["Data.Monoid"];
   var Data_Number_Format = $PS["Data.Number.Format"];
   var Data_Ord = $PS["Data.Ord"];
   var Data_Ordering = $PS["Data.Ordering"];
@@ -8957,7 +9271,7 @@ var PS = {};
       if (v instanceof AddItem) {
           return "key.menu.add";
       };
-      throw new Error("Failed pattern match at App (line 55, column 1 - line 59, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at App (line 53, column 1 - line 57, column 33): " + [ v.constructor.name ]);
   });
   var eqMenuItem = new Data_Eq.Eq(function (x) {
       return function (y) {
@@ -8998,7 +9312,7 @@ var PS = {};
           if (x instanceof AddItem && y instanceof AddItem) {
               return Data_Ordering.EQ.value;
           };
-          throw new Error("Failed pattern match at App (line 61, column 1 - line 61, column 44): " + [ x.constructor.name, y.constructor.name ]);
+          throw new Error("Failed pattern match at App (line 59, column 1 - line 59, column 44): " + [ x.constructor.name, y.constructor.name ]);
       };
   });
   var appClass = (function () {
@@ -9012,7 +9326,6 @@ var PS = {};
                   }));
                   return React.modifyState($$this)(function (v1) {
                       return {
-                          sessionid: v1.sessionid,
                           lang: lang,
                           keyText: function (key) {
                               return Data_Maybe.fromMaybe(key)(Data_Map_Internal.lookup(Data_Ord.ordString)(Data_String_Common.toLower(key))(keys));
@@ -9029,15 +9342,14 @@ var PS = {};
               var state = React.getState($$this)();
               return React_DOM.div([  ])([ React_DOM.nav([ Lib_React.cn("navbar navbar-expand-lg navbar-light bg-light") ])([ React_DOM.ul([ Lib_React.cn("navbar-nav mr-auto mt-2 mt-lg-0") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.li([ Lib_React.cn("nav-item" + (function () {
-                      var $19 = Data_Eq.eq(eqMenuItem)(v)(state.menuItem);
-                      if ($19) {
+                      var $18 = Data_Eq.eq(eqMenuItem)(v)(state.menuItem);
+                      if ($18) {
                           return " active";
                       };
                       return "";
                   })()) ])([ React_DOM.a([ Lib_React.cn("nav-link"), React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v1) {
                       return React.modifyState($$this)(function (v2) {
                           return {
-                              sessionid: v2.sessionid,
                               lang: v2.lang,
                               keyText: v2.keyText,
                               menuItem: v
@@ -9046,8 +9358,8 @@ var PS = {};
                   }) ])([ React_DOM.text(state.keyText(Data_Show.show(showMenuItem)(v))) ]) ]);
               })([ HomeItem.value, ViewItem.value, AddItem.value ])), React_DOM.div([ Lib_React.cn("btn-group btn-group-sm btn-group-toggle") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.label([ Lib_React.cn("btn btn-secondary" + (function () {
-                      var $20 = state.lang === v;
-                      if ($20) {
+                      var $19 = state.lang === v;
+                      if ($19) {
                           return " active";
                       };
                       return "";
@@ -9072,14 +9384,13 @@ var PS = {};
                           keyText: state.keyText
                       }) ];
                   };
-                  throw new Error("Failed pattern match at App (line 121, column 11 - line 127, column 26): " + [ state.menuItem.constructor.name ]);
+                  throw new Error("Failed pattern match at App (line 117, column 11 - line 123, column 26): " + [ state.menuItem.constructor.name ]);
               })()) ]);
           };
       };
       return React.component()("App")(function ($$this) {
           return Control_Applicative.pure(Effect.applicativeEffect)({
               state: {
-                  sessionid: Data_Monoid.mempty(Data_Maybe.monoidMaybe(Data_Semigroup.semigroupString)),
                   lang: "uk",
                   keyText: function (key) {
                       return key;
@@ -9096,25 +9407,15 @@ var PS = {};
                       if (v instanceof Data_Either.Left) {
                           return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
                       };
-                      if (v instanceof Data_Either.Right && v.value0.val instanceof Api_Push.LoginOk) {
-                          return React.modifyState($$this)(function (v1) {
-                              return {
-                                  sessionid: new Data_Maybe.Just(v.value0.val.value0.sessionid),
-                                  lang: v1.lang,
-                                  keyText: v1.keyText,
-                                  menuItem: v1.menuItem
-                              };
-                          });
-                      };
                       if (v instanceof Data_Either.Right) {
                           return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                       };
-                      throw new Error("Failed pattern match at App (line 78, column 28 - line 81, column 31): " + [ v.constructor.name ]);
+                      throw new Error("Failed pattern match at App (line 75, column 28 - line 77, column 31): " + [ v.constructor.name ]);
                   })((function () {
-                      var $32 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                      var $33 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                      return function ($34) {
-                          return $32($33($34));
+                      var $27 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                      var $28 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                      return function ($29) {
+                          return $27($28($29));
                       };
                   })())();
               }
@@ -9126,31 +9427,32 @@ var PS = {};
           var readStringLike = function (y) {
               return Control_Alt.alt(Control_Monad_Except_Trans.altExceptT(Data_List_Types.semigroupNonEmptyList)(Data_Identity.monadIdentity))(Foreign.readString(y))(Data_Functor.map(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Data_Number_Format.toString)(Foreign.readNumber(y)));
           };
-          return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(x)("hash"))(Foreign.readNullOrUndefined))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Foreign.readString)))(function (hash$prime) {
-              return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Maybe.maybe(Foreign.fail(new Foreign.ForeignError("no hash")))(Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity)))(hash$prime))(function (hash) {
-                  return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(x)("auth_date"))(Foreign.readNullOrUndefined))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Foreign.readNumber)))(function (auth_date$prime) {
-                      return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Maybe.maybe(Foreign.fail(new Foreign.ForeignError("no auth_date")))(Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity)))(auth_date$prime))(function (auth_date) {
-                          return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Keys.keys(x))(function (keys$prime) {
-                              var keys = Data_Array.sort(Data_Ord.ordString)(Data_Array.filter(function (v) {
-                                  return v !== "hash";
-                              })(keys$prime));
-                              return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Functor.map(Data_Functor.functorArray)(function (k) {
-                                  return Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(x)(k))(Foreign.readNull))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(readStringLike)))(Data_Functor.map(Data_Maybe.functorMaybe)((function () {
-                                      var $35 = Data_Semigroup.append(Data_Semigroup.semigroupString)(k);
-                                      var $36 = Data_Semigroup.append(Data_Semigroup.semigroupString)("=");
-                                      return function ($37) {
-                                          return $35($36($37));
-                                      };
-                                  })()));
-                              })(keys)))(function (xs) {
-                                  var data_check_string = Data_String_Common.joinWith("\x0a")(Data_Array.catMaybes(xs));
+          return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(x)("hash"))(Foreign.readString))(function (hash) {
+              return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(x)("auth_date"))(Foreign.readNumber))(function (auth_date) {
+                  return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Keys.keys(x))(function (keys$prime) {
+                      return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Array.sort(Data_Ord.ordString)(Data_Array.filter(function (v) {
+                          return v !== "hash";
+                      })(keys$prime))))(function (keys) {
+                          return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Functor.map(Data_Functor.functorArray)(function (k) {
+                              return Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(x)(k))(Foreign.readNull))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(readStringLike)))(Data_Functor.map(Data_Maybe.functorMaybe)((function () {
+                                  var $30 = Data_Semigroup.append(Data_Semigroup.semigroupString)(k);
+                                  var $31 = Data_Semigroup.append(Data_Semigroup.semigroupString)("=");
+                                  return function ($32) {
+                                      return $30($31($32));
+                                  };
+                              })()));
+                          })(keys)))(function (xs) {
+                              return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_String_Common.joinWith("\x0a")(Data_Array.catMaybes(xs))))(function (data_check_string) {
                                   return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(x)("first_name"))(Foreign.readNullOrUndefined))(Data_Traversable.traverse(Data_Traversable.traversableMaybe)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Foreign.readString)))(function (name) {
-                                      return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(new Api_Pull.LoginAttempt({
-                                          data_check_string: data_check_string,
-                                          hash: hash,
-                                          auth_date: auth_date,
-                                          name: name
-                                      }));
+                                      return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(x)("id"))(Foreign.readString))(function (id) {
+                                          return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(new Api_Pull.LoginAttempt({
+                                              data_check_string: data_check_string,
+                                              hash: hash,
+                                              auth_date: auth_date,
+                                              name: name,
+                                              id: id
+                                          }));
+                                      });
                                   });
                               });
                           });
@@ -9163,7 +9465,7 @@ var PS = {};
           var doc = Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.document)();
           var elem = Web_DOM_NonElementParentNode.getElementById("container")(Web_HTML_HTMLDocument.toNonElementParentNode(doc))();
           var container = Data_Maybe.maybe(Effect_Exception["throw"]("container not found"))(Control_Applicative.pure(Effect.applicativeEffect))(elem)();
-          var ws = Lib_WebSocket.create("127.0.0.1:8001/ws")();
+          var ws = Lib_WebSocket.create("ridehub.city/ws")();
           Lib_WebSocket.onOpen(ws)(function (v) {
               return Lib_WebSocket.setBinary(ws);
           })();
@@ -9179,7 +9481,7 @@ var PS = {};
               if (v instanceof Data_Either.Right) {
                   return Lib_WebSocket.send(ws)(Api_Pull.encodePull(v.value0));
               };
-              throw new Error("Failed pattern match at App (line 139, column 17 - line 142, column 34): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at App (line 135, column 17 - line 138, column 34): " + [ v.constructor.name ]);
           };
       };
   })();

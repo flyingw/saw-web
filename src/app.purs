@@ -6,7 +6,7 @@ import Control.Alt ((<|>))
 import Control.Monad.Except (runExcept)
 import Data.Array (filter, sort, catMaybes, take, drop)
 import Data.Either (Either(..))
-import Data.Maybe (Maybe(..), maybe, fromMaybe)
+import Data.Maybe (maybe, fromMaybe)
 import Data.Number.Format (toString) as Number
 import Data.String.Common (joinWith, split, toLower)
 import Data.String.Pattern (Pattern(Pattern))
@@ -16,8 +16,7 @@ import Data.Traversable (sequence, traverse)
 import Effect (Effect)
 import Effect.Console (error)
 import Effect.Exception (throw)
-import Foreign (Foreign, F, ForeignError(..), readNull, readNumber, readString, readNullOrUndefined)
-import Foreign (fail) as F
+import Foreign (Foreign, F, readNull, readNumber, readString, readNullOrUndefined)
 import Foreign.Keys (keys) as F
 import Foreign.Index ((!)) as F
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
@@ -35,7 +34,7 @@ import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
 import Api.Pull (encodePull, Pull(LoginAttempt))
-import Api.Push (decodePush, Push(LoginOk))
+import Api.Push (decodePush)
 
 import App.Home (homeClass)
 import App.Add (addClass)
@@ -45,8 +44,7 @@ type Props =
   }
 
 type State =
-  { sessionid :: Maybe String
-  , lang :: String
+  { lang :: String
   , keyText :: String -> String
   , menuItem :: MenuItem
   }
@@ -64,8 +62,7 @@ appClass :: ReactClass Props
 appClass = component "App" \this -> do
   pure
     { state: 
-      { sessionid: mempty
-      , lang: "uk"
+      { lang: "uk"
       , keyText: \key -> key
       , menuItem: HomeItem
       }:: State
@@ -77,7 +74,6 @@ appClass = component "App" \this -> do
         let ws = props.ws
         WS.onMsg ws (\x -> case decodePush x of
           Left y -> error $ show y
-          Right { val: LoginOk {sessionid}} -> modifyState this _{ sessionid=Just sessionid }
           Right _ -> pure unit
         ) (sequence <<< map error)
     }
@@ -132,7 +128,7 @@ view = do
   doc <- window >>= document
   elem <- getElementById "container" $ toNonElementParentNode doc
   container <- maybe (throw "container not found") pure elem
-   ws <- WS.create "ridehub.city/ws"
+  ws <- WS.create "ridehub.city/ws"
   WS.onOpen ws \_ -> WS.setBinary ws
   let element = createLeafElement appClass { ws }
   void $ render element container
@@ -143,16 +139,15 @@ view = do
   where
   f :: Foreign -> F Pull
   f x = do
-    hash' <- x F.! "hash" >>= readNullOrUndefined >>= traverse readString
-    hash <- maybe (F.fail $ ForeignError "no hash") pure hash'
-    auth_date' <- x F.! "auth_date" >>= readNullOrUndefined >>= traverse readNumber
-    auth_date <- maybe (F.fail $ ForeignError "no auth_date") pure auth_date'
-    keys' <- F.keys x
-    let keys = sort $ filter (_ /= "hash") keys'
-    xs <- sequence $ map (\k -> x F.! k >>= readNull >>= traverse readStringLike <#> map (append k <<< append "=")) keys
-    let data_check_string = joinWith "\n" $ catMaybes xs
-    name <- x F.! "first_name" >>= readNullOrUndefined >>= traverse readString
-    pure $ LoginAttempt { data_check_string, hash, auth_date, name }
+    hash              <- x F.! "hash" >>= readString
+    auth_date         <- x F.! "auth_date" >>= readNumber
+    keys'             <- F.keys x
+    keys              <- pure $ sort $ filter (_ /= "hash") keys'
+    xs                <- sequence $ map (\k -> x F.! k >>= readNull >>= traverse readStringLike <#> map (append k <<< append "=")) keys
+    data_check_string <- pure $ joinWith "\n" $ catMaybes xs
+    name              <- x F.! "first_name" >>= readNullOrUndefined >>= traverse readString
+    id                <- x F.! "id" >>= readString
+    pure $ LoginAttempt { data_check_string, hash, auth_date, name, id }
     where
     readStringLike :: Foreign -> F String
     readStringLike y = readString y <|> (map Number.toString $ readNumber y)

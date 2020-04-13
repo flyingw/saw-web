@@ -3,7 +3,7 @@ module App.Rider
   , Props
   ) where
 
-import Prelude hiding (div)
+import Prelude (Unit, bind, map, mempty, pure, show, unit, ($), (<#>), (<<<), (<>), (>>=))
 
 import Data.Either (Either(Left, Right))
 import Data.JSDate (parse, now, getTime, toISOString)
@@ -23,11 +23,11 @@ import Lib.React(cn, onChangeValue)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
-import Model(PassengerType(..))
-import Api (Address)
+import Api (PassengerType(..))
 import Api.Push (decodePush)
-import Api.Pull as P
-import Api.Pull (Pull(AddPassenger), encodePull)
+import Api.Pull (Pull(AddPassenger), encodePull, Address)
+
+import Keys (keyPassengerType)
 
 type Props =
   { ws :: WebSocket
@@ -74,7 +74,7 @@ riderClass = component "Rider" \this -> do
   types = [ Medical, Police, Firefighter, Army, Farmacy, Cashier, Regular ]
   
   typesMap :: Map String PassengerType
-  typesMap = fromFoldable $ map (\v -> Tuple (show v) v) types
+  typesMap = fromFoldable $ map (\v -> Tuple (keyPassengerType v) v) types
 
   today :: Effect String 
   today = now >>= toISOString <#> (take 19)
@@ -88,14 +88,7 @@ riderClass = component "Rider" \this -> do
         name: s.name
       , phone: s.phone
       , date: getTime d
-      , tpe: case s.tpe of
-          Medical -> P.Medical
-          Police -> P.Police
-          Firefighter -> P.Firefighter
-          Army -> P.Army
-          Farmacy -> P.Farmacy
-          Cashier -> P.Cashier
-          Regular -> P.Regular
+      , tpe: s.tpe
       , from: s.from
       , to: s.to
       }
@@ -138,10 +131,10 @@ riderClass = component "Rider" \this -> do
             [ label [ htmlFor "specialization" ] [ text $ props.keyText "key.specialization" ]
             , select [ cn "custom-select"
                      , _id "type"
-                     , value $ show state.tpe
+                     , value $ keyPassengerType state.tpe
                      , onChangeValue \v -> modifyState this _{ tpe = fromMaybe Regular $ lookup v typesMap }
                      ] $
-              map (\v -> option [ value $ show v ] [ text $ props.keyText $ show v ]) types
+              map (\v -> option [ value $ keyPassengerType v ] [ text $ props.keyText $ keyPassengerType v ]) types
             ]
           ]
         , div [ cn "form-row" ]

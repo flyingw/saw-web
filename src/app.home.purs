@@ -5,16 +5,10 @@ module App.Home
 
 import Prelude hiding (div)
 
-import React (ReactClass, getProps, getState, modifyState, component, createLeafElement)
-import React.DOM (text, div, ul, li, a)
-import React.DOM.Props (href, onClick)
-import React.SyntheticEvent (preventDefault) as R
+import React (ReactClass, getProps, getState, component)
+import React.DOM (text, div)
 
-import Lib.React(cn)
 import Lib.WebSocket (WebSocket)
-
-import App.Driver (driverClass)
-import App.Rider (riderClass)
 
 type Props =
   { ws :: WebSocket
