@@ -24,20 +24,21 @@ import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
 import Api (PassengerType(..))
-import Api.Push (decodePush)
+import Api.Push (decodePush, UserData)
 import Api.Pull (Pull(AddPassenger), encodePull, Address)
-
 import Keys (keyPassengerType)
 
 type Props =
   { ws :: WebSocket
   , lang :: String
   , keyText :: String -> String
+  , user :: Maybe UserData
   }
 
 type State =
   { mapQ :: Maybe String
-  , name :: String
+  , firstName :: String
+  , lastName :: String
   , phone :: String
   , date :: String
   , tpe :: PassengerType
@@ -52,12 +53,13 @@ riderClass = component "Rider" \this -> do
   pure
     { state:
       { mapQ: Nothing
-      , name: ""
-      , phone: ""
+      , firstName: fromMaybe "" $ props.user >>= _.firstName
+      , lastName: fromMaybe "" $ props.user >>= _.lastName
+      , phone: fromMaybe "" $ props.user >>= _.phone
       , date: date
-      , tpe: Medical
-      , from: { city: "Киев", street: "Спортивная", building: "1" }
-      , to: { city: "Киев", street: "Льва Толстого", building: "1" }
+      , tpe: fromMaybe Medical $ props.user >>= _.tpe
+      , from: { country: "ua", city: "Киев", street: "Спортивная", building: "1" }
+      , to: { country: "ua", city: "Киев", street: "Льва Толстого", building: "1" }
       }
     , render: render this
     , componentDidMount: do
@@ -85,7 +87,8 @@ riderClass = component "Rider" \this -> do
     p <- getProps this
     d <- parse s.date
     let driver = AddPassenger { 
-        name: s.name
+        firstName: s.firstName
+      , lastName: s.lastName
       , phone: s.phone
       , date: getTime d
       , tpe: s.tpe
@@ -111,13 +114,22 @@ riderClass = component "Rider" \this -> do
       [ form [ noValidate true ]
         [ h6 [] [ text $ props.keyText "key.passenger_data" ]
         , div [ cn "form-row" ]
-          [ div [ cn "col-md-4 mb-3" ]
-            [ label [ htmlFor "name" ] [ text $ props.keyText "key.name" ]
-            , input [ _type "text", cn "form-control", _id "name", required true 
-                    , value state.name
-                    , onChangeValue \v -> modifyState this _{ name=v }
-                    , value state.name
+          [ div [ cn "col-md-2 mb-3" ]
+            [ label [ htmlFor "firstName" ] [ text $ props.keyText "key.firstName" ]
+            , input [ _type "text", cn "form-control", _id "firstName", required true 
+                    , value state.firstName
+                    , onChangeValue \v -> modifyState this _{ firstName=v }
+                    , value state.firstName
                     ]
+            ]
+          , div [ cn "col-md-2 mb-3" ]
+            [ label [ htmlFor "lastName" ] [ text $ props.keyText "key.lastName" ]
+            , input [ _type "text", cn "form-control", _id "lastName", required true 
+                    , value state.lastName
+                    , onChangeValue \v -> modifyState this _{ lastName=v }
+                    , value state.lastName
+                    ]
+            , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.lastName.hint" ]
             ]
           , div [ cn "col-md-4 mb-3" ]
             [ label [ htmlFor "phone" ] [ text $ props.keyText "key.phone" ]
@@ -216,7 +228,7 @@ riderClass = component "Rider" \this -> do
           ]
         , div [ cn "alert alert-info col-md-12" ] [ text $ props.keyText "key.add.hint" ]
         , button [ cn "btn btn-primary mb-3", _type "button"
-                 , disabled $ isNothing state.mapQ
+                --  , disabled $ isNothing state.mapQ
                  , onClick \_ -> sendPassenger this 
                  ] 
           [ text $ props.keyText "key.add"

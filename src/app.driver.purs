@@ -3,7 +3,7 @@ module App.Driver
   , Props
   ) where
 
-import Prelude (Unit, bind, map, mempty, pure, show, unit, ($), (<#>), (<<<), (<>), (>>=))
+import Prelude hiding (div)
 
 import Data.Array (fromFoldable, elem, delete, (:))
 import Data.Either (Either(..))
@@ -24,20 +24,21 @@ import Lib.WebSocket as WS
 
 import Api (PassengerType(..))
 import Api.Pull (Pull(AddDriver), encodePull, Address)
-import Api.Push (decodePush, Push(AddRouteOk))
-
+import Api.Push (decodePush, Push(AddRouteOk), UserData)
 import Keys (keyPassengerType)
 
 type Props =
   { ws :: WebSocket
   , lang :: String
   , keyText :: String -> String
+  , user :: Maybe UserData
   }
 
 type State =
   { mapQ :: Maybe String
   , routeN :: Maybe String
-  , name :: String
+  , firstName :: String
+  , lastName :: String
   , phone :: String
   , carPlate :: String
   , date :: String
@@ -56,14 +57,15 @@ driverClass = component "Driver" \this -> do
     { state:
       { mapQ: Nothing
       , routeN: Nothing
-      , name: ""
-      , phone: ""
-      , carPlate: ""
+      , firstName: fromMaybe "" $ props.user >>= _.firstName
+      , lastName: fromMaybe "" $ props.user >>= _.lastName
+      , phone: fromMaybe "" $ props.user >>= _.phone
+      , carPlate: fromMaybe "" $ props.user >>= _.carPlate
       , date: date
       , lap: 3
       , seats: 1  
-      , from: { city: "Киев", street: "Спортивная", building: "1" }
-      , to: { city: "Киев", street: "Льва Толстого", building: "1" }
+      , from: { country: "ua", city: "Киев", street: "Спортивная", building: "1" }
+      , to: { country: "ua", city: "Киев", street: "Льва Толстого", building: "1" }
       , types: fromFoldable [ Medical, Police, Firefighter, Army, Farmacy, Cashier, Regular ]
       } :: State
     , render: render this
@@ -87,7 +89,8 @@ driverClass = component "Driver" \this -> do
     p <- getProps this
     d <- parse s.date
     let driver = AddDriver { 
-        name: s.name
+        firstName: s.firstName
+      , lastName: s.lastName
       , phone: s.phone
       , carPlate: s.carPlate
       , date: getTime d
@@ -118,13 +121,22 @@ driverClass = component "Driver" \this -> do
       [ form [ noValidate true ]
         [ h6 [] [ text $ props.keyText "key.driver_data" ]
         , div [ cn "form-row" ]
-          [ div [ cn "col-md-4 mb-3" ]
-            [ label [ htmlFor "name" ] [ text $ props.keyText "key.name" ]
-            , input [ _type "text", cn "form-control", _id "name", required true 
-                    , value state.name
-                    , onChangeValue \v -> modifyState this _{ name=v }
-                    , value state.name
+          [ div [ cn "col-md-2 mb-3" ]
+            [ label [ htmlFor "firstName" ] [ text $ props.keyText "key.firstName" ]
+            , input [ _type "text", cn "form-control", _id "firstName", required true 
+                    , value state.firstName
+                    , onChangeValue \v -> modifyState this _{ firstName=v }
+                    , value state.firstName
                     ]
+            ]
+          , div [ cn "col-md-2 mb-3" ]
+            [ label [ htmlFor "lastName" ] [ text $ props.keyText "key.lastName" ]
+            , input [ _type "text", cn "form-control", _id "lastName", required true 
+                    , value state.lastName
+                    , onChangeValue \v -> modifyState this _{ lastName=v }
+                    , value state.lastName
+                    ]
+            , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.lastName.hint" ]
             ]
           , div [ cn "col-md-4 mb-3" ]
             [ label [ htmlFor "phone" ] [ text $ props.keyText "key.phone" ]

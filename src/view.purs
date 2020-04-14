@@ -16,18 +16,18 @@ import Effect (Effect)
 import Effect.Console (error)
 import Effect.Exception (throw)
 
+import Api.Pull (encodePull)
+import Api.Push (decodePush, Push(LoginOk), UserData)
 import Lib.React(cn)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
-import Api.Pull (encodePull, Pull(LoginAttempt))
-import Api.Push (decodePush, Push(LoginOk))
-
 type Props =
   { ws :: WebSocket
   , lang :: String
   , keyText :: String -> String
+  , user :: Maybe UserData
   }
 
 type State = 

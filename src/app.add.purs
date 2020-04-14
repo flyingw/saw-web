@@ -5,6 +5,7 @@ module App.Add
 
 import Prelude hiding (div)
 
+import Data.Maybe (Maybe(..), maybe, fromMaybe, isJust)
 import React (ReactClass, getProps, getState, modifyState, component, createLeafElement)
 import React.DOM (text, div, ul, li, a)
 import React.DOM.Props (href, onClick)
@@ -12,14 +13,15 @@ import React.SyntheticEvent (preventDefault) as R
 
 import Lib.React(cn)
 import Lib.WebSocket (WebSocket)
-
 import App.Driver (driverClass)
 import App.Rider (riderClass)
+import Api.Push (UserData)
 
 type Props =
   { ws :: WebSocket
   , lang :: String
   , keyText :: String -> String
+  , user :: Maybe UserData
   }
 
 type State = 

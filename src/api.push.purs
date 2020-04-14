@@ -1,6 +1,7 @@
 module Api.Push
   ( Push(..)
   , LoginOk
+  , UserData
   , AddRouteOk
   , FreeDrivers
   , DriverInfo
@@ -26,8 +27,10 @@ decodeFieldLoop :: forall a b c. Int -> Decode.Result a -> (a -> b) -> Decode.Re
 decodeFieldLoop end res f = map (\{ pos, val } -> Loop { a: end, b: f val, c: pos }) res
 
 data Push = Pong | LoginOk LoginOk | AddRouteOk AddRouteOk | FreeDrivers FreeDrivers | FreePassengers FreePassengers
-type LoginOk = { username :: String, firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String }
-type LoginOk' = { username :: Maybe String, firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String }
+type LoginOk = { user :: UserData }
+type LoginOk' = { user :: Maybe UserData }
+type UserData = { id :: Number, username :: String, firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, tpe :: Maybe PassengerType, created :: Number }
+type UserData' = { id :: Maybe Number, username :: Maybe String, firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, tpe :: Maybe PassengerType, created :: Maybe Number }
 type AddRouteOk = { id :: String }
 type AddRouteOk' = { id :: Maybe String }
 type FreeDrivers = { freeDrivers :: Array DriverInfo }
@@ -63,21 +66,97 @@ decodePong _xs_ pos0 = do
 decodeLoginOk :: Uint8Array -> Int -> Decode.Result LoginOk
 decodeLoginOk _xs_ pos0 = do
   { pos, val: msglen } <- Decode.uint32 _xs_ pos0
-  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { username: Nothing, firstName: Nothing, lastName: Nothing, photo: Nothing } pos
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { user: Nothing } pos
   case val of
-    { username: Just username, firstName, lastName, photo } -> pure { pos: pos1, val: { username, firstName, lastName, photo } }
+    { user: Just user } -> pure { pos: pos1, val: { user } }
     _ -> Left $ Decode.MissingFields "LoginOk"
     where
     decode :: Int -> LoginOk' -> Int -> Decode.Result' (Step { a :: Int, b :: LoginOk', c :: Int } { pos :: Int, val :: LoginOk' })
     decode end acc pos1 | pos1 < end = do
       { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
       case tag `zshr` 3 of
-        1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { username = Just val }
-        2 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { firstName = Just val }
-        3 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { lastName = Just val }
-        4 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { photo = Just val }
+        1 -> decodeFieldLoop end (decodeUserData _xs_ pos2) \val -> acc { user = Just val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
     decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
+
+decodeUserData :: Uint8Array -> Int -> Decode.Result UserData
+decodeUserData _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { id: Nothing, username: Nothing, firstName: Nothing, lastName: Nothing, photo: Nothing, phone: Nothing, carPlate: Nothing, tpe: Nothing, created: Nothing } pos
+  case val of
+    { id: Just id, username: Just username, firstName, lastName, photo, phone, carPlate, tpe, created: Just created } -> pure { pos: pos1, val: { id, username, firstName, lastName, photo, phone, carPlate, tpe, created } }
+    _ -> Left $ Decode.MissingFields "UserData"
+    where
+    decode :: Int -> UserData' -> Int -> Decode.Result' (Step { a :: Int, b :: UserData', c :: Int } { pos :: Int, val :: UserData' })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (Decode.double _xs_ pos2) \val -> acc { id = Just val }
+        2 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { username = Just val }
+        3 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { firstName = Just val }
+        4 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { lastName = Just val }
+        5 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { photo = Just val }
+        6 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { phone = Just val }
+        7 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { carPlate = Just val }
+        8 -> decodeFieldLoop end (decodePassengerType _xs_ pos2) \val -> acc { tpe = Just val }
+        9 -> decodeFieldLoop end (Decode.double _xs_ pos2) \val -> acc { created = Just val }
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
+
+decodePassengerType :: Uint8Array -> Int -> Decode.Result PassengerType
+decodePassengerType _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
+  tailRecM3 decode (pos + msglen) Nothing pos
+    where
+    decode :: Int -> Maybe PassengerType -> Int -> Decode.Result' (Step { a :: Int, b :: Maybe PassengerType, c :: Int } { pos :: Int, val :: PassengerType })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (decodeMedical _xs_ pos2) \_ -> Just Medical
+        2 -> decodeFieldLoop end (decodePolice _xs_ pos2) \_ -> Just Police
+        3 -> decodeFieldLoop end (decodeFirefighter _xs_ pos2) \_ -> Just Firefighter
+        4 -> decodeFieldLoop end (decodeArmy _xs_ pos2) \_ -> Just Army
+        5 -> decodeFieldLoop end (decodeFarmacy _xs_ pos2) \_ -> Just Farmacy
+        6 -> decodeFieldLoop end (decodeCashier _xs_ pos2) \_ -> Just Cashier
+        7 -> decodeFieldLoop end (decodeRegular _xs_ pos2) \_ -> Just Regular
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end (Just acc) pos1 = pure $ Done { pos: pos1, val: acc }
+    decode end acc@Nothing pos1 = Left $ Decode.MissingFields "PassengerType"
+
+decodeMedical :: Uint8Array -> Int -> Decode.Result Unit
+decodeMedical _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodePolice :: Uint8Array -> Int -> Decode.Result Unit
+decodePolice _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeFirefighter :: Uint8Array -> Int -> Decode.Result Unit
+decodeFirefighter _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeArmy :: Uint8Array -> Int -> Decode.Result Unit
+decodeArmy _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeFarmacy :: Uint8Array -> Int -> Decode.Result Unit
+decodeFarmacy _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeCashier :: Uint8Array -> Int -> Decode.Result Unit
+decodeCashier _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeRegular :: Uint8Array -> Int -> Decode.Result Unit
+decodeRegular _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
 
 decodeAddRouteOk :: Uint8Array -> Int -> Decode.Result AddRouteOk
 decodeAddRouteOk _xs_ pos0 = do
@@ -162,61 +241,6 @@ decodeLocation _xs_ pos0 = do
         2 -> decodeFieldLoop end (Decode.double _xs_ pos2) \val -> acc { lng = Just val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
     decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
-
-decodePassengerType :: Uint8Array -> Int -> Decode.Result PassengerType
-decodePassengerType _xs_ pos0 = do
-  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
-  tailRecM3 decode (pos + msglen) Nothing pos
-    where
-    decode :: Int -> Maybe PassengerType -> Int -> Decode.Result' (Step { a :: Int, b :: Maybe PassengerType, c :: Int } { pos :: Int, val :: PassengerType })
-    decode end acc pos1 | pos1 < end = do
-      { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
-      case tag `zshr` 3 of
-        1 -> decodeFieldLoop end (decodeMedical _xs_ pos2) \_ -> Just Medical
-        2 -> decodeFieldLoop end (decodePolice _xs_ pos2) \_ -> Just Police
-        3 -> decodeFieldLoop end (decodeFirefighter _xs_ pos2) \_ -> Just Firefighter
-        4 -> decodeFieldLoop end (decodeArmy _xs_ pos2) \_ -> Just Army
-        5 -> decodeFieldLoop end (decodeFarmacy _xs_ pos2) \_ -> Just Farmacy
-        6 -> decodeFieldLoop end (decodeCashier _xs_ pos2) \_ -> Just Cashier
-        7 -> decodeFieldLoop end (decodeRegular _xs_ pos2) \_ -> Just Regular
-        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
-    decode end (Just acc) pos1 = pure $ Done { pos: pos1, val: acc }
-    decode end acc@Nothing pos1 = Left $ Decode.MissingFields "PassengerType"
-
-decodeMedical :: Uint8Array -> Int -> Decode.Result Unit
-decodeMedical _xs_ pos0 = do
-  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
-  pure { pos: pos + msglen, val: unit }
-
-decodePolice :: Uint8Array -> Int -> Decode.Result Unit
-decodePolice _xs_ pos0 = do
-  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
-  pure { pos: pos + msglen, val: unit }
-
-decodeFirefighter :: Uint8Array -> Int -> Decode.Result Unit
-decodeFirefighter _xs_ pos0 = do
-  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
-  pure { pos: pos + msglen, val: unit }
-
-decodeArmy :: Uint8Array -> Int -> Decode.Result Unit
-decodeArmy _xs_ pos0 = do
-  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
-  pure { pos: pos + msglen, val: unit }
-
-decodeFarmacy :: Uint8Array -> Int -> Decode.Result Unit
-decodeFarmacy _xs_ pos0 = do
-  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
-  pure { pos: pos + msglen, val: unit }
-
-decodeCashier :: Uint8Array -> Int -> Decode.Result Unit
-decodeCashier _xs_ pos0 = do
-  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
-  pure { pos: pos + msglen, val: unit }
-
-decodeRegular :: Uint8Array -> Int -> Decode.Result Unit
-decodeRegular _xs_ pos0 = do
-  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
-  pure { pos: pos + msglen, val: unit }
 
 decodeFreePassengers :: Uint8Array -> Int -> Decode.Result FreePassengers
 decodeFreePassengers _xs_ pos0 = do

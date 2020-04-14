@@ -32,19 +32,18 @@ import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
 import Api.Pull (encodePull, Pull(TelegramLogin), TelegramData(TelegramString, TelegramNum))
-import Api.Push (decodePush, Push(LoginOk))
+import Api.Push (decodePush, Push(LoginOk), UserData)
 
 import App.Home (homeClass)
 import App.View (viewClass)
 import App.Add (addClass)
-import Model (UserInfo)
 
 type Props =
   { ws :: WebSocket
   }
 
 type State =
-  { user :: Maybe UserInfo
+  { user :: Maybe UserData
   , lang :: String
   , keyText :: String -> String
   , menuItem :: MenuItem
@@ -63,7 +62,7 @@ appClass :: ReactClass Props
 appClass = component "App" \this -> do
   pure
     { state: 
-      { user: mempty
+      { user: Nothing
       , lang: "uk"
       , keyText: \key -> key
       , menuItem: HomeItem
@@ -76,7 +75,7 @@ appClass = component "App" \this -> do
         let ws = props.ws
         WS.onMsg ws (\x -> case decodePush x of
           Left y -> error $ show y
-          Right { val: LoginOk r} -> modifyState this _{ user = Just r }
+          Right { val: LoginOk r} -> modifyState this _{ user = Just r.user }
           Right _ -> pure unit
         ) (sequence <<< map error)
     }
@@ -131,9 +130,9 @@ appClass = component "App" \this -> do
           case state.menuItem of
             HomeItem -> [ createLeafElement homeClass {ws: ws, lang: state.lang, keyText: state.keyText, user: state.user}
                         ]
-            ViewItem -> [ createLeafElement viewClass {ws: ws, lang: state.lang, keyText: state.keyText}
+            ViewItem -> [ createLeafElement viewClass {ws: ws, lang: state.lang, keyText: state.keyText, user: state.user}
                         ]
-            AddItem  -> [ createLeafElement addClass {ws: ws, lang: state.lang, keyText: state.keyText}
+            AddItem  -> [ createLeafElement addClass {ws: ws, lang: state.lang, keyText: state.keyText, user: state.user}
                         ]
       ]
 

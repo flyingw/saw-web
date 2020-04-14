@@ -22,16 +22,16 @@ import React.DOM (text, div)
 import React.DOM.Props (_id, _type, onClick, name, checked, href, src, height, async)
 
 import Api.Pull (encodePull, Pull(TelegramLogin), TelegramData(TelegramString, TelegramNum))
+import Api.Push (UserData)
 import Lib.React (cn)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
-import Model (UserInfo)
 
 type Props =
   { ws :: WebSocket
   , lang :: String
   , keyText :: String -> String
-  , user :: Maybe UserInfo
+  , user :: Maybe UserData
   }
 
 type State = {}
