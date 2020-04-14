@@ -1,6 +1,10 @@
 module Api.Pull
   ( Pull(..)
   , LoginAttempt
+  , TelegramLogin
+  , TelegramData(..)
+  , TelegramString
+  , TelegramNum
   , AddDriver
   , Address
   , AddPassenger
@@ -11,14 +15,20 @@ module Api.Pull
 
 import Data.Array (concatMap)
 import Data.ArrayBuffer.Types (Uint8Array)
+import Data.Eq (class Eq)
 import Data.Maybe (Maybe, fromMaybe)
 import Prelude (map, ($))
 import Proto.Encode as Encode
 import Proto.Uint8ArrayExt (length, concatAll, fromArray)
 import Api
 
-data Pull = Ping | LoginAttempt LoginAttempt | AddDriver AddDriver | AddPassenger AddPassenger | GetFreeDrivers GetFreeDrivers | GetFreePassengers GetFreePassengers
+data Pull = Ping | LoginAttempt LoginAttempt | TelegramLogin TelegramLogin | AddDriver AddDriver | AddPassenger AddPassenger | GetFreeDrivers GetFreeDrivers | GetFreePassengers GetFreePassengers
 type LoginAttempt = { data_check_string :: String, hash :: String, auth_date :: Number, name :: Maybe String, id :: String }
+type TelegramLogin = { d :: Array TelegramData }
+data TelegramData = TelegramString TelegramString | TelegramNum TelegramNum
+derive instance eqTelegramData :: Eq TelegramData
+type TelegramString = { key :: String, value :: String }
+type TelegramNum = { key :: String, value :: Number }
 type AddDriver = { name :: String, phone :: String, carPlate :: String, date :: Number, lap :: Int, seats :: Int, from :: Address, to :: Address, types :: Array PassengerType }
 type Address = { city :: String, street :: String, building :: String }
 type AddPassenger = { name :: String, phone :: String, date :: Number, tpe :: PassengerType, from :: Address, to :: Address }
@@ -28,6 +38,7 @@ type GetFreePassengers = { date :: Number }
 encodePull :: Pull -> Uint8Array
 encodePull Ping = concatAll [ Encode.uint32 10, encodePing ]
 encodePull (LoginAttempt x) = concatAll [ Encode.uint32 18, encodeLoginAttempt x ]
+encodePull (TelegramLogin x) = concatAll [ Encode.uint32 26, encodeTelegramLogin x ]
 encodePull (AddDriver x) = concatAll [ Encode.uint32 82, encodeAddDriver x ]
 encodePull (AddPassenger x) = concatAll [ Encode.uint32 162, encodeAddPassenger x ]
 encodePull (GetFreeDrivers x) = concatAll [ Encode.uint32 242, encodeGetFreeDrivers x ]
@@ -48,6 +59,41 @@ encodeLoginAttempt msg = do
         , fromMaybe (fromArray []) $ map (\x -> concatAll [ Encode.uint32 34, Encode.string x ]) msg.name
         , Encode.uint32 42
         , Encode.string msg.id
+        ]
+  concatAll [ Encode.uint32 $ length xs, xs ]
+
+encodeTelegramLogin :: TelegramLogin -> Uint8Array
+encodeTelegramLogin msg = do
+  let xs = concatAll
+        [ concatAll $ concatMap (\x -> [ Encode.uint32 10, encodeTelegramData x ]) msg.d
+        ]
+  concatAll [ Encode.uint32 $ length xs, xs ]
+
+encodeTelegramData :: TelegramData -> Uint8Array
+encodeTelegramData (TelegramString x) = do
+  let xs = concatAll [ Encode.uint32 10, encodeTelegramString x ]
+  concatAll [ Encode.uint32 $ length xs, xs ]
+encodeTelegramData (TelegramNum x) = do
+  let xs = concatAll [ Encode.uint32 18, encodeTelegramNum x ]
+  concatAll [ Encode.uint32 $ length xs, xs ]
+
+encodeTelegramString :: TelegramString -> Uint8Array
+encodeTelegramString msg = do
+  let xs = concatAll
+        [ Encode.uint32 10
+        , Encode.string msg.key
+        , Encode.uint32 18
+        , Encode.string msg.value
+        ]
+  concatAll [ Encode.uint32 $ length xs, xs ]
+
+encodeTelegramNum :: TelegramNum -> Uint8Array
+encodeTelegramNum msg = do
+  let xs = concatAll
+        [ Encode.uint32 10
+        , Encode.string msg.key
+        , Encode.uint32 17
+        , Encode.double msg.value
         ]
   concatAll [ Encode.uint32 $ length xs, xs ]
 

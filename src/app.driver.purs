@@ -24,7 +24,7 @@ import Lib.WebSocket as WS
 
 import Api (PassengerType(..))
 import Api.Pull (Pull(AddDriver), encodePull, Address)
-import Api.Push (decodePush, Push(LoginOk))
+import Api.Push (decodePush, Push(AddRouteOk))
 
 import Keys (keyPassengerType)
 
@@ -72,8 +72,7 @@ driverClass = component "Driver" \this -> do
         let ws = p.ws
         WS.onMsg ws (\x -> case decodePush x of
           Left y -> error $ show y
-          -- Right { val: AddRouteOk r } -> modifyState this _{ routeN=Just r.n }
-          Right { val: LoginOk {name: Just name}} -> modifyState this _{ name=name }
+          Right { val: AddRouteOk r } -> modifyState this _{ routeN=Just r.id }
           Right _ -> pure unit
         ) (sequence <<< map error)
     }
@@ -255,7 +254,7 @@ driverClass = component "Driver" \this -> do
           ]
         , div [ cn "alert alert-info col-md-12" ] [ text $ props.keyText "key.add.hint" ]
         , button [ cn "btn btn-primary mb-3", _type "button"
-                 , disabled $ isNothing state.mapQ
+                --  , disabled $ isNothing state.mapQ
                  , onClick \_ -> sendDriver this 
                  ] 
           [ text $ props.keyText "key.add"

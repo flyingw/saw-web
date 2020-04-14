@@ -2,26 +2,24 @@ module App where
 
 import Prelude hiding (div)
 
-import Control.Alt ((<|>))
 import Control.Monad.Except (runExcept)
-import Data.Array (filter, sort, catMaybes, take, drop)
+import Data.Array (take, drop, mapMaybe)
 import Data.Either (Either(..))
-import Data.Maybe (maybe, fromMaybe)
-import Data.Number.Format (toString) as Number
+import Data.Maybe (Maybe(..), maybe, fromMaybe)
 import Data.String.Common (joinWith, split, toLower)
 import Data.String.Pattern (Pattern(Pattern))
 import Data.Map as Map
 import Data.Tuple (Tuple(Tuple))
-import Data.Traversable (sequence, traverse)
+import Data.Traversable (sequence)
 import Effect (Effect)
 import Effect.Console (error)
 import Effect.Exception (throw)
-import Foreign (Foreign, F, readNull, readNumber, readString, readNullOrUndefined)
+import Foreign (Foreign, F, readNumber, readString, typeOf)
 import Foreign.Keys (keys) as F
 import Foreign.Index ((!)) as F
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
-import React.DOM (div, text, nav, ul, li, a, label, input)
-import React.DOM.Props (_type, onClick, name, checked, href)
+import React.DOM (div, text, nav, ul, li, a, label, input, img)
+import React.DOM.Props (_type, onClick, name, checked, href, src, height)
 import ReactDOM (render)
 import Web.DOM.NonElementParentNode (getElementById)
 import Web.HTML (window)
@@ -33,18 +31,21 @@ import Lib.React (cn)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
-import Api.Pull (encodePull, Pull(LoginAttempt))
-import Api.Push (decodePush)
+import Api.Pull (encodePull, Pull(TelegramLogin), TelegramData(TelegramString, TelegramNum))
+import Api.Push (decodePush, Push(LoginOk))
 
 import App.Home (homeClass)
+import App.View (viewClass)
 import App.Add (addClass)
+import Model (UserInfo)
 
 type Props =
   { ws :: WebSocket
   }
 
 type State =
-  { lang :: String
+  { user :: Maybe UserInfo  
+  , lang :: String
   , keyText :: String -> String
   , menuItem :: MenuItem
   }
@@ -62,7 +63,8 @@ appClass :: ReactClass Props
 appClass = component "App" \this -> do
   pure
     { state: 
-      { lang: "uk"
+      { user: mempty
+      , lang: "uk"
       , keyText: \key -> key
       , menuItem: HomeItem
       }:: State
@@ -74,6 +76,7 @@ appClass = component "App" \this -> do
         let ws = props.ws
         WS.onMsg ws (\x -> case decodePush x of
           Left y -> error $ show y
+          Right { val: LoginOk r} -> modifyState this _{ user = Just r }
           Right _ -> pure unit
         ) (sequence <<< map error)
     }
@@ -103,6 +106,16 @@ appClass = component "App" \this -> do
                 [ text $ state.keyText $ show v ]
               ]
             ) [ HomeItem, ViewItem, AddItem ]
+        , case state.user of
+            Just user ->
+                ul [ cn "navbar-nav ml-auto mr-2 nav-flex-icons" ]
+                [ li [ cn "nav-item avatar" ]
+                  [ a [ cn "nav-link p-0", href "#" ]
+                    [ img [ src $ fromMaybe "" user.photo, cn "rounded-circle z-depth-0", height "35" ]
+                    ]
+                  ]
+                ]
+            Nothing -> mempty
         , div [ cn "btn-group btn-group-sm btn-group-toggle" ] $
             map (\v ->
               label [ cn $ "btn btn-secondary" <> if state.lang == v then " active" else "" ]
@@ -115,9 +128,9 @@ appClass = component "App" \this -> do
         ]
       , div [ cn "m-2"] $
           case state.menuItem of
-            HomeItem -> [ createLeafElement homeClass {ws: ws, lang: state.lang, keyText: state.keyText} ]
-            ViewItem -> [
-              
+            HomeItem -> [ createLeafElement homeClass {ws: ws, lang: state.lang, keyText: state.keyText}
+                        ]
+            ViewItem -> [ createLeafElement viewClass {ws: ws, lang: state.lang, keyText: state.keyText}
                         ]
             AddItem  -> [ createLeafElement addClass {ws: ws, lang: state.lang, keyText: state.keyText}
                         ]
@@ -139,15 +152,12 @@ view = do
   where
   f :: Foreign -> F Pull
   f x = do
-    hash              <- x F.! "hash" >>= readString
-    auth_date         <- x F.! "auth_date" >>= readNumber
-    keys'             <- F.keys x
-    keys              <- pure $ sort $ filter (_ /= "hash") keys'
-    xs                <- sequence $ map (\k -> x F.! k >>= readNull >>= traverse readStringLike <#> map (append k <<< append "=")) keys
-    data_check_string <- pure $ joinWith "\n" $ catMaybes xs
-    name              <- x F.! "first_name" >>= readNullOrUndefined >>= traverse readString
-    id                <- x F.! "id" >>= readStringLike
-    pure $ LoginAttempt { data_check_string, hash, auth_date, name, id }
-    where
-    readStringLike :: Foreign -> F String
-    readStringLike y = readString y <|> (map Number.toString $ readNumber y)
+    keys'  <- F.keys x
+    xs     <- sequence $ map (\k -> x F.! k <#> \v -> Tuple k v) keys'
+    tds    <- sequence $ mapMaybe (\(Tuple k v) ->
+                case typeOf v of
+                  "string" -> Just $ readString v <#> \s -> TelegramString { key: k, value: s }
+                  "number" -> Just $ readNumber v <#> \n -> TelegramNum { key: k, value: n }
+                  _        -> Nothing
+              ) xs
+    pure $ TelegramLogin { d: tds }

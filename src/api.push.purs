@@ -26,19 +26,20 @@ decodeFieldLoop :: forall a b c. Int -> Decode.Result a -> (a -> b) -> Decode.Re
 decodeFieldLoop end res f = map (\{ pos, val } -> Loop { a: end, b: f val, c: pos }) res
 
 data Push = Pong | LoginOk LoginOk | AddRouteOk AddRouteOk | FreeDrivers FreeDrivers | FreePassengers FreePassengers
-type LoginOk = { name :: Maybe String }
+type LoginOk = { username :: String, firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String }
+type LoginOk' = { username :: Maybe String, firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String }
 type AddRouteOk = { id :: String }
 type AddRouteOk' = { id :: Maybe String }
 type FreeDrivers = { freeDrivers :: Array DriverInfo }
-type DriverInfo = { id :: String, user :: String, name :: String, phone :: String, carPlate :: String, date :: String, lap :: Int, routes :: Array RouteInfo, types :: Array PassengerType }
-type DriverInfo' = { id :: Maybe String, user :: Maybe String, name :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, date :: Maybe String, lap :: Maybe Int, routes :: Array RouteInfo, types :: Array PassengerType }
-type RouteInfo = { fromAddress :: String, fromLocation :: Location, toAddress :: String, toLocation :: Location, distance :: Int, duration :: Int, steps :: Array Location }
-type RouteInfo' = { fromAddress :: Maybe String, fromLocation :: Maybe Location, toAddress :: Maybe String, toLocation :: Maybe Location, distance :: Maybe Int, duration :: Maybe Int, steps :: Array Location }
+type DriverInfo = { id :: String, date :: String, routes :: Array RouteInfo, types :: Array PassengerType }
+type DriverInfo' = { id :: Maybe String, date :: Maybe String, routes :: Array RouteInfo, types :: Array PassengerType }
+type RouteInfo = { fromAddress :: String, fromLocation :: Location, toAddress :: String, toLocation :: Location }
+type RouteInfo' = { fromAddress :: Maybe String, fromLocation :: Maybe Location, toAddress :: Maybe String, toLocation :: Maybe Location }
 type Location = { lat :: Number, lng :: Number }
 type Location' = { lat :: Maybe Number, lng :: Maybe Number }
 type FreePassengers = { freePassengers :: Array PassengerInfo }
-type PassengerInfo = { id :: String, user :: String, name :: String, phone :: String, date :: String, fromAddress :: String, fromLocation :: Location, toAddress :: String, toLocation :: Location, tpe :: PassengerType }
-type PassengerInfo' = { id :: Maybe String, user :: Maybe String, name :: Maybe String, phone :: Maybe String, date :: Maybe String, fromAddress :: Maybe String, fromLocation :: Maybe Location, toAddress :: Maybe String, toLocation :: Maybe Location, tpe :: Maybe PassengerType }
+type PassengerInfo = { id :: String, date :: String, fromAddress :: String, fromLocation :: Location, toAddress :: String, toLocation :: Location, tpe :: PassengerType }
+type PassengerInfo' = { id :: Maybe String, date :: Maybe String, fromAddress :: Maybe String, fromLocation :: Maybe Location, toAddress :: Maybe String, toLocation :: Maybe Location, tpe :: Maybe PassengerType }
 
 decodePush :: Uint8Array -> Decode.Result Push
 decodePush _xs_ = do
@@ -62,13 +63,19 @@ decodePong _xs_ pos0 = do
 decodeLoginOk :: Uint8Array -> Int -> Decode.Result LoginOk
 decodeLoginOk _xs_ pos0 = do
   { pos, val: msglen } <- Decode.uint32 _xs_ pos0
-  tailRecM3 decode (pos + msglen) { name: Nothing } pos
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { username: Nothing, firstName: Nothing, lastName: Nothing, photo: Nothing } pos
+  case val of
+    { username: Just username, firstName, lastName, photo } -> pure { pos: pos1, val: { username, firstName, lastName, photo } }
+    _ -> Left $ Decode.MissingFields "LoginOk"
     where
-    decode :: Int -> LoginOk -> Int -> Decode.Result' (Step { a :: Int, b :: LoginOk, c :: Int } { pos :: Int, val :: LoginOk })
+    decode :: Int -> LoginOk' -> Int -> Decode.Result' (Step { a :: Int, b :: LoginOk', c :: Int } { pos :: Int, val :: LoginOk' })
     decode end acc pos1 | pos1 < end = do
       { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
       case tag `zshr` 3 of
-        1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { name = Just val }
+        1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { username = Just val }
+        2 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { firstName = Just val }
+        3 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { lastName = Just val }
+        4 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { photo = Just val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
     decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
 
@@ -104,9 +111,9 @@ decodeFreeDrivers _xs_ pos0 = do
 decodeDriverInfo :: Uint8Array -> Int -> Decode.Result DriverInfo
 decodeDriverInfo _xs_ pos0 = do
   { pos, val: msglen } <- Decode.uint32 _xs_ pos0
-  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { id: Nothing, user: Nothing, name: Nothing, phone: Nothing, carPlate: Nothing, date: Nothing, lap: Nothing, routes: [], types: [] } pos
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { id: Nothing, date: Nothing, routes: [], types: [] } pos
   case val of
-    { id: Just id, user: Just user, name: Just name, phone: Just phone, carPlate: Just carPlate, date: Just date, lap: Just lap, routes, types } -> pure { pos: pos1, val: { id, user, name, phone, carPlate, date, lap, routes, types } }
+    { id: Just id, date: Just date, routes, types } -> pure { pos: pos1, val: { id, date, routes, types } }
     _ -> Left $ Decode.MissingFields "DriverInfo"
     where
     decode :: Int -> DriverInfo' -> Int -> Decode.Result' (Step { a :: Int, b :: DriverInfo', c :: Int } { pos :: Int, val :: DriverInfo' })
@@ -114,12 +121,7 @@ decodeDriverInfo _xs_ pos0 = do
       { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
       case tag `zshr` 3 of
         1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { id = Just val }
-        2 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { user = Just val }
-        3 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { name = Just val }
-        4 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { phone = Just val }
-        5 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { carPlate = Just val }
         6 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { date = Just val }
-        7 -> decodeFieldLoop end (Decode.int32 _xs_ pos2) \val -> acc { lap = Just val }
         8 -> decodeFieldLoop end (decodeRouteInfo _xs_ pos2) \val -> acc { routes = snoc acc.routes val }
         9 -> decodeFieldLoop end (decodePassengerType _xs_ pos2) \val -> acc { types = snoc acc.types val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
@@ -128,9 +130,9 @@ decodeDriverInfo _xs_ pos0 = do
 decodeRouteInfo :: Uint8Array -> Int -> Decode.Result RouteInfo
 decodeRouteInfo _xs_ pos0 = do
   { pos, val: msglen } <- Decode.uint32 _xs_ pos0
-  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { fromAddress: Nothing, fromLocation: Nothing, toAddress: Nothing, toLocation: Nothing, distance: Nothing, duration: Nothing, steps: [] } pos
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { fromAddress: Nothing, fromLocation: Nothing, toAddress: Nothing, toLocation: Nothing } pos
   case val of
-    { fromAddress: Just fromAddress, fromLocation: Just fromLocation, toAddress: Just toAddress, toLocation: Just toLocation, distance: Just distance, duration: Just duration, steps } -> pure { pos: pos1, val: { fromAddress, fromLocation, toAddress, toLocation, distance, duration, steps } }
+    { fromAddress: Just fromAddress, fromLocation: Just fromLocation, toAddress: Just toAddress, toLocation: Just toLocation } -> pure { pos: pos1, val: { fromAddress, fromLocation, toAddress, toLocation } }
     _ -> Left $ Decode.MissingFields "RouteInfo"
     where
     decode :: Int -> RouteInfo' -> Int -> Decode.Result' (Step { a :: Int, b :: RouteInfo', c :: Int } { pos :: Int, val :: RouteInfo' })
@@ -141,9 +143,6 @@ decodeRouteInfo _xs_ pos0 = do
         2 -> decodeFieldLoop end (decodeLocation _xs_ pos2) \val -> acc { fromLocation = Just val }
         3 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { toAddress = Just val }
         4 -> decodeFieldLoop end (decodeLocation _xs_ pos2) \val -> acc { toLocation = Just val }
-        5 -> decodeFieldLoop end (Decode.int32 _xs_ pos2) \val -> acc { distance = Just val }
-        6 -> decodeFieldLoop end (Decode.int32 _xs_ pos2) \val -> acc { duration = Just val }
-        7 -> decodeFieldLoop end (decodeLocation _xs_ pos2) \val -> acc { steps = snoc acc.steps val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
     decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
 
@@ -235,9 +234,9 @@ decodeFreePassengers _xs_ pos0 = do
 decodePassengerInfo :: Uint8Array -> Int -> Decode.Result PassengerInfo
 decodePassengerInfo _xs_ pos0 = do
   { pos, val: msglen } <- Decode.uint32 _xs_ pos0
-  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { id: Nothing, user: Nothing, name: Nothing, phone: Nothing, date: Nothing, fromAddress: Nothing, fromLocation: Nothing, toAddress: Nothing, toLocation: Nothing, tpe: Nothing } pos
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { id: Nothing, date: Nothing, fromAddress: Nothing, fromLocation: Nothing, toAddress: Nothing, toLocation: Nothing, tpe: Nothing } pos
   case val of
-    { id: Just id, user: Just user, name: Just name, phone: Just phone, date: Just date, fromAddress: Just fromAddress, fromLocation: Just fromLocation, toAddress: Just toAddress, toLocation: Just toLocation, tpe: Just tpe } -> pure { pos: pos1, val: { id, user, name, phone, date, fromAddress, fromLocation, toAddress, toLocation, tpe } }
+    { id: Just id, date: Just date, fromAddress: Just fromAddress, fromLocation: Just fromLocation, toAddress: Just toAddress, toLocation: Just toLocation, tpe: Just tpe } -> pure { pos: pos1, val: { id, date, fromAddress, fromLocation, toAddress, toLocation, tpe } }
     _ -> Left $ Decode.MissingFields "PassengerInfo"
     where
     decode :: Int -> PassengerInfo' -> Int -> Decode.Result' (Step { a :: Int, b :: PassengerInfo', c :: Int } { pos :: Int, val :: PassengerInfo' })
@@ -245,9 +244,6 @@ decodePassengerInfo _xs_ pos0 = do
       { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
       case tag `zshr` 3 of
         1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { id = Just val }
-        2 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { user = Just val }
-        3 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { name = Just val }
-        4 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { phone = Just val }
         5 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { date = Just val }
         6 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { fromAddress = Just val }
         7 -> decodeFieldLoop end (decodeLocation _xs_ pos2) \val -> acc { fromLocation = Just val }
