@@ -550,6 +550,7 @@ var PS = {};
       };
   };
   var isNothing = maybe(true)(Data_Function["const"](false));
+  var isJust = maybe(false)(Data_Function["const"](true));
   var functorMaybe = new Data_Functor.Functor(function (v) {
       return function (v1) {
           if (v1 instanceof Just) {
@@ -602,6 +603,7 @@ var PS = {};
   exports["Just"] = Just;
   exports["maybe"] = maybe;
   exports["fromMaybe"] = fromMaybe;
+  exports["isJust"] = isJust;
   exports["isNothing"] = isNothing;
   exports["fromJust"] = fromJust;
   exports["functorMaybe"] = functorMaybe;
@@ -8786,18 +8788,242 @@ var PS = {};
   })();
   exports["addClass"] = addClass;
 })(PS);
+(function(exports) {
+  "use strict";
+
+  exports.telegramLoginWidget = function(id) {
+    return function(f) {
+      return function() {
+        window["telegramLoginF"] = f
+        var element = document.createElement('script');
+        element.setAttribute('async', '');
+        element.setAttribute('src', 'https://telegram.org/js/telegram-widget.js?8');
+        element.setAttribute('data-telegram-login', 'CryptoCalcBitBot');
+        element.setAttribute('data-size', 'large');
+        element.setAttribute('data-onauth', 'telegramLoginF(user)()');
+        element.setAttribute('data-request-access', 'write');
+
+        var el = document.getElementById(id)
+        if (el) {
+          el.appendChild(element);
+        }
+        return{}
+      }
+    }
+  }
+})(PS["App.Home"] = PS["App.Home"] || {});
+(function(exports) {
+  "use strict";
+
+  exports.unsafeReadPropImpl = function (f, s, key, value) {
+    return value == null ? f : s(value[key]);
+  };
+
+  exports.unsafeHasOwnProperty = function (prop, value) {
+    return Object.prototype.hasOwnProperty.call(value, prop);
+  };
+
+  exports.unsafeHasProperty = function (prop, value) {
+    return prop in value;
+  };
+})(PS["Foreign.Index"] = PS["Foreign.Index"] || {});
+(function($PS) {
+  "use strict";
+  $PS["Foreign.Index"] = $PS["Foreign.Index"] || {};
+  var exports = $PS["Foreign.Index"];
+  var $foreign = $PS["Foreign.Index"];
+  var Control_Applicative = $PS["Control.Applicative"];
+  var Control_Monad_Except_Trans = $PS["Control.Monad.Except.Trans"];
+  var Data_Function = $PS["Data.Function"];
+  var Data_Identity = $PS["Data.Identity"];
+  var Foreign = $PS["Foreign"];                
+  var Indexable = function (ix) {
+      this.ix = ix;
+  };
+  var Index = function (errorAt, hasOwnProperty, hasProperty, index) {
+      this.errorAt = errorAt;
+      this.hasOwnProperty = hasOwnProperty;
+      this.hasProperty = hasProperty;
+      this.index = index;
+  };
+  var unsafeReadProp = function (k) {
+      return function (value) {
+          return $foreign.unsafeReadPropImpl(Foreign.fail(new Foreign.TypeMismatch("object", Foreign.typeOf(value))), Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity)), k, value);
+      };
+  };
+  var readProp = unsafeReadProp; 
+  var ix = function (dict) {
+      return dict.ix;
+  };
+  var index = function (dict) {
+      return dict.index;
+  }; 
+  var indexableForeign = new Indexable(function (dictIndex) {
+      return index(dictIndex);
+  });
+  var hasPropertyImpl = function (v) {
+      return function (value) {
+          if (Foreign.isNull(value)) {
+              return false;
+          };
+          if (Foreign.isUndefined(value)) {
+              return false;
+          };
+          if (Foreign.typeOf(value) === "object" || Foreign.typeOf(value) === "function") {
+              return $foreign.unsafeHasProperty(v, value);
+          };
+          return false;
+      };
+  };
+  var hasOwnPropertyImpl = function (v) {
+      return function (value) {
+          if (Foreign.isNull(value)) {
+              return false;
+          };
+          if (Foreign.isUndefined(value)) {
+              return false;
+          };
+          if (Foreign.typeOf(value) === "object" || Foreign.typeOf(value) === "function") {
+              return $foreign.unsafeHasOwnProperty(v, value);
+          };
+          return false;
+      };
+  };                                                                                                                        
+  var indexString = new Index(Foreign.ErrorAtProperty.create, hasOwnPropertyImpl, hasPropertyImpl, Data_Function.flip(readProp));
+  exports["ix"] = ix;
+  exports["indexString"] = indexString;
+  exports["indexableForeign"] = indexableForeign;
+})(PS);
+(function(exports) {
+  "use strict";
+
+  exports.unsafeKeys = Object.keys || function (value) {
+    var keys = [];
+    for (var prop in value) {
+      if (Object.prototype.hasOwnProperty.call(value, prop)) {
+        keys.push(prop);
+      }
+    }
+    return keys;
+  };
+})(PS["Foreign.Keys"] = PS["Foreign.Keys"] || {});
+(function($PS) {
+  "use strict";
+  $PS["Foreign.Keys"] = $PS["Foreign.Keys"] || {};
+  var exports = $PS["Foreign.Keys"];
+  var $foreign = $PS["Foreign.Keys"];
+  var Control_Applicative = $PS["Control.Applicative"];
+  var Control_Monad_Except_Trans = $PS["Control.Monad.Except.Trans"];
+  var Data_Boolean = $PS["Data.Boolean"];
+  var Data_Identity = $PS["Data.Identity"];
+  var Foreign = $PS["Foreign"];                
+  var keys = function (value) {
+      if (Foreign.isNull(value)) {
+          return Foreign.fail(new Foreign.TypeMismatch("object", "null"));
+      };
+      if (Foreign.isUndefined(value)) {
+          return Foreign.fail(new Foreign.TypeMismatch("object", "undefined"));
+      };
+      if (Foreign.typeOf(value) === "object") {
+          return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))($foreign.unsafeKeys(value));
+      };
+      if (Data_Boolean.otherwise) {
+          return Foreign.fail(new Foreign.TypeMismatch("object", Foreign.typeOf(value)));
+      };
+      throw new Error("Failed pattern match at Foreign.Keys (line 15, column 1 - line 15, column 36): " + [ value.constructor.name ]);
+  };
+  exports["keys"] = keys;
+})(PS);
 (function($PS) {
   "use strict";
   $PS["App.Home"] = $PS["App.Home"] || {};
   var exports = $PS["App.Home"];
+  var $foreign = $PS["App.Home"];
+  var Api_Pull = $PS["Api.Pull"];
+  var Control_Applicative = $PS["Control.Applicative"];
+  var Control_Bind = $PS["Control.Bind"];
+  var Control_Monad_Except = $PS["Control.Monad.Except"];
+  var Control_Monad_Except_Trans = $PS["Control.Monad.Except.Trans"];
+  var Data_Array = $PS["Data.Array"];
+  var Data_Either = $PS["Data.Either"];
+  var Data_Functor = $PS["Data.Functor"];
+  var Data_Identity = $PS["Data.Identity"];
+  var Data_List_Types = $PS["Data.List.Types"];
+  var Data_Maybe = $PS["Data.Maybe"];
+  var Data_Show = $PS["Data.Show"];
+  var Data_Traversable = $PS["Data.Traversable"];
+  var Data_Tuple = $PS["Data.Tuple"];
+  var Data_Unit = $PS["Data.Unit"];
+  var Effect_Exception = $PS["Effect.Exception"];
+  var Foreign = $PS["Foreign"];
+  var Foreign_Index = $PS["Foreign.Index"];
+  var Foreign_Keys = $PS["Foreign.Keys"];
+  var Lib_React = $PS["Lib.React"];
+  var Lib_WebSocket = $PS["Lib.WebSocket"];
   var React = $PS["React"];
-  var React_DOM = $PS["React.DOM"];                
+  var React_DOM = $PS["React.DOM"];
+  var React_DOM_Props = $PS["React.DOM.Props"];                
+  var login = function ($$this) {
+      return function (user) {
+          var f = function (x) {
+              return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Keys.keys(x))(function (keys$prime) {
+                  return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Functor.map(Data_Functor.functorArray)(function (k) {
+                      return Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(x)(k))(function (v) {
+                          return new Data_Tuple.Tuple(k, v);
+                      });
+                  })(keys$prime)))(function (xs) {
+                      return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Array.mapMaybe(function (v) {
+                          var v2 = Foreign.typeOf(v.value1);
+                          if (v2 === "string") {
+                              return Data_Maybe.Just.create(Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Foreign.readString(v.value1))(function (s) {
+                                  return new Api_Pull.TelegramString({
+                                      key: v.value0,
+                                      value: s
+                                  });
+                              }));
+                          };
+                          if (v2 === "number") {
+                              return Data_Maybe.Just.create(Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Foreign.readNumber(v.value1))(function (n) {
+                                  return new Api_Pull.TelegramNum({
+                                      key: v.value0,
+                                      value: n
+                                  });
+                              }));
+                          };
+                          return Data_Maybe.Nothing.value;
+                      })(xs)))(function (tds) {
+                          return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(new Api_Pull.TelegramLogin({
+                              d: tds
+                          }));
+                      });
+                  });
+              });
+          };
+          return function __do() {
+              var props = React.getProps($$this)();
+              var v = Control_Monad_Except.runExcept(f(user));
+              if (v instanceof Data_Either.Left) {
+                  return Effect_Exception["throw"](Data_Show.show(Data_List_Types.showNonEmptyList(Foreign.showForeignError))(v.value0))();
+              };
+              if (v instanceof Data_Either.Right) {
+                  return Lib_WebSocket.send(props.ws)(Api_Pull.encodePull(v.value0))();
+              };
+              throw new Error("Failed pattern match at App.Home (line 74, column 3 - line 76, column 51): " + [ v.constructor.name ]);
+          };
+      };
+  };
   var homeClass = (function () {
       var render = function ($$this) {
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([  ])([ React_DOM.div([  ])([ React_DOM.text("Description here") ]), React_DOM.div([  ])([ React_DOM.text("Login form here") ]) ]);
+              return React_DOM.div([  ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.home.text")) ]), React_DOM.div([ Lib_React.cn((function () {
+                  var $10 = Data_Maybe.isJust(props.user);
+                  if ($10) {
+                      return "d-none";
+                  };
+                  return "";
+              })()) ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center"), React_DOM_Props["_id"]("login-widget") ])([  ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.home.login.hint")) ]) ]) ]);
           };
       };
       return React.component()("Home")(function ($$this) {
@@ -8805,7 +9031,17 @@ var PS = {};
               var props = React.getProps($$this)();
               return {
                   state: {},
-                  render: render($$this)
+                  render: render($$this),
+                  componentDidMount: function __do() {
+                      var p = React.getProps($$this)();
+                      if (p.user instanceof Data_Maybe.Nothing) {
+                          return $foreign.telegramLoginWidget("login-widget")(login($$this))();
+                      };
+                      if (p.user instanceof Data_Maybe.Just) {
+                          return Data_Unit.unit;
+                      };
+                      throw new Error("Failed pattern match at App.Home (line 49, column 9 - line 51, column 30): " + [ p.user.constructor.name ]);
+                  }
               };
           };
       });
@@ -8942,128 +9178,6 @@ var PS = {};
   exports["viewClass"] = viewClass;
 })(PS);
 (function(exports) {
-  "use strict";
-
-  exports.unsafeReadPropImpl = function (f, s, key, value) {
-    return value == null ? f : s(value[key]);
-  };
-
-  exports.unsafeHasOwnProperty = function (prop, value) {
-    return Object.prototype.hasOwnProperty.call(value, prop);
-  };
-
-  exports.unsafeHasProperty = function (prop, value) {
-    return prop in value;
-  };
-})(PS["Foreign.Index"] = PS["Foreign.Index"] || {});
-(function($PS) {
-  "use strict";
-  $PS["Foreign.Index"] = $PS["Foreign.Index"] || {};
-  var exports = $PS["Foreign.Index"];
-  var $foreign = $PS["Foreign.Index"];
-  var Control_Applicative = $PS["Control.Applicative"];
-  var Control_Monad_Except_Trans = $PS["Control.Monad.Except.Trans"];
-  var Data_Function = $PS["Data.Function"];
-  var Data_Identity = $PS["Data.Identity"];
-  var Foreign = $PS["Foreign"];                
-  var Indexable = function (ix) {
-      this.ix = ix;
-  };
-  var Index = function (errorAt, hasOwnProperty, hasProperty, index) {
-      this.errorAt = errorAt;
-      this.hasOwnProperty = hasOwnProperty;
-      this.hasProperty = hasProperty;
-      this.index = index;
-  };
-  var unsafeReadProp = function (k) {
-      return function (value) {
-          return $foreign.unsafeReadPropImpl(Foreign.fail(new Foreign.TypeMismatch("object", Foreign.typeOf(value))), Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity)), k, value);
-      };
-  };
-  var readProp = unsafeReadProp; 
-  var ix = function (dict) {
-      return dict.ix;
-  };
-  var index = function (dict) {
-      return dict.index;
-  }; 
-  var indexableForeign = new Indexable(function (dictIndex) {
-      return index(dictIndex);
-  });
-  var hasPropertyImpl = function (v) {
-      return function (value) {
-          if (Foreign.isNull(value)) {
-              return false;
-          };
-          if (Foreign.isUndefined(value)) {
-              return false;
-          };
-          if (Foreign.typeOf(value) === "object" || Foreign.typeOf(value) === "function") {
-              return $foreign.unsafeHasProperty(v, value);
-          };
-          return false;
-      };
-  };
-  var hasOwnPropertyImpl = function (v) {
-      return function (value) {
-          if (Foreign.isNull(value)) {
-              return false;
-          };
-          if (Foreign.isUndefined(value)) {
-              return false;
-          };
-          if (Foreign.typeOf(value) === "object" || Foreign.typeOf(value) === "function") {
-              return $foreign.unsafeHasOwnProperty(v, value);
-          };
-          return false;
-      };
-  };                                                                                                                        
-  var indexString = new Index(Foreign.ErrorAtProperty.create, hasOwnPropertyImpl, hasPropertyImpl, Data_Function.flip(readProp));
-  exports["ix"] = ix;
-  exports["indexString"] = indexString;
-  exports["indexableForeign"] = indexableForeign;
-})(PS);
-(function(exports) {
-  "use strict";
-
-  exports.unsafeKeys = Object.keys || function (value) {
-    var keys = [];
-    for (var prop in value) {
-      if (Object.prototype.hasOwnProperty.call(value, prop)) {
-        keys.push(prop);
-      }
-    }
-    return keys;
-  };
-})(PS["Foreign.Keys"] = PS["Foreign.Keys"] || {});
-(function($PS) {
-  "use strict";
-  $PS["Foreign.Keys"] = $PS["Foreign.Keys"] || {};
-  var exports = $PS["Foreign.Keys"];
-  var $foreign = $PS["Foreign.Keys"];
-  var Control_Applicative = $PS["Control.Applicative"];
-  var Control_Monad_Except_Trans = $PS["Control.Monad.Except.Trans"];
-  var Data_Boolean = $PS["Data.Boolean"];
-  var Data_Identity = $PS["Data.Identity"];
-  var Foreign = $PS["Foreign"];                
-  var keys = function (value) {
-      if (Foreign.isNull(value)) {
-          return Foreign.fail(new Foreign.TypeMismatch("object", "null"));
-      };
-      if (Foreign.isUndefined(value)) {
-          return Foreign.fail(new Foreign.TypeMismatch("object", "undefined"));
-      };
-      if (Foreign.typeOf(value) === "object") {
-          return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))($foreign.unsafeKeys(value));
-      };
-      if (Data_Boolean.otherwise) {
-          return Foreign.fail(new Foreign.TypeMismatch("object", Foreign.typeOf(value)));
-      };
-      throw new Error("Failed pattern match at Foreign.Keys (line 15, column 1 - line 15, column 36): " + [ value.constructor.name ]);
-  };
-  exports["keys"] = keys;
-})(PS);
-(function(exports) {
   /* global exports */
   "use strict";
   var ReactDOM =require("react-dom");
@@ -9131,22 +9245,17 @@ var PS = {};
   $PS["App"] = $PS["App"] || {};
   var exports = $PS["App"];
   var Ajax = $PS["Ajax"];
-  var Api_Pull = $PS["Api.Pull"];
   var Api_Push = $PS["Api.Push"];
   var App_Add = $PS["App.Add"];
   var App_Home = $PS["App.Home"];
   var App_View = $PS["App.View"];
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Bind = $PS["Control.Bind"];
-  var Control_Monad_Except = $PS["Control.Monad.Except"];
-  var Control_Monad_Except_Trans = $PS["Control.Monad.Except.Trans"];
   var Data_Array = $PS["Data.Array"];
   var Data_Either = $PS["Data.Either"];
   var Data_Eq = $PS["Data.Eq"];
   var Data_Foldable = $PS["Data.Foldable"];
   var Data_Functor = $PS["Data.Functor"];
-  var Data_Identity = $PS["Data.Identity"];
-  var Data_List_Types = $PS["Data.List.Types"];
   var Data_Map_Internal = $PS["Data.Map.Internal"];
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Monoid = $PS["Data.Monoid"];
@@ -9162,9 +9271,6 @@ var PS = {};
   var Effect = $PS["Effect"];
   var Effect_Console = $PS["Effect.Console"];
   var Effect_Exception = $PS["Effect.Exception"];
-  var Foreign = $PS["Foreign"];
-  var Foreign_Index = $PS["Foreign.Index"];
-  var Foreign_Keys = $PS["Foreign.Keys"];
   var Lib_React = $PS["Lib.React"];
   var Lib_WebSocket = $PS["Lib.WebSocket"];
   var Proto_Decode = $PS["Proto.Decode"];
@@ -9279,8 +9385,8 @@ var PS = {};
               var state = React.getState($$this)();
               return React_DOM.div([  ])([ React_DOM.nav([ Lib_React.cn("navbar navbar-expand-lg navbar-light bg-light") ])([ React_DOM.ul([ Lib_React.cn("navbar-nav mr-auto mt-2 mt-lg-0") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.li([ Lib_React.cn("nav-item" + (function () {
-                      var $20 = Data_Eq.eq(eqMenuItem)(v)(state.menuItem);
-                      if ($20) {
+                      var $17 = Data_Eq.eq(eqMenuItem)(v)(state.menuItem);
+                      if ($17) {
                           return " active";
                       };
                       return "";
@@ -9296,16 +9402,18 @@ var PS = {};
                   }) ])([ React_DOM.text(state.keyText(Data_Show.show(showMenuItem)(v))) ]) ]);
               })([ HomeItem.value, ViewItem.value, AddItem.value ])), (function () {
                   if (state.user instanceof Data_Maybe.Just) {
-                      return React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto mr-2 nav-flex-icons") ])([ React_DOM.li([ Lib_React.cn("nav-item avatar") ])([ React_DOM.a([ Lib_React.cn("nav-link p-0"), React_DOM_Props.href("#") ])([ React_DOM.img([ React_DOM_Props.src(Data_Maybe.fromMaybe("")(state.user.value0.photo)), Lib_React.cn("rounded-circle z-depth-0"), React_DOM_Props.height("35") ]) ]) ]) ]);
+                      return React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto mr-2 nav-flex-icons") ])([ React_DOM.li([ Lib_React.cn("nav-item avatar") ])([ React_DOM.a([ Lib_React.cn("nav-link p-0"), React_DOM_Props.href("#") ])([ React_DOM.img([ React_DOM_Props.src(Data_Maybe.fromMaybe("")(state.user.value0.photo)), Lib_React.cn("rounded-circle z-depth-0 mr-1"), React_DOM_Props.height("35") ]), React_DOM.text(Data_Maybe.fromMaybe(state.user.value0.username)(Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(state.user.value0.firstName)(function (fn) {
+                          return fn + (" " + Data_Maybe.fromMaybe("")(state.user.value0.lastName));
+                      }))) ]) ]) ]);
                   };
                   if (state.user instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App (line 109, column 11 - line 118, column 30): " + [ state.user.constructor.name ]);
+                  throw new Error("Failed pattern match at App (line 109, column 11 - line 119, column 30): " + [ state.user.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("btn-group btn-group-sm btn-group-toggle") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.label([ Lib_React.cn("btn btn-secondary" + (function () {
-                      var $23 = state.lang === v;
-                      if ($23) {
+                      var $20 = state.lang === v;
+                      if ($20) {
                           return " active";
                       };
                       return "";
@@ -9317,7 +9425,8 @@ var PS = {};
                       return [ React.createLeafElement()(App_Home.homeClass)({
                           ws: props.ws,
                           lang: state.lang,
-                          keyText: state.keyText
+                          keyText: state.keyText,
+                          user: state.user
                       }) ];
                   };
                   if (state.menuItem instanceof ViewItem) {
@@ -9334,7 +9443,7 @@ var PS = {};
                           keyText: state.keyText
                       }) ];
                   };
-                  throw new Error("Failed pattern match at App (line 130, column 11 - line 136, column 26): " + [ state.menuItem.constructor.name ]);
+                  throw new Error("Failed pattern match at App (line 131, column 11 - line 137, column 26): " + [ state.menuItem.constructor.name ]);
               })()) ]);
           };
       };
@@ -9381,75 +9490,29 @@ var PS = {};
                       };
                       throw new Error("Failed pattern match at App (line 77, column 28 - line 80, column 31): " + [ v.constructor.name ]);
                   })((function () {
-                      var $38 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                      var $39 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                      return function ($40) {
-                          return $38($39($40));
+                      var $28 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                      var $29 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                      return function ($30) {
+                          return $28($29($30));
                       };
                   })())();
               }
           });
       });
   })();
-  var view = (function () {
-      var f = function (x) {
-          return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Foreign_Keys.keys(x))(function (keys$prime) {
-              return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Functor.map(Data_Functor.functorArray)(function (k) {
-                  return Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Foreign_Index.ix(Foreign_Index.indexableForeign)(Foreign_Index.indexString)(x)(k))(function (v) {
-                      return new Data_Tuple.Tuple(k, v);
-                  });
-              })(keys$prime)))(function (xs) {
-                  return Control_Bind.bind(Control_Monad_Except_Trans.bindExceptT(Data_Identity.monadIdentity))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(Data_Array.mapMaybe(function (v) {
-                      var v2 = Foreign.typeOf(v.value1);
-                      if (v2 === "string") {
-                          return Data_Maybe.Just.create(Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Foreign.readString(v.value1))(function (s) {
-                              return new Api_Pull.TelegramString({
-                                  key: v.value0,
-                                  value: s
-                              });
-                          }));
-                      };
-                      if (v2 === "number") {
-                          return Data_Maybe.Just.create(Data_Functor.mapFlipped(Control_Monad_Except_Trans.functorExceptT(Data_Identity.functorIdentity))(Foreign.readNumber(v.value1))(function (n) {
-                              return new Api_Pull.TelegramNum({
-                                  key: v.value0,
-                                  value: n
-                              });
-                          }));
-                      };
-                      return Data_Maybe.Nothing.value;
-                  })(xs)))(function (tds) {
-                      return Control_Applicative.pure(Control_Monad_Except_Trans.applicativeExceptT(Data_Identity.monadIdentity))(new Api_Pull.TelegramLogin({
-                          d: tds
-                      }));
-                  });
-              });
-          });
-      };
-      return function __do() {
-          var doc = Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.document)();
-          var elem = Web_DOM_NonElementParentNode.getElementById("container")(Web_HTML_HTMLDocument.toNonElementParentNode(doc))();
-          var container = Data_Maybe.maybe(Effect_Exception["throw"]("container not found"))(Control_Applicative.pure(Effect.applicativeEffect))(elem)();
-          var ws = Lib_WebSocket.create("ridehub.city/ws")();
-          Lib_WebSocket.onOpen(ws)(function (v) {
-              return Lib_WebSocket.setBinary(ws);
-          })();
-          var element = React.createLeafElement()(appClass)({
-              ws: ws
-          });
-          Data_Functor["void"](Effect.functorEffect)(ReactDOM.render(element)(container))();
-          return function (user) {
-              var v = Control_Monad_Except.runExcept(f(user));
-              if (v instanceof Data_Either.Left) {
-                  return Effect_Exception["throw"](Data_Show.show(Data_List_Types.showNonEmptyList(Foreign.showForeignError))(v.value0));
-              };
-              if (v instanceof Data_Either.Right) {
-                  return Lib_WebSocket.send(ws)(Api_Pull.encodePull(v.value0));
-              };
-              throw new Error("Failed pattern match at App (line 148, column 17 - line 151, column 34): " + [ v.constructor.name ]);
-          };
-      };
-  })();
+  var view = function __do() {
+      var doc = Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.document)();
+      var elem = Web_DOM_NonElementParentNode.getElementById("container")(Web_HTML_HTMLDocument.toNonElementParentNode(doc))();
+      var container = Data_Maybe.maybe(Effect_Exception["throw"]("container not found"))(Control_Applicative.pure(Effect.applicativeEffect))(elem)();
+      var ws = Lib_WebSocket.create("ridehub.city/ws")();
+      Lib_WebSocket.onOpen(ws)(function (v) {
+          return Lib_WebSocket.setBinary(ws);
+      })();
+      var element = React.createLeafElement()(appClass)({
+          ws: ws
+      });
+      return Data_Functor["void"](Effect.functorEffect)(ReactDOM.render(element)(container))();
+  };
   exports["HomeItem"] = HomeItem;
   exports["ViewItem"] = ViewItem;
   exports["AddItem"] = AddItem;

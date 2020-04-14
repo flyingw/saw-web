@@ -44,7 +44,7 @@ type Props =
   }
 
 type State =
-  { user :: Maybe UserInfo  
+  { user :: Maybe UserInfo
   , lang :: String
   , keyText :: String -> String
   , menuItem :: MenuItem
@@ -111,7 +111,8 @@ appClass = component "App" \this -> do
                 ul [ cn "navbar-nav ml-auto mr-2 nav-flex-icons" ]
                 [ li [ cn "nav-item avatar" ]
                   [ a [ cn "nav-link p-0", href "#" ]
-                    [ img [ src $ fromMaybe "" user.photo, cn "rounded-circle z-depth-0", height "35" ]
+                    [ img [ src $ fromMaybe "" user.photo, cn "rounded-circle z-depth-0 mr-1", height "35" ]
+                    , text $ fromMaybe user.username $ user.firstName <#> \fn -> fn <> " " <> (fromMaybe "" user.lastName)
                     ]
                   ]
                 ]
@@ -128,7 +129,7 @@ appClass = component "App" \this -> do
         ]
       , div [ cn "m-2"] $
           case state.menuItem of
-            HomeItem -> [ createLeafElement homeClass {ws: ws, lang: state.lang, keyText: state.keyText}
+            HomeItem -> [ createLeafElement homeClass {ws: ws, lang: state.lang, keyText: state.keyText, user: state.user}
                         ]
             ViewItem -> [ createLeafElement viewClass {ws: ws, lang: state.lang, keyText: state.keyText}
                         ]
@@ -136,7 +137,7 @@ appClass = component "App" \this -> do
                         ]
       ]
 
-view :: Effect (Foreign -> Effect Unit)
+view :: Effect Unit
 view = do
   doc <- window >>= document
   elem <- getElementById "container" $ toNonElementParentNode doc
@@ -145,19 +146,3 @@ view = do
   WS.onOpen ws \_ -> WS.setBinary ws
   let element = createLeafElement appClass { ws }
   void $ render element container
-  pure \user -> case runExcept $ f user of
-    Left x -> throw $ show x
-    Right msg -> do
-      WS.send ws $ encodePull msg
-  where
-  f :: Foreign -> F Pull
-  f x = do
-    keys'  <- F.keys x
-    xs     <- sequence $ map (\k -> x F.! k <#> \v -> Tuple k v) keys'
-    tds    <- sequence $ mapMaybe (\(Tuple k v) ->
-                case typeOf v of
-                  "string" -> Just $ readString v <#> \s -> TelegramString { key: k, value: s }
-                  "number" -> Just $ readNumber v <#> \n -> TelegramNum { key: k, value: n }
-                  _        -> Nothing
-              ) xs
-    pure $ TelegramLogin { d: tds }
