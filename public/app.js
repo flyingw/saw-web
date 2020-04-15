@@ -4629,6 +4629,7 @@ var PS = {};
   exports["AddDriver"] = AddDriver;
   exports["AddPassenger"] = AddPassenger;
   exports["GetFreeDrivers"] = GetFreeDrivers;
+  exports["GetFreePassengers"] = GetFreePassengers;
   exports["TelegramString"] = TelegramString;
   exports["TelegramNum"] = TelegramNum;
   exports["encodePull"] = encodePull;
@@ -6064,6 +6065,7 @@ var PS = {};
   exports["LoginOk"] = LoginOk;
   exports["AddRouteOk"] = AddRouteOk;
   exports["FreeDrivers"] = FreeDrivers;
+  exports["FreePassengers"] = FreePassengers;
   exports["decodePush"] = decodePush;
 })(PS);
 (function(exports) {
@@ -6525,6 +6527,7 @@ var PS = {};
   };                                                  
   var min = $foreign.unsafeMkProps("min");            
   var max = $foreign.unsafeMkProps("max");            
+  var key = $foreign.unsafeMkProps("key");            
   var htmlFor = $foreign.unsafeMkProps("htmlFor");  
   var href = $foreign.unsafeMkProps("href");    
   var height = $foreign.unsafeMkProps("height");  
@@ -6544,6 +6547,7 @@ var PS = {};
   exports["href"] = href;
   exports["htmlFor"] = htmlFor;
   exports["_id"] = _id;
+  exports["key"] = key;
   exports["max"] = max;
   exports["min"] = min;
   exports["placeholder"] = placeholder;
@@ -7161,12 +7165,6 @@ var PS = {};
   var select = mkDOM(false)("select");
   var small = mkDOM(false)("small");
   var span = mkDOM(false)("span");
-  var table = mkDOM(false)("table");
-  var tbody = mkDOM(false)("tbody");
-  var td = mkDOM(false)("td");  
-  var th = mkDOM(false)("th");
-  var thead = mkDOM(false)("thead");
-  var tr = mkDOM(false)("tr");
   var ul = mkDOM(false)("ul");
   var li = mkDOM(false)("li");    
   var label = mkDOM(false)("label");
@@ -7178,6 +7176,7 @@ var PS = {};
   };                        
   var iframe = mkDOM(false)("iframe");
   var h6 = mkDOM(false)("h6");
+  var form = mkDOM(false)("form");
   var div = mkDOM(false)("div");  
   var button = mkDOM(false)("button");
   var a = mkDOM(false)("a");
@@ -7185,6 +7184,7 @@ var PS = {};
   exports["a"] = a;
   exports["button"] = button;
   exports["div"] = div;
+  exports["form"] = form;
   exports["h6"] = h6;
   exports["iframe"] = iframe;
   exports["img"] = img;
@@ -7196,12 +7196,6 @@ var PS = {};
   exports["select"] = select;
   exports["small"] = small;
   exports["span"] = span;
-  exports["table"] = table;
-  exports["tbody"] = tbody;
-  exports["td"] = td;
-  exports["th"] = th;
-  exports["thead"] = thead;
-  exports["tr"] = tr;
   exports["ul"] = ul;
 })(PS);
 (function($PS) {
@@ -8858,17 +8852,17 @@ var PS = {};
 })(PS);
 (function($PS) {
   "use strict";
-  $PS["App.View"] = $PS["App.View"] || {};
-  var exports = $PS["App.View"];
+  $PS["App.View.Drivers"] = $PS["App.View.Drivers"] || {};
+  var exports = $PS["App.View.Drivers"];
   var Api_Pull = $PS["Api.Pull"];
   var Api_Push = $PS["Api.Push"];
   var Control_Applicative = $PS["Control.Applicative"];
   var Data_Array = $PS["Data.Array"];
   var Data_Either = $PS["Data.Either"];
-  var Data_Eq = $PS["Data.Eq"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_JSDate = $PS["Data.JSDate"];
   var Data_Maybe = $PS["Data.Maybe"];
+  var Data_Monoid = $PS["Data.Monoid"];
   var Data_Show = $PS["Data.Show"];
   var Data_Traversable = $PS["Data.Traversable"];
   var Data_Unit = $PS["Data.Unit"];
@@ -8878,6 +8872,258 @@ var PS = {};
   var Lib_React = $PS["Lib.React"];
   var Lib_WebSocket = $PS["Lib.WebSocket"];
   var Proto_Decode = $PS["Proto.Decode"];
+  var React = $PS["React"];
+  var React_DOM = $PS["React.DOM"];
+  var React_DOM_Props = $PS["React.DOM.Props"];                
+  var driversClass = (function () {
+      var handleMsg = function ($$this) {
+          return function (v) {
+              if (v instanceof Api_Push.FreeDrivers) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          date: v1.date,
+                          drivers: v.value0.freeDrivers,
+                          showItem: v1.showItem
+                      };
+                  });
+              };
+              return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
+          };
+      };
+      var fetchDrivers = function ($$this) {
+          return function __do() {
+              var p = React.getProps($$this)();
+              var s = React.getState($$this)();
+              var d = Data_JSDate.parse(s.date)();
+              return Lib_WebSocket.send(p.ws)(Api_Pull.encodePull(new Api_Pull.GetFreeDrivers({
+                  date: Data_JSDate.getTime(d)
+              })))();
+          };
+      };
+      var driversList = function ($$this) {
+          return function __do() {
+              var state = React.getState($$this)();
+              var props = React.getProps($$this)();
+              return Data_Functor.map(Effect.functorEffect)(React_DOM.div([ Lib_React.cn("list-group d-flex flex-column justify-content-center") ]))(Data_Functor.map(Effect.functorEffect)(Data_Array.catMaybes)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect)(Data_Functor.map(Data_Functor.functorArray)(function (di) {
+                  return function __do() {
+                      var t = Format.formatTime(Data_JSDate.fromTime(di.date))();
+                      return Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(Data_Array.head(di.routes))(function (route) {
+                          return React_DOM.div([ Lib_React.cn("list-group-item"), React_DOM_Props.key(di.id) ])([ React_DOM.div([ Lib_React.cn("d-flex flex-row mb-2") ])([ React_DOM.div([ Lib_React.cn("mr-3") ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(route.fromAddress) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(route.toAddress) ]) ]), React_DOM.div([  ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(t) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.a([ React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
+                              return React.modifyState($$this)(function (v1) {
+                                  return {
+                                      date: v1.date,
+                                      drivers: v1.drivers,
+                                      showItem: di.id
+                                  };
+                              });
+                          }) ])([ React_DOM.text(props.keyText("key.show_map")) ]) ]) ]) ]), (function () {
+                              var $10 = state.showItem === di.id;
+                              if ($10) {
+                                  var q = "https://www.google.com/maps/embed/v1/directions" + ("?origin=" + (route.fromAddress + ("&destination=" + (route.toAddress + ("&key=" + "AIzaSyAuq2lMfK8JPYK4-zYYw9Bl8SeTQrKJJeY")))));
+                                  return React_DOM.iframe([ React_DOM_Props.width("100%"), React_DOM_Props.height("400"), React_DOM_Props.frameBorder("0"), React_DOM_Props.src(q) ])([  ]);
+                              };
+                              return Data_Monoid.mempty(React.monoidReactElement);
+                          })() ]);
+                      });
+                  };
+              })(state.drivers))))();
+          };
+      };
+      var render = function ($$this) {
+          return function __do() {
+              var props = React.getProps($$this)();
+              var state = React.getState($$this)();
+              var dl = driversList($$this)();
+              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center row mb-3") ])([ React_DOM.form([ Lib_React.cn("form-inline my-2 my-lg-0") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control mr-sm-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          date: v,
+                          drivers: v1.drivers,
+                          showItem: v1.showItem
+                      };
+                  });
+              }) ]), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary my-2 my-sm-0"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+                  return fetchDrivers($$this);
+              }) ])([ React_DOM.text(props.keyText("key.search")) ]) ]) ]), dl ]);
+          };
+      };
+      return React.component()("View.Drivers")(function ($$this) {
+          return function __do() {
+              var date = Format.todayDateISO();
+              var props = React.getProps($$this)();
+              return {
+                  state: {
+                      date: date,
+                      drivers: [  ],
+                      showItem: ""
+                  },
+                  render: render($$this),
+                  componentDidMount: function __do() {
+                      var p = React.getProps($$this)();
+                      fetchDrivers($$this)();
+                      return Lib_WebSocket.onMsg(p.ws)(function (x) {
+                          var v = Api_Push.decodePush(x);
+                          if (v instanceof Data_Either.Left) {
+                              return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
+                          };
+                          if (v instanceof Data_Either.Right) {
+                              return handleMsg($$this)(v.value0.val);
+                          };
+                          throw new Error("Failed pattern match at App.View.Drivers (line 59, column 30 - line 61, column 46): " + [ v.constructor.name ]);
+                      })((function () {
+                          var $14 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $15 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($16) {
+                              return $14($15($16));
+                          };
+                      })())();
+                  }
+              };
+          };
+      });
+  })();
+  exports["driversClass"] = driversClass;
+})(PS);
+(function($PS) {
+  "use strict";
+  $PS["App.View.Riders"] = $PS["App.View.Riders"] || {};
+  var exports = $PS["App.View.Riders"];
+  var Api_Pull = $PS["Api.Pull"];
+  var Api_Push = $PS["Api.Push"];
+  var Control_Applicative = $PS["Control.Applicative"];
+  var Data_Either = $PS["Data.Either"];
+  var Data_Functor = $PS["Data.Functor"];
+  var Data_JSDate = $PS["Data.JSDate"];
+  var Data_Monoid = $PS["Data.Monoid"];
+  var Data_Show = $PS["Data.Show"];
+  var Data_Traversable = $PS["Data.Traversable"];
+  var Data_Unit = $PS["Data.Unit"];
+  var Effect = $PS["Effect"];
+  var Effect_Console = $PS["Effect.Console"];
+  var Format = $PS["Format"];
+  var Lib_React = $PS["Lib.React"];
+  var Lib_WebSocket = $PS["Lib.WebSocket"];
+  var Proto_Decode = $PS["Proto.Decode"];
+  var React = $PS["React"];
+  var React_DOM = $PS["React.DOM"];
+  var React_DOM_Props = $PS["React.DOM.Props"];                
+  var ridersClass = (function () {
+      var passengersList = function ($$this) {
+          return function __do() {
+              var state = React.getState($$this)();
+              var props = React.getProps($$this)();
+              return Data_Functor.map(Effect.functorEffect)(React_DOM.div([ Lib_React.cn("list-group d-flex flex-column justify-content-center") ]))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect)(Data_Functor.map(Data_Functor.functorArray)(function (pi) {
+                  return function __do() {
+                      var t = Format.formatTime(Data_JSDate.fromTime(pi.date))();
+                      return React_DOM.div([ Lib_React.cn("list-group-item"), React_DOM_Props.key(pi.id) ])([ React_DOM.div([ Lib_React.cn("d-flex flex-row mb-2") ])([ React_DOM.div([ Lib_React.cn("mr-3") ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(pi.fromAddress) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(pi.toAddress) ]) ]), React_DOM.div([  ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(t) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.a([ React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
+                          return React.modifyState($$this)(function (v1) {
+                              return {
+                                  date: v1.date,
+                                  passengers: v1.passengers,
+                                  showItem: pi.id
+                              };
+                          });
+                      }) ])([ React_DOM.text(props.keyText("key.show_map")) ]) ]) ]) ]), (function () {
+                          var $7 = state.showItem === pi.id;
+                          if ($7) {
+                              var q = "https://www.google.com/maps/embed/v1/directions" + ("?origin=" + (pi.fromAddress + ("&destination=" + (pi.toAddress + ("&key=" + "AIzaSyAuq2lMfK8JPYK4-zYYw9Bl8SeTQrKJJeY")))));
+                              return React_DOM.iframe([ React_DOM_Props.width("100%"), React_DOM_Props.height("400"), React_DOM_Props.frameBorder("0"), React_DOM_Props.src(q) ])([  ]);
+                          };
+                          return Data_Monoid.mempty(React.monoidReactElement);
+                      })() ]);
+                  };
+              })(state.passengers)))();
+          };
+      };
+      var handleMsg = function ($$this) {
+          return function (v) {
+              if (v instanceof Api_Push.FreePassengers) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          date: v1.date,
+                          passengers: v.value0.freePassengers,
+                          showItem: v1.showItem
+                      };
+                  });
+              };
+              return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
+          };
+      };
+      var fetchPassengers = function ($$this) {
+          return function __do() {
+              var p = React.getProps($$this)();
+              var s = React.getState($$this)();
+              var d = Data_JSDate.parse(s.date)();
+              return Lib_WebSocket.send(p.ws)(Api_Pull.encodePull(new Api_Pull.GetFreePassengers({
+                  date: Data_JSDate.getTime(d)
+              })))();
+          };
+      };
+      var render = function ($$this) {
+          return function __do() {
+              var props = React.getProps($$this)();
+              var state = React.getState($$this)();
+              var dl = passengersList($$this)();
+              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center row mb-3") ])([ React_DOM.form([ Lib_React.cn("form-inline my-2 my-lg-0") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control mr-sm-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          date: v,
+                          passengers: v1.passengers,
+                          showItem: v1.showItem
+                      };
+                  });
+              }) ]), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary my-2 my-sm-0"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+                  return fetchPassengers($$this);
+              }) ])([ React_DOM.text(props.keyText("key.search")) ]) ]) ]), dl ]);
+          };
+      };
+      return React.component()("View.Passengers")(function ($$this) {
+          return function __do() {
+              var date = Format.todayDateISO();
+              var props = React.getProps($$this)();
+              return {
+                  state: {
+                      date: date,
+                      passengers: [  ],
+                      showItem: ""
+                  },
+                  render: render($$this),
+                  componentDidMount: function __do() {
+                      var p = React.getProps($$this)();
+                      fetchPassengers($$this)();
+                      return Lib_WebSocket.onMsg(p.ws)(function (x) {
+                          var v = Api_Push.decodePush(x);
+                          if (v instanceof Data_Either.Left) {
+                              return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
+                          };
+                          if (v instanceof Data_Either.Right) {
+                              return handleMsg($$this)(v.value0.val);
+                          };
+                          throw new Error("Failed pattern match at App.View.Riders (line 59, column 30 - line 61, column 46): " + [ v.constructor.name ]);
+                      })((function () {
+                          var $14 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $15 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($16) {
+                              return $14($15($16));
+                          };
+                      })())();
+                  }
+              };
+          };
+      });
+  })();
+  exports["ridersClass"] = ridersClass;
+})(PS);
+(function($PS) {
+  "use strict";
+  $PS["App.View"] = $PS["App.View"] || {};
+  var exports = $PS["App.View"];
+  var App_View_Drivers = $PS["App.View.Drivers"];
+  var App_View_Riders = $PS["App.View.Riders"];
+  var Data_Eq = $PS["Data.Eq"];
+  var Data_Functor = $PS["Data.Functor"];
+  var Format = $PS["Format"];
+  var Lib_React = $PS["Lib.React"];
   var React = $PS["React"];
   var React_DOM = $PS["React.DOM"];
   var React_DOM_Props = $PS["React.DOM.Props"];
@@ -8903,7 +9149,7 @@ var PS = {};
       if (v instanceof ViewP) {
           return "key.passengers";
       };
-      throw new Error("Failed pattern match at App.View (line 48, column 1 - line 48, column 24): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at App.View (line 47, column 1 - line 47, column 24): " + [ v.constructor.name ]);
   };
   var eqTab = new Data_Eq.Eq(function (x) {
       return function (y) {
@@ -8917,49 +9163,14 @@ var PS = {};
       };
   });
   var viewClass = (function () {
-      var handleMsg = function ($$this) {
-          return function (v) {
-              if (v instanceof Api_Push.FreeDrivers) {
-                  return React.modifyState($$this)(function (v1) {
-                      return {
-                          tab: v1.tab,
-                          date: v1.date,
-                          drivers: v.value0.freeDrivers
-                      };
-                  });
-              };
-              return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
-          };
-      };
-      var fetchDrivers = function ($$this) {
-          return function __do() {
-              var p = React.getProps($$this)();
-              var s = React.getState($$this)();
-              var d = Data_JSDate.parse(s.date)();
-              return Lib_WebSocket.send(p.ws)(Api_Pull.encodePull(new Api_Pull.GetFreeDrivers({
-                  date: Data_JSDate.getTime(d)
-              })))();
-          };
-      };
-      var driversList = function (drivers) {
-          return Data_Functor.map(Effect.functorEffect)(Data_Array.catMaybes)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect)(Data_Functor.map(Data_Functor.functorArray)(function (di) {
-              return function __do() {
-                  var t = Format.formatTime(Data_JSDate.fromTime(di.date))();
-                  return Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(Data_Array.head(di.routes))(function (route) {
-                      return React_DOM.tr([  ])([ React_DOM.td([  ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(route.fromAddress) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(route.toAddress) ]) ]), React_DOM.td([  ])([ React_DOM.text(t) ]) ]);
-                  });
-              };
-          })(drivers)));
-      };
       var render = function ($$this) {
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              var dl = driversList(state.drivers)();
               return React_DOM.div([  ])([ React_DOM.ul([ Lib_React.cn("nav nav-pills nav-pills-primary justify-content-center") ])(Data_Functor.map(Data_Functor.functorArray)(function (t) {
                   return React_DOM.li([  ])([ React_DOM.a([ Lib_React.cn("nav-link" + (function () {
-                      var $16 = Data_Eq.eq(eqTab)(t)(state.tab);
-                      if ($16) {
+                      var $8 = Data_Eq.eq(eqTab)(t)(state.tab);
+                      if ($8) {
                           return " active";
                       };
                       return "";
@@ -8968,31 +9179,19 @@ var PS = {};
                           var v = React_SyntheticEvent.preventDefault(e)();
                           return React.modifyState($$this)(function (v1) {
                               return {
-                                  tab: t,
-                                  date: v1.date,
-                                  drivers: v1.drivers
+                                  tab: t
                               };
                           })();
                       };
                   }) ])([ React_DOM.text(props.keyText(tabKey(t))) ]) ]);
               })([ ViewD.value, ViewP.value ])), (function () {
                   if (state.tab instanceof ViewD) {
-                      return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("row") ])([ React_DOM.div([ Lib_React.cn("input-group mb-3 col-md-6") ])([ React_DOM.div([ Lib_React.cn("input-group-prepend") ])([ React_DOM.span([ Lib_React.cn("input-group-text") ])([ React_DOM.text(props.keyText("key.date")) ]) ]), React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
-                          return React.modifyState($$this)(function (v1) {
-                              return {
-                                  tab: v1.tab,
-                                  date: v,
-                                  drivers: v1.drivers
-                              };
-                          });
-                      }) ]), React_DOM.div([ Lib_React.cn("input-group-append") ])([ React_DOM.button([ Lib_React.cn("btn btn-outline-secondary"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
-                          return fetchDrivers($$this);
-                      }) ])([ React_DOM.text(props.keyText("key.search")) ]) ]) ]) ]), React_DOM.div([ Lib_React.cn("row") ])([ React_DOM.table([ Lib_React.cn("table table-borderless table-hover col-md-6") ])([ React_DOM.thead([  ])([ React_DOM.tr([  ])([ React_DOM.th([  ])([ React_DOM.text(props.keyText("key.address")) ]), React_DOM.th([  ])([ React_DOM.text(props.keyText("key.time")) ]) ]) ]), React_DOM.tbody([  ])(dl) ]) ]) ]);
+                      return React.createLeafElement()(App_View_Drivers.driversClass)(props);
                   };
                   if (state.tab instanceof ViewP) {
-                      return React_DOM.text("2");
+                      return React.createLeafElement()(App_View_Riders.ridersClass)(props);
                   };
-                  throw new Error("Failed pattern match at App.View (line 118, column 9 - line 153, column 28): " + [ state.tab.constructor.name ]);
+                  throw new Error("Failed pattern match at App.View (line 77, column 9 - line 79, column 55): " + [ state.tab.constructor.name ]);
               })() ]);
           };
       };
@@ -9002,31 +9201,9 @@ var PS = {};
               var props = React.getProps($$this)();
               return {
                   state: {
-                      tab: ViewD.value,
-                      date: date,
-                      drivers: [  ]
+                      tab: ViewD.value
                   },
-                  render: render($$this),
-                  componentDidMount: function __do() {
-                      var p = React.getProps($$this)();
-                      fetchDrivers($$this)();
-                      return Lib_WebSocket.onMsg(p.ws)(function (x) {
-                          var v = Api_Push.decodePush(x);
-                          if (v instanceof Data_Either.Left) {
-                              return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
-                          };
-                          if (v instanceof Data_Either.Right) {
-                              return handleMsg($$this)(v.value0.val);
-                          };
-                          throw new Error("Failed pattern match at App.View (line 66, column 30 - line 68, column 46): " + [ v.constructor.name ]);
-                      })((function () {
-                          var $21 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $22 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($23) {
-                              return $21($22($23));
-                          };
-                      })())();
-                  }
+                  render: render($$this)
               };
           };
       });
