@@ -96,6 +96,20 @@ var PS = {};
     };
   }();
 })(PS["Affjax"] = PS["Affjax"] || {});
+(function($PS) {
+  "use strict";
+  $PS["Control.Alt"] = $PS["Control.Alt"] || {};
+  var exports = $PS["Control.Alt"];                          
+  var Alt = function (Functor0, alt) {
+      this.Functor0 = Functor0;
+      this.alt = alt;
+  };                                                       
+  var alt = function (dict) {
+      return dict.alt;
+  };
+  exports["Alt"] = Alt;
+  exports["alt"] = alt;
+})(PS);
 (function(exports) {
   "use strict";
 
@@ -338,6 +352,7 @@ var PS = {};
   "use strict";
   $PS["Data.Maybe"] = $PS["Data.Maybe"] || {};
   var exports = $PS["Data.Maybe"];
+  var Control_Alt = $PS["Control.Alt"];
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Apply = $PS["Control.Apply"];
   var Control_Bind = $PS["Control.Bind"];
@@ -372,8 +387,7 @@ var PS = {};
               throw new Error("Failed pattern match at Data.Maybe (line 217, column 1 - line 217, column 51): " + [ v.constructor.name, v1.constructor.name, v2.constructor.name ]);
           };
       };
-  };
-  var isNothing = maybe(true)(Data_Function["const"](false));
+  };                                                         
   var isJust = maybe(false)(Data_Function["const"](true));
   var functorMaybe = new Data_Functor.Functor(function (v) {
       return function (v1) {
@@ -423,16 +437,26 @@ var PS = {};
   var applicativeMaybe = new Control_Applicative.Applicative(function () {
       return applyMaybe;
   }, Just.create);
+  var altMaybe = new Control_Alt.Alt(function () {
+      return functorMaybe;
+  }, function (v) {
+      return function (v1) {
+          if (v instanceof Nothing) {
+              return v1;
+          };
+          return v;
+      };
+  });
   exports["Nothing"] = Nothing;
   exports["Just"] = Just;
   exports["maybe"] = maybe;
   exports["fromMaybe"] = fromMaybe;
   exports["isJust"] = isJust;
-  exports["isNothing"] = isNothing;
   exports["fromJust"] = fromJust;
   exports["functorMaybe"] = functorMaybe;
   exports["applyMaybe"] = applyMaybe;
   exports["applicativeMaybe"] = applicativeMaybe;
+  exports["altMaybe"] = altMaybe;
   exports["bindMaybe"] = bindMaybe;
 })(PS);
 (function($PS) {
@@ -1330,14 +1354,6 @@ var PS = {};
   })();
 
   //------------------------------------------------------------------------------
-  // Array size ------------------------------------------------------------------
-  //------------------------------------------------------------------------------
-
-  exports.length = function (xs) {
-    return xs.length;
-  };
-
-  //------------------------------------------------------------------------------
   // Extending arrays ------------------------------------------------------------
   //------------------------------------------------------------------------------
 
@@ -1352,6 +1368,20 @@ var PS = {};
       var l1 = l.slice();
       l1.push(e);
       return l1;
+    };
+  };
+
+  //------------------------------------------------------------------------------
+  // Indexed operations ----------------------------------------------------------
+  //------------------------------------------------------------------------------
+
+  exports.indexImpl = function (just) {
+    return function (nothing) {
+      return function (xs) {
+        return function (i) {
+          return i < 0 || i >= xs.length ? nothing :  just(xs[i]);
+        };
+      };
     };
   };
 
@@ -1401,8 +1431,7 @@ var PS = {};
       return r1 === r2;
     };
   };                            
-  exports.eqIntImpl = refEq;   
-  exports.eqCharImpl = refEq;
+  exports.eqIntImpl = refEq; 
   exports.eqStringImpl = refEq;
 })(PS["Data.Eq"] = PS["Data.Eq"] || {});
 (function($PS) {
@@ -1415,14 +1444,12 @@ var PS = {};
   }; 
   var eqString = new Eq($foreign.eqStringImpl);
   var eqInt = new Eq($foreign.eqIntImpl);
-  var eqChar = new Eq($foreign.eqCharImpl);
   var eq = function (dict) {
       return dict.eq;
   };
   exports["Eq"] = Eq;
   exports["eq"] = eq;
   exports["eqInt"] = eqInt;
-  exports["eqChar"] = eqChar;
   exports["eqString"] = eqString;
 })(PS);
 (function(exports) {
@@ -1548,12 +1575,17 @@ var PS = {};
   var exports = $PS["Data.Array"];
   var $foreign = $PS["Data.Array"];
   var Control_Bind = $PS["Control.Bind"];
+  var Control_Category = $PS["Control.Category"];
   var Data_Eq = $PS["Data.Eq"];
   var Data_Foldable = $PS["Data.Foldable"];
   var Data_Function = $PS["Data.Function"];
   var Data_Maybe = $PS["Data.Maybe"];
   var singleton = function (a) {
       return [ a ];
+  };
+  var index = $foreign.indexImpl(Data_Maybe.Just.create)(Data_Maybe.Nothing.value);
+  var head = function (xs) {
+      return index(xs)(0);
   };
   var fromFoldable = function (dictFoldable) {
       return $foreign.fromFoldableImpl(Data_Foldable.foldr(dictFoldable));
@@ -1584,12 +1616,14 @@ var PS = {};
           };
       })());
   };
+  var catMaybes = mapMaybe(Control_Category.identity(Control_Category.categoryFn));
   exports["fromFoldable"] = fromFoldable;
   exports["singleton"] = singleton;
+  exports["head"] = head;
   exports["concatMap"] = concatMap;
   exports["mapMaybe"] = mapMaybe;
+  exports["catMaybes"] = catMaybes;
   exports["delete"] = $$delete;
-  exports["length"] = $foreign.length;
   exports["cons"] = $foreign.cons;
   exports["snoc"] = $foreign.snoc;
   exports["take"] = $foreign.take;
@@ -1721,7 +1755,9 @@ var PS = {};
 })(PS);
 (function(exports) {
   /* globals exports */
-  "use strict";                                      
+  "use strict";         
+
+  exports.infinity = Infinity;                       
 
   var encdecURI = function (encdec) {
     return function (fail, succ, s) {
@@ -1751,6 +1787,7 @@ var PS = {};
   };
   exports["encodeURI"] = $$encodeURI;
   exports["encodeURIComponent"] = $$encodeURIComponent;
+  exports["infinity"] = $foreign.infinity;
 })(PS);
 (function($PS) {
   "use strict";
@@ -2011,16 +2048,6 @@ var PS = {};
   var print = Data_Either.either(Data_Show.show(showMethod))(unCustomMethod);
   exports["GET"] = GET;
   exports["print"] = print;
-})(PS);
-(function($PS) {
-  "use strict";
-  $PS["Control.Alt"] = $PS["Control.Alt"] || {};
-  var exports = $PS["Control.Alt"];                          
-  var Alt = function (Functor0, alt) {
-      this.Functor0 = Functor0;
-      this.alt = alt;
-  };
-  exports["Alt"] = Alt;
 })(PS);
 (function($PS) {
   "use strict";
@@ -4601,6 +4628,7 @@ var PS = {};
   exports["TelegramLogin"] = TelegramLogin;
   exports["AddDriver"] = AddDriver;
   exports["AddPassenger"] = AddPassenger;
+  exports["GetFreeDrivers"] = GetFreeDrivers;
   exports["TelegramString"] = TelegramString;
   exports["TelegramNum"] = TelegramNum;
   exports["encodePull"] = encodePull;
@@ -5452,7 +5480,7 @@ var PS = {};
                                   });
                               };
                               if (v1 === 6) {
-                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                  return decodeFieldLoop(end)(Proto_Decode["double"](_xs_)(v.pos))(function (val) {
                                       return {
                                           date: new Data_Maybe.Just(val),
                                           id: acc.id,
@@ -5572,7 +5600,7 @@ var PS = {};
                                   });
                               };
                               if (v1 === 5) {
-                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                  return decodeFieldLoop(end)(Proto_Decode["double"](_xs_)(v.pos))(function (val) {
                                       return {
                                           date: new Data_Maybe.Just(val),
                                           fromAddress: acc.fromAddress,
@@ -6035,6 +6063,7 @@ var PS = {};
   };
   exports["LoginOk"] = LoginOk;
   exports["AddRouteOk"] = AddRouteOk;
+  exports["FreeDrivers"] = FreeDrivers;
   exports["decodePush"] = decodePush;
 })(PS);
 (function(exports) {
@@ -6060,83 +6089,121 @@ var PS = {};
       return new Date(dateString);
     };
   };
+
+  exports.fromTime = function (time) {
+    return new Date(time);
+  };
 })(PS["Data.JSDate"] = PS["Data.JSDate"] || {});
 (function($PS) {
   "use strict";
   $PS["Data.JSDate"] = $PS["Data.JSDate"] || {};
   var exports = $PS["Data.JSDate"];
-  var $foreign = $PS["Data.JSDate"];                                           
-  var toISOString = function (dt) {
-      return $foreign.dateMethodEff("toISOString", dt);
-  };
+  var $foreign = $PS["Data.JSDate"];
   var getTime = function (dt) {
       return $foreign.dateMethod("getTime", dt);
+  }; 
+  var getSeconds = function (dt) {
+      return $foreign.dateMethodEff("getSeconds", dt);
+  };
+  var getMonth = function (dt) {
+      return $foreign.dateMethodEff("getMonth", dt);
+  };
+  var getMinutes = function (dt) {
+      return $foreign.dateMethodEff("getMinutes", dt);
+  };
+  var getHours = function (dt) {
+      return $foreign.dateMethodEff("getHours", dt);
+  };
+  var getFullYear = function (dt) {
+      return $foreign.dateMethodEff("getFullYear", dt);
+  };
+  var getDate = function (dt) {
+      return $foreign.dateMethodEff("getDate", dt);
   };
   exports["getTime"] = getTime;
-  exports["toISOString"] = toISOString;
+  exports["getDate"] = getDate;
+  exports["getFullYear"] = getFullYear;
+  exports["getHours"] = getHours;
+  exports["getMinutes"] = getMinutes;
+  exports["getMonth"] = getMonth;
+  exports["getSeconds"] = getSeconds;
   exports["now"] = $foreign.now;
   exports["parse"] = $foreign.parse;
+  exports["fromTime"] = $foreign.fromTime;
 })(PS);
 (function(exports) {
   "use strict";
-  /* global Symbol */
 
-  var hasArrayFrom = typeof Array.from === "function";
-  var hasStringIterator =
-    typeof Symbol !== "undefined" &&
-    Symbol != null &&
-    typeof Symbol.iterator !== "undefined" &&
-    typeof String.prototype[Symbol.iterator] === "function";
-  var hasFromCodePoint = typeof String.prototype.fromCodePoint === "function";
-  var hasCodePointAt = typeof String.prototype.codePointAt === "function";
+  exports.error = function (s) {
+    return function () {
+      console.error(s);
+      return {};
+    };
+  };
+})(PS["Effect.Console"] = PS["Effect.Console"] || {});
+(function($PS) {
+  "use strict";
+  $PS["Effect.Console"] = $PS["Effect.Console"] || {};
+  var exports = $PS["Effect.Console"];
+  var $foreign = $PS["Effect.Console"];
+  exports["error"] = $foreign.error;
+})(PS);
+(function(exports) {
+  "use strict";
 
-  exports._unsafeCodePointAt0 = function (fallback) {
-    return hasCodePointAt
-      ? function (str) { return str.codePointAt(0); }
-      : fallback;
+  exports.toLocaleTimeString = function(date) {
+    return function () {
+      return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    };
+  };
+})(PS["Format"] = PS["Format"] || {});
+(function(exports) {
+  "use strict";
+
+  exports.fromNumberImpl = function (just) {
+    return function (nothing) {
+      return function (n) {
+        /* jshint bitwise: false */
+        return (n | 0) === n ? just(n) : nothing;
+      };
+    };
   };
 
-  exports._singleton = function (fallback) {
-    return hasFromCodePoint ? String.fromCodePoint : fallback;
+  exports.toNumber = function (n) {
+    return n;
   };
 
-  exports._take = function (fallback) {
-    return function (n) {
-      if (hasStringIterator) {
-        return function (str) {
-          var accum = "";
-          var iter = str[Symbol.iterator]();
-          for (var i = 0; i < n; ++i) {
-            var o = iter.next();
-            if (o.done) return accum;
-            accum += o.value;
+  exports.fromStringAsImpl = function (just) {
+    return function (nothing) {
+      return function (radix) {
+        var digits;
+        if (radix < 11) {
+          digits = "[0-" + (radix - 1).toString() + "]";
+        } else if (radix === 11) {
+          digits = "[0-9a]";
+        } else {
+          digits = "[0-9a-" + String.fromCharCode(86 + radix) + "]";
+        }
+        var pattern = new RegExp("^[\\+\\-]?" + digits + "+$", "i");
+
+        return function (s) {
+          /* jshint bitwise: false */
+          if (pattern.test(s)) {
+            var i = parseInt(s, radix);
+            return (i | 0) === i ? just(i) : nothing;
+          } else {
+            return nothing;
           }
-          return accum;
         };
-      }
-      return fallback(n);
+      };
     };
   };
-
-  exports._toCodePointArray = function (fallback) {
-    return function (unsafeCodePointAt0) {
-      if (hasArrayFrom) {
-        return function (str) {
-          return Array.from(str, unsafeCodePointAt0);
-        };
-      }
-      return fallback;
-    };
-  };
-})(PS["Data.String.CodePoints"] = PS["Data.String.CodePoints"] || {});
+})(PS["Data.Int"] = PS["Data.Int"] || {});
 (function(exports) {
   "use strict";
 
   exports.topInt = 2147483647;
   exports.bottomInt = -2147483648;
-
-  exports.topChar = String.fromCharCode(65535);
-  exports.bottomChar = String.fromCharCode(0);
 })(PS["Data.Bounded"] = PS["Data.Bounded"] || {});
 (function(exports) {
   "use strict";
@@ -6154,7 +6221,6 @@ var PS = {};
   };                                         
   exports.ordIntImpl = unsafeCompareImpl;   
   exports.ordStringImpl = unsafeCompareImpl;
-  exports.ordCharImpl = unsafeCompareImpl;
 })(PS["Data.Ord"] = PS["Data.Ord"] || {});
 (function($PS) {
   "use strict";
@@ -6202,9 +6268,6 @@ var PS = {};
   var ordInt = new Ord(function () {
       return Data_Eq.eqInt;
   }, $foreign.ordIntImpl(Data_Ordering.LT.value)(Data_Ordering.EQ.value)(Data_Ordering.GT.value));
-  var ordChar = new Ord(function () {
-      return Data_Eq.eqChar;
-  }, $foreign.ordCharImpl(Data_Ordering.LT.value)(Data_Ordering.EQ.value)(Data_Ordering.GT.value));
   var compare = function (dict) {
       return dict.compare;
   };
@@ -6212,7 +6275,6 @@ var PS = {};
   exports["compare"] = compare;
   exports["ordInt"] = ordInt;
   exports["ordString"] = ordString;
-  exports["ordChar"] = ordChar;
 })(PS);
 (function($PS) {
   "use strict";
@@ -6231,505 +6293,110 @@ var PS = {};
   var boundedInt = new Bounded(function () {
       return Data_Ord.ordInt;
   }, $foreign.bottomInt, $foreign.topInt);
-  var boundedChar = new Bounded(function () {
-      return Data_Ord.ordChar;
-  }, $foreign.bottomChar, $foreign.topChar);
   var bottom = function (dict) {
       return dict.bottom;
   };
   exports["bottom"] = bottom;
   exports["top"] = top;
   exports["boundedInt"] = boundedInt;
-  exports["boundedChar"] = boundedChar;
 })(PS);
 (function(exports) {
-  "use strict";
+  "use strict";          
 
-  exports.toCharCode = function (c) {
-    return c.charCodeAt(0);
-  };
-
-  exports.fromCharCode = function (c) {
-    return String.fromCharCode(c);
-  };
-})(PS["Data.Enum"] = PS["Data.Enum"] || {});
+  exports.floor = Math.floor;
+})(PS["Math"] = PS["Math"] || {});
 (function($PS) {
   "use strict";
-  $PS["Data.Enum"] = $PS["Data.Enum"] || {};
-  var exports = $PS["Data.Enum"];
-  var $foreign = $PS["Data.Enum"];
+  $PS["Math"] = $PS["Math"] || {};
+  var exports = $PS["Math"];
+  var $foreign = $PS["Math"];
+  exports["floor"] = $foreign.floor;
+})(PS);
+(function($PS) {
+  "use strict";
+  $PS["Data.Int"] = $PS["Data.Int"] || {};
+  var exports = $PS["Data.Int"];
+  var $foreign = $PS["Data.Int"];
+  var Data_Boolean = $PS["Data.Boolean"];
   var Data_Bounded = $PS["Data.Bounded"];
   var Data_Maybe = $PS["Data.Maybe"];
-  var Data_Ord = $PS["Data.Ord"];
-  var Enum = function (Ord0, pred, succ) {
-      this.Ord0 = Ord0;
-      this.pred = pred;
-      this.succ = succ;
-  };
-  var BoundedEnum = function (Bounded0, Enum1, cardinality, fromEnum, toEnum) {
-      this.Bounded0 = Bounded0;
-      this.Enum1 = Enum1;
-      this.cardinality = cardinality;
-      this.fromEnum = fromEnum;
-      this.toEnum = toEnum;
-  };
-  var toEnum = function (dict) {
-      return dict.toEnum;
-  };              
-  var fromEnum = function (dict) {
-      return dict.fromEnum;
-  };
-  var toEnumWithDefaults = function (dictBoundedEnum) {
-      return function (low) {
-          return function (high) {
-              return function (x) {
-                  var v = toEnum(dictBoundedEnum)(x);
-                  if (v instanceof Data_Maybe.Just) {
-                      return v.value0;
-                  };
-                  if (v instanceof Data_Maybe.Nothing) {
-                      var $54 = x < fromEnum(dictBoundedEnum)(Data_Bounded.bottom(dictBoundedEnum.Bounded0()));
-                      if ($54) {
-                          return low;
-                      };
-                      return high;
-                  };
-                  throw new Error("Failed pattern match at Data.Enum (line 158, column 33 - line 160, column 62): " + [ v.constructor.name ]);
-              };
-          };
+  var Global = $PS["Global"];
+  var $$Math = $PS["Math"];
+  var fromStringAs = $foreign.fromStringAsImpl(Data_Maybe.Just.create)(Data_Maybe.Nothing.value);
+  var fromString = fromStringAs(10);
+  var fromNumber = $foreign.fromNumberImpl(Data_Maybe.Just.create)(Data_Maybe.Nothing.value);
+  var unsafeClamp = function (x) {
+      if (x === Global.infinity) {
+          return 0;
       };
-  };
-  var defaultSucc = function (toEnum$prime) {
-      return function (fromEnum$prime) {
-          return function (a) {
-              return toEnum$prime(fromEnum$prime(a) + 1 | 0);
-          };
+      if (x === -Global.infinity) {
+          return 0;
       };
-  };
-  var defaultPred = function (toEnum$prime) {
-      return function (fromEnum$prime) {
-          return function (a) {
-              return toEnum$prime(fromEnum$prime(a) - 1 | 0);
-          };
+      if (x >= $foreign.toNumber(Data_Bounded.top(Data_Bounded.boundedInt))) {
+          return Data_Bounded.top(Data_Bounded.boundedInt);
       };
-  };
-  var charToEnum = function (v) {
-      if (v >= Data_Bounded.bottom(Data_Bounded.boundedInt) && v <= Data_Bounded.top(Data_Bounded.boundedInt)) {
-          return new Data_Maybe.Just($foreign.fromCharCode(v));
+      if (x <= $foreign.toNumber(Data_Bounded.bottom(Data_Bounded.boundedInt))) {
+          return Data_Bounded.bottom(Data_Bounded.boundedInt);
       };
-      return Data_Maybe.Nothing.value;
-  };
-  var enumChar = new Enum(function () {
-      return Data_Ord.ordChar;
-  }, defaultPred(charToEnum)($foreign.toCharCode), defaultSucc(charToEnum)($foreign.toCharCode));
-  var boundedEnumChar = new BoundedEnum(function () {
-      return Data_Bounded.boundedChar;
-  }, function () {
-      return enumChar;
-  }, $foreign.toCharCode(Data_Bounded.top(Data_Bounded.boundedChar)) - $foreign.toCharCode(Data_Bounded.bottom(Data_Bounded.boundedChar)) | 0, $foreign.toCharCode, charToEnum);
-  exports["fromEnum"] = fromEnum;
-  exports["toEnumWithDefaults"] = toEnumWithDefaults;
-  exports["boundedEnumChar"] = boundedEnumChar;
-})(PS);
-(function(exports) {
-  "use strict";
-
-  exports.intDegree = function (x) {
-    return Math.min(Math.abs(x), 2147483647);
-  };
-
-  // See the Euclidean definition in
-  // https://en.m.wikipedia.org/wiki/Modulo_operation.
-  exports.intDiv = function (x) {
-    return function (y) {
-      if (y === 0) return 0;
-      return y > 0 ? Math.floor(x / y) : -Math.floor(x / -y);
-    };
-  };
-
-  exports.intMod = function (x) {
-    return function (y) {
-      if (y === 0) return 0;
-      var yy = Math.abs(y);
-      return ((x % yy) + yy) % yy;
-    };
-  };
-})(PS["Data.EuclideanRing"] = PS["Data.EuclideanRing"] || {});
-(function(exports) {
-  "use strict";
-
-  exports.intSub = function (x) {
-    return function (y) {
-      /* jshint bitwise: false */
-      return x - y | 0;
-    };
-  };
-})(PS["Data.Ring"] = PS["Data.Ring"] || {});
-(function(exports) {
-  "use strict";
-
-  exports.intAdd = function (x) {
-    return function (y) {
-      /* jshint bitwise: false */
-      return x + y | 0;
-    };
-  };
-
-  exports.intMul = function (x) {
-    return function (y) {
-      /* jshint bitwise: false */
-      return x * y | 0;
-    };
-  };
-})(PS["Data.Semiring"] = PS["Data.Semiring"] || {});
-(function($PS) {
-  "use strict";
-  $PS["Data.Semiring"] = $PS["Data.Semiring"] || {};
-  var exports = $PS["Data.Semiring"];
-  var $foreign = $PS["Data.Semiring"];
-  var Semiring = function (add, mul, one, zero) {
-      this.add = add;
-      this.mul = mul;
-      this.one = one;
-      this.zero = zero;
-  };                                                                            
-  var semiringInt = new Semiring($foreign.intAdd, $foreign.intMul, 1, 0);
-  exports["semiringInt"] = semiringInt;
-})(PS);
-(function($PS) {
-  "use strict";
-  $PS["Data.Ring"] = $PS["Data.Ring"] || {};
-  var exports = $PS["Data.Ring"];
-  var $foreign = $PS["Data.Ring"];
-  var Data_Semiring = $PS["Data.Semiring"];
-  var Ring = function (Semiring0, sub) {
-      this.Semiring0 = Semiring0;
-      this.sub = sub;
-  };                  
-  var ringInt = new Ring(function () {
-      return Data_Semiring.semiringInt;
-  }, $foreign.intSub);
-  exports["ringInt"] = ringInt;
-})(PS);
-(function($PS) {
-  "use strict";
-  $PS["Data.CommutativeRing"] = $PS["Data.CommutativeRing"] || {};
-  var exports = $PS["Data.CommutativeRing"];
-  var Data_Ring = $PS["Data.Ring"];
-  var CommutativeRing = function (Ring0) {
-      this.Ring0 = Ring0;
-  }; 
-  var commutativeRingInt = new CommutativeRing(function () {
-      return Data_Ring.ringInt;
-  });
-  exports["commutativeRingInt"] = commutativeRingInt;
-})(PS);
-(function($PS) {
-  "use strict";
-  $PS["Data.EuclideanRing"] = $PS["Data.EuclideanRing"] || {};
-  var exports = $PS["Data.EuclideanRing"];
-  var $foreign = $PS["Data.EuclideanRing"];
-  var Data_CommutativeRing = $PS["Data.CommutativeRing"];  
-  var EuclideanRing = function (CommutativeRing0, degree, div, mod) {
-      this.CommutativeRing0 = CommutativeRing0;
-      this.degree = degree;
-      this.div = div;
-      this.mod = mod;
-  };
-  var mod = function (dict) {
-      return dict.mod;
-  }; 
-  var euclideanRingInt = new EuclideanRing(function () {
-      return Data_CommutativeRing.commutativeRingInt;
-  }, $foreign.intDegree, $foreign.intDiv, $foreign.intMod);
-  var div = function (dict) {
-      return dict.div;
-  };
-  exports["div"] = div;
-  exports["mod"] = mod;
-  exports["euclideanRingInt"] = euclideanRingInt;
-})(PS);
-(function(exports) {
-  "use strict";
-
-  exports.singleton = function (c) {
-    return c;
-  };
-
-  exports.length = function (s) {
-    return s.length;
-  };
-
-  exports.drop = function (n) {
-    return function (s) {
-      return s.substring(n);
-    };
-  };
-})(PS["Data.String.CodeUnits"] = PS["Data.String.CodeUnits"] || {});
-(function($PS) {
-  "use strict";
-  $PS["Data.String.CodeUnits"] = $PS["Data.String.CodeUnits"] || {};
-  var exports = $PS["Data.String.CodeUnits"];
-  var $foreign = $PS["Data.String.CodeUnits"];
-  exports["singleton"] = $foreign.singleton;
-  exports["length"] = $foreign.length;
-  exports["drop"] = $foreign.drop;
-})(PS);
-(function(exports) {
-  "use strict";
-
-  exports.charAt = function (i) {
-    return function (s) {
-      if (i >= 0 && i < s.length) return s.charAt(i);
-      throw new Error("Data.String.Unsafe.charAt: Invalid index.");
-    };
-  };
-})(PS["Data.String.Unsafe"] = PS["Data.String.Unsafe"] || {});
-(function($PS) {
-  "use strict";
-  $PS["Data.String.Unsafe"] = $PS["Data.String.Unsafe"] || {};
-  var exports = $PS["Data.String.Unsafe"];
-  var $foreign = $PS["Data.String.Unsafe"];
-  exports["charAt"] = $foreign.charAt;
-})(PS);
-(function($PS) {
-  "use strict";
-  $PS["Data.Tuple"] = $PS["Data.Tuple"] || {};
-  var exports = $PS["Data.Tuple"];                         
-  var Tuple = (function () {
-      function Tuple(value0, value1) {
-          this.value0 = value0;
-          this.value1 = value1;
+      if (Data_Boolean.otherwise) {
+          return Data_Maybe.fromMaybe(0)(fromNumber(x));
       };
-      Tuple.create = function (value0) {
-          return function (value1) {
-              return new Tuple(value0, value1);
-          };
-      };
-      return Tuple;
-  })();
-  var snd = function (v) {
-      return v.value1;
-  };                                                                                                    
-  var fst = function (v) {
-      return v.value0;
+      throw new Error("Failed pattern match at Data.Int (line 66, column 1 - line 66, column 29): " + [ x.constructor.name ]);
   };
-  exports["Tuple"] = Tuple;
-  exports["fst"] = fst;
-  exports["snd"] = snd;
-})(PS);
-(function(exports) {
-  "use strict";
-
-  exports.unfoldrArrayImpl = function (isNothing) {
-    return function (fromJust) {
-      return function (fst) {
-        return function (snd) {
-          return function (f) {
-            return function (b) {
-              var result = [];
-              var value = b;
-              while (true) { // eslint-disable-line no-constant-condition
-                var maybe = f(value);
-                if (isNothing(maybe)) return result;
-                var tuple = fromJust(maybe);
-                result.push(fst(tuple));
-                value = snd(tuple);
-              }
-            };
-          };
-        };
-      };
-    };
+  var floor = function ($24) {
+      return unsafeClamp($$Math.floor($24));
   };
-})(PS["Data.Unfoldable"] = PS["Data.Unfoldable"] || {});
-(function(exports) {
-  "use strict";
-
-  exports.unfoldr1ArrayImpl = function (isNothing) {
-    return function (fromJust) {
-      return function (fst) {
-        return function (snd) {
-          return function (f) {
-            return function (b) {
-              var result = [];
-              var value = b;
-              while (true) { // eslint-disable-line no-constant-condition
-                var tuple = f(value);
-                result.push(fst(tuple));
-                var maybe = snd(tuple);
-                if (isNothing(maybe)) return result;
-                value = fromJust(maybe);
-              }
-            };
-          };
-        };
-      };
-    };
-  };
-})(PS["Data.Unfoldable1"] = PS["Data.Unfoldable1"] || {});
-(function($PS) {
-  "use strict";
-  $PS["Data.Unfoldable1"] = $PS["Data.Unfoldable1"] || {};
-  var exports = $PS["Data.Unfoldable1"];
-  var $foreign = $PS["Data.Unfoldable1"];
-  var Data_Maybe = $PS["Data.Maybe"];
-  var Data_Tuple = $PS["Data.Tuple"];                
-  var Unfoldable1 = function (unfoldr1) {
-      this.unfoldr1 = unfoldr1;
-  }; 
-  var unfoldable1Array = new Unfoldable1($foreign.unfoldr1ArrayImpl(Data_Maybe.isNothing)(Data_Maybe.fromJust())(Data_Tuple.fst)(Data_Tuple.snd));
-  exports["unfoldable1Array"] = unfoldable1Array;
+  exports["floor"] = floor;
+  exports["fromString"] = fromString;
 })(PS);
 (function($PS) {
   "use strict";
-  $PS["Data.Unfoldable"] = $PS["Data.Unfoldable"] || {};
-  var exports = $PS["Data.Unfoldable"];
-  var $foreign = $PS["Data.Unfoldable"];
-  var Data_Maybe = $PS["Data.Maybe"];
-  var Data_Tuple = $PS["Data.Tuple"];
-  var Data_Unfoldable1 = $PS["Data.Unfoldable1"];  
-  var Unfoldable = function (Unfoldable10, unfoldr) {
-      this.Unfoldable10 = Unfoldable10;
-      this.unfoldr = unfoldr;
-  };
-  var unfoldr = function (dict) {
-      return dict.unfoldr;
-  }; 
-  var unfoldableArray = new Unfoldable(function () {
-      return Data_Unfoldable1.unfoldable1Array;
-  }, $foreign.unfoldrArrayImpl(Data_Maybe.isNothing)(Data_Maybe.fromJust())(Data_Tuple.fst)(Data_Tuple.snd));
-  exports["unfoldr"] = unfoldr;
-  exports["unfoldableArray"] = unfoldableArray;
-})(PS);
-(function($PS) {
-  "use strict";
-  $PS["Data.String.CodePoints"] = $PS["Data.String.CodePoints"] || {};
-  var exports = $PS["Data.String.CodePoints"];
-  var $foreign = $PS["Data.String.CodePoints"];
-  var Data_Array = $PS["Data.Array"];
-  var Data_Bounded = $PS["Data.Bounded"];
-  var Data_Enum = $PS["Data.Enum"];
-  var Data_EuclideanRing = $PS["Data.EuclideanRing"];
+  $PS["Format"] = $PS["Format"] || {};
+  var exports = $PS["Format"];
+  var $foreign = $PS["Format"];
+  var Control_Bind = $PS["Control.Bind"];
   var Data_Functor = $PS["Data.Functor"];
-  var Data_Maybe = $PS["Data.Maybe"];
-  var Data_String_CodeUnits = $PS["Data.String.CodeUnits"];
-  var Data_String_Unsafe = $PS["Data.String.Unsafe"];
-  var Data_Tuple = $PS["Data.Tuple"];
-  var Data_Unfoldable = $PS["Data.Unfoldable"];
-  var unsurrogate = function (lead) {
-      return function (trail) {
-          return (((lead - 55296 | 0) * 1024 | 0) + (trail - 56320 | 0) | 0) + 65536 | 0;
+  var Data_Int = $PS["Data.Int"];
+  var Data_JSDate = $PS["Data.JSDate"];
+  var Data_Show = $PS["Data.Show"];
+  var Effect = $PS["Effect"];                
+  var formatTime = $foreign.toLocaleTimeString;
+  var formatNum = function (n) {
+      var v = Data_Int.floor(n);
+      var $2 = v < 10;
+      if ($2) {
+          return "0" + Data_Show.show(Data_Show.showInt)(v);
       };
-  }; 
-  var isTrail = function (cu) {
-      return 56320 <= cu && cu <= 57343;
+      return Data_Show.show(Data_Show.showInt)(v);
   };
-  var isLead = function (cu) {
-      return 55296 <= cu && cu <= 56319;
-  };
-  var uncons = function (s) {
-      var v = Data_String_CodeUnits.length(s);
-      if (v === 0) {
-          return Data_Maybe.Nothing.value;
-      };
-      if (v === 1) {
-          return new Data_Maybe.Just({
-              head: Data_Enum.fromEnum(Data_Enum.boundedEnumChar)(Data_String_Unsafe.charAt(0)(s)),
-              tail: ""
-          });
-      };
-      var cu1 = Data_Enum.fromEnum(Data_Enum.boundedEnumChar)(Data_String_Unsafe.charAt(1)(s));
-      var cu0 = Data_Enum.fromEnum(Data_Enum.boundedEnumChar)(Data_String_Unsafe.charAt(0)(s));
-      var $21 = isLead(cu0) && isTrail(cu1);
-      if ($21) {
-          return new Data_Maybe.Just({
-              head: unsurrogate(cu0)(cu1),
-              tail: Data_String_CodeUnits.drop(2)(s)
-          });
-      };
-      return new Data_Maybe.Just({
-          head: cu0,
-          tail: Data_String_CodeUnits.drop(1)(s)
-      });
-  };
-  var unconsButWithTuple = function (s) {
-      return Data_Functor.map(Data_Maybe.functorMaybe)(function (v) {
-          return new Data_Tuple.Tuple(v.head, v.tail);
-      })(uncons(s));
-  };
-  var toCodePointArrayFallback = function (s) {
-      return Data_Unfoldable.unfoldr(Data_Unfoldable.unfoldableArray)(unconsButWithTuple)(s);
-  };
-  var unsafeCodePointAt0Fallback = function (s) {
-      var cu0 = Data_Enum.fromEnum(Data_Enum.boundedEnumChar)(Data_String_Unsafe.charAt(0)(s));
-      var $25 = isLead(cu0) && Data_String_CodeUnits.length(s) > 1;
-      if ($25) {
-          var cu1 = Data_Enum.fromEnum(Data_Enum.boundedEnumChar)(Data_String_Unsafe.charAt(1)(s));
-          var $26 = isTrail(cu1);
-          if ($26) {
-              return unsurrogate(cu0)(cu1);
-          };
-          return cu0;
-      };
-      return cu0;
-  };
-  var unsafeCodePointAt0 = $foreign["_unsafeCodePointAt0"](unsafeCodePointAt0Fallback);
-  var toCodePointArray = $foreign["_toCodePointArray"](toCodePointArrayFallback)(unsafeCodePointAt0);
-  var length = function ($52) {
-      return Data_Array.length(toCodePointArray($52));
-  };
-  var fromCharCode = (function () {
-      var $53 = Data_Enum.toEnumWithDefaults(Data_Enum.boundedEnumChar)(Data_Bounded.bottom(Data_Bounded.boundedChar))(Data_Bounded.top(Data_Bounded.boundedChar));
-      return function ($54) {
-          return Data_String_CodeUnits.singleton($53($54));
-      };
-  })();
-  var singletonFallback = function (v) {
-      if (v <= 65535) {
-          return fromCharCode(v);
-      };
-      var lead = Data_EuclideanRing.div(Data_EuclideanRing.euclideanRingInt)(v - 65536 | 0)(1024) + 55296 | 0;
-      var trail = Data_EuclideanRing.mod(Data_EuclideanRing.euclideanRingInt)(v - 65536 | 0)(1024) + 56320 | 0;
-      return fromCharCode(lead) + fromCharCode(trail);
-  };                                                                          
-  var singleton = $foreign["_singleton"](singletonFallback);
-  var takeFallback = function (n) {
-      return function (v) {
-          if (n < 1) {
-              return "";
-          };
-          var v1 = uncons(v);
-          if (v1 instanceof Data_Maybe.Just) {
-              return singleton(v1.value0.head) + takeFallback(n - 1 | 0)(v1.value0.tail);
-          };
-          return v;
+  var formatISO = function (date) {
+      return function __do() {
+          var yyyy = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getFullYear(date))();
+          var mM = Data_Functor.map(Effect.functorEffect)(Data_Functor.map(Data_Functor.functorFn)(formatNum)(function (v) {
+              return v + 1.0;
+          }))(Data_JSDate.getMonth(date))();
+          var dd = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getDate(date))();
+          var hh = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getHours(date))();
+          var mm = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getMinutes(date))();
+          var ss = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getSeconds(date))();
+          return yyyy + ("-" + (mM + ("-" + (dd + ("T" + (hh + (":" + (mm + (":" + ss)))))))));
       };
   };
-  var take = $foreign["_take"](takeFallback);
-  var drop = function (n) {
-      return function (s) {
-          return Data_String_CodeUnits.drop(Data_String_CodeUnits.length(take(n)(s)))(s);
+  var todayISO = Control_Bind.bind(Effect.bindEffect)(Data_JSDate.now)(formatISO);
+  var formatDateISO = function (date) {
+      return function __do() {
+          var yyyy = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getFullYear(date))();
+          var mM = Data_Functor.map(Effect.functorEffect)(Data_Functor.map(Data_Functor.functorFn)(formatNum)(function (v) {
+              return v + 1.0;
+          }))(Data_JSDate.getMonth(date))();
+          var dd = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getDate(date))();
+          return yyyy + ("-" + (mM + ("-" + dd)));
       };
   };
-  exports["take"] = take;
-})(PS);
-(function(exports) {
-  "use strict";
-
-  exports.error = function (s) {
-    return function () {
-      console.error(s);
-      return {};
-    };
-  };
-})(PS["Effect.Console"] = PS["Effect.Console"] || {});
-(function($PS) {
-  "use strict";
-  $PS["Effect.Console"] = $PS["Effect.Console"] || {};
-  var exports = $PS["Effect.Console"];
-  var $foreign = $PS["Effect.Console"];
-  exports["error"] = $foreign.error;
+  var todayDateISO = Control_Bind.bind(Effect.bindEffect)(Data_JSDate.now)(formatDateISO);
+  exports["todayISO"] = todayISO;
+  exports["todayDateISO"] = todayDateISO;
+  exports["formatTime"] = formatTime;
 })(PS);
 (function($PS) {
   "use strict";
@@ -6761,45 +6428,6 @@ var PS = {};
       throw new Error("Failed pattern match at Keys (line 7, column 1 - line 7, column 44): " + [ v.constructor.name ]);
   };
   exports["keyPassengerType"] = keyPassengerType;
-})(PS);
-(function(exports) {
-  "use strict";
-
-  exports.fromStringAsImpl = function (just) {
-    return function (nothing) {
-      return function (radix) {
-        var digits;
-        if (radix < 11) {
-          digits = "[0-" + (radix - 1).toString() + "]";
-        } else if (radix === 11) {
-          digits = "[0-9a]";
-        } else {
-          digits = "[0-9a-" + String.fromCharCode(86 + radix) + "]";
-        }
-        var pattern = new RegExp("^[\\+\\-]?" + digits + "+$", "i");
-
-        return function (s) {
-          /* jshint bitwise: false */
-          if (pattern.test(s)) {
-            var i = parseInt(s, radix);
-            return (i | 0) === i ? just(i) : nothing;
-          } else {
-            return nothing;
-          }
-        };
-      };
-    };
-  };
-})(PS["Data.Int"] = PS["Data.Int"] || {});
-(function($PS) {
-  "use strict";
-  $PS["Data.Int"] = $PS["Data.Int"] || {};
-  var exports = $PS["Data.Int"];
-  var $foreign = $PS["Data.Int"];
-  var Data_Maybe = $PS["Data.Maybe"];
-  var fromStringAs = $foreign.fromStringAsImpl(Data_Maybe.Just.create)(Data_Maybe.Nothing.value);
-  var fromString = fromStringAs(10);
-  exports["fromString"] = fromString;
 })(PS);
 (function(exports) {
   /* global exports */
@@ -6888,6 +6516,7 @@ var PS = {};
   var value = $foreign.unsafeMkProps("value");  
   var src = $foreign.unsafeMkProps("src");          
   var required = $foreign.unsafeMkProps("required");
+  var placeholder = $foreign.unsafeMkProps("placeholder");
   var onClick = function (f) {
       return $foreign.unsafeMkProps("onClick")(Effect_Uncurried.mkEffectFn1(f));
   };
@@ -6895,7 +6524,6 @@ var PS = {};
       return $foreign.unsafeMkProps("onChange")(Effect_Uncurried.mkEffectFn1(f));
   };                                          
   var noValidate = $foreign.unsafeMkProps("noValidate");
-  var name = $foreign.unsafeMkProps("name");          
   var min = $foreign.unsafeMkProps("min");            
   var max = $foreign.unsafeMkProps("max");            
   var htmlFor = $foreign.unsafeMkProps("htmlFor");  
@@ -6919,8 +6547,8 @@ var PS = {};
   exports["_id"] = _id;
   exports["max"] = max;
   exports["min"] = min;
-  exports["name"] = name;
   exports["noValidate"] = noValidate;
+  exports["placeholder"] = placeholder;
   exports["required"] = required;
   exports["src"] = src;
   exports["_type"] = _type;
@@ -7534,6 +7162,13 @@ var PS = {};
   var option = mkDOM(false)("option");
   var select = mkDOM(false)("select");
   var small = mkDOM(false)("small");
+  var span = mkDOM(false)("span");
+  var table = mkDOM(false)("table");
+  var tbody = mkDOM(false)("tbody");
+  var td = mkDOM(false)("td");  
+  var th = mkDOM(false)("th");
+  var thead = mkDOM(false)("thead");
+  var tr = mkDOM(false)("tr");
   var ul = mkDOM(false)("ul");
   var li = mkDOM(false)("li");    
   var label = mkDOM(false)("label");
@@ -7564,6 +7199,13 @@ var PS = {};
   exports["option"] = option;
   exports["select"] = select;
   exports["small"] = small;
+  exports["span"] = span;
+  exports["table"] = table;
+  exports["tbody"] = tbody;
+  exports["td"] = td;
+  exports["th"] = th;
+  exports["thead"] = thead;
+  exports["tr"] = tr;
   exports["ul"] = ul;
 })(PS);
 (function($PS) {
@@ -7583,11 +7225,11 @@ var PS = {};
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Monoid = $PS["Data.Monoid"];
   var Data_Show = $PS["Data.Show"];
-  var Data_String_CodePoints = $PS["Data.String.CodePoints"];
   var Data_Traversable = $PS["Data.Traversable"];
   var Data_Unit = $PS["Data.Unit"];
   var Effect = $PS["Effect"];
   var Effect_Console = $PS["Effect.Console"];
+  var Format = $PS["Format"];
   var Global = $PS["Global"];
   var Keys = $PS["Keys"];
   var Lib_React = $PS["Lib.React"];
@@ -7621,7 +7263,6 @@ var PS = {};
               })();
           };
       };
-      var today = Data_Functor.mapFlipped(Effect.functorEffect)(Control_Bind.bind(Effect.bindEffect)(Data_JSDate.now)(Data_JSDate.toISOString))(Data_String_CodePoints.take(19));
       var sendDriver = function ($$this) {
           return function __do() {
               var s = React.getState($$this)();
@@ -7646,7 +7287,7 @@ var PS = {};
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([ Lib_React.cn("m-2  ") ])([ React_DOM.form([ React_DOM_Props.noValidate(true) ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.driver_data")) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("firstName") ])([ React_DOM.text(props.keyText("key.firstName")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("firstName"), React_DOM_Props.required(true), React_DOM_Props.value(state.firstName), Lib_React.onChangeValue(function (v) {
+              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.form([ React_DOM_Props.noValidate(true) ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.driver_data")) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("firstName") ])([ React_DOM.text(props.keyText("key.first_name")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("firstName"), React_DOM_Props.required(true), React_DOM_Props.value(state.firstName), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v,
@@ -7663,7 +7304,7 @@ var PS = {};
                           routeN: v1.routeN
                       };
                   });
-              }), React_DOM_Props.value(state.firstName) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lastName") ])([ React_DOM.text(props.keyText("key.lastName")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lastName"), React_DOM_Props.required(true), React_DOM_Props.value(state.lastName), Lib_React.onChangeValue(function (v) {
+              }), React_DOM_Props.value(state.firstName) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lastName") ])([ React_DOM.text(props.keyText("key.last_name")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lastName"), React_DOM_Props.required(true), React_DOM_Props.value(state.lastName), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -7680,7 +7321,7 @@ var PS = {};
                           routeN: v1.routeN
                       };
                   });
-              }), React_DOM_Props.value(state.lastName) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.lastName.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text(props.keyText("key.phone")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), React_DOM_Props.value(state.phone), Lib_React.onChangeValue(function (v) {
+              }), React_DOM_Props.value(state.lastName) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.last_name.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text(props.keyText("key.phone")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), React_DOM_Props.value(state.phone), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -7697,7 +7338,7 @@ var PS = {};
                           routeN: v1.routeN
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("carPlate") ])([ React_DOM.text(props.keyText("key.car_plate")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("carPlate"), React_DOM_Props.autoComplete("carPlate"), React_DOM_Props.required(true), React_DOM_Props.value(state.carPlate), Lib_React.onChangeValue(function (v) {
+              }), React_DOM_Props.placeholder("+38-000-000000") ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("carPlate") ])([ React_DOM.text(props.keyText("key.car_plate")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("carPlate"), React_DOM_Props.autoComplete("carPlate"), React_DOM_Props.required(true), React_DOM_Props.value(state.carPlate), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -7714,7 +7355,24 @@ var PS = {};
                           routeN: v1.routeN
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_plate.hint")) ]) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-8") ])([ React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-6 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React_DOM.input([ React_DOM_Props["_type"]("datetime-local"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_plate.hint")) ]) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-8") ])([ React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          firstName: v1.firstName,
+                          lastName: v1.lastName,
+                          phone: v1.phone,
+                          carPlate: v1.carPlate,
+                          date: v,
+                          lap: v1.lap,
+                          seats: v1.seats,
+                          from: v1.from,
+                          to: v1.to,
+                          types: v1.types,
+                          mapQ: v1.mapQ,
+                          routeN: v1.routeN
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React_DOM.input([ React_DOM_Props["_type"]("time"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -7911,8 +7569,8 @@ var PS = {};
                               from: v2.from,
                               to: v2.to,
                               types: (function () {
-                                  var $30 = Data_Foldable.elem(Data_Foldable.foldableArray)(Api.eqPassengerType)(v)(state.types);
-                                  if ($30) {
+                                  var $31 = Data_Foldable.elem(Data_Foldable.foldableArray)(Api.eqPassengerType)(v)(state.types);
+                                  if ($31) {
                                       return Data_Array["delete"](Api.eqPassengerType)(v)(state.types);
                                   };
                                   return Data_Array.cons(v)(state.types);
@@ -7931,7 +7589,7 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 248, column 11 - line 256, column 30): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 254, column 11 - line 262, column 30): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return sendDriver($$this);
               }) ])([ React_DOM.text(props.keyText("key.add")) ]) ]) ]);
@@ -7939,7 +7597,7 @@ var PS = {};
       };
       return React.component()("Driver")(function ($$this) {
           return function __do() {
-              var date = today();
+              var date = Format.todayISO();
               var props = React.getProps($$this)();
               return {
                   state: {
@@ -8003,12 +7661,12 @@ var PS = {};
                           if (v instanceof Data_Either.Right) {
                               return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                           };
-                          throw new Error("Failed pattern match at App.Driver (line 75, column 28 - line 78, column 31): " + [ v.constructor.name ]);
+                          throw new Error("Failed pattern match at App.Driver (line 76, column 28 - line 79, column 31): " + [ v.constructor.name ]);
                       })((function () {
-                          var $39 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $40 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($41) {
-                              return $39($40($41));
+                          var $40 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $41 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($42) {
+                              return $40($41($42));
                           };
                       })())();
                   }
@@ -8434,6 +8092,24 @@ var PS = {};
 })(PS);
 (function($PS) {
   "use strict";
+  $PS["Data.Tuple"] = $PS["Data.Tuple"] || {};
+  var exports = $PS["Data.Tuple"];                         
+  var Tuple = (function () {
+      function Tuple(value0, value1) {
+          this.value0 = value0;
+          this.value1 = value1;
+      };
+      Tuple.create = function (value0) {
+          return function (value1) {
+              return new Tuple(value0, value1);
+          };
+      };
+      return Tuple;
+  })();
+  exports["Tuple"] = Tuple;
+})(PS);
+(function($PS) {
+  "use strict";
   $PS["App.Rider"] = $PS["App.Rider"] || {};
   var exports = $PS["App.Rider"];
   var Api = $PS["Api"];
@@ -8450,12 +8126,12 @@ var PS = {};
   var Data_Monoid = $PS["Data.Monoid"];
   var Data_Ord = $PS["Data.Ord"];
   var Data_Show = $PS["Data.Show"];
-  var Data_String_CodePoints = $PS["Data.String.CodePoints"];
   var Data_Traversable = $PS["Data.Traversable"];
   var Data_Tuple = $PS["Data.Tuple"];
   var Data_Unit = $PS["Data.Unit"];
   var Effect = $PS["Effect"];
   var Effect_Console = $PS["Effect.Console"];
+  var Format = $PS["Format"];
   var Global = $PS["Global"];
   var Keys = $PS["Keys"];
   var Lib_React = $PS["Lib.React"];
@@ -8489,7 +8165,6 @@ var PS = {};
       var typesMap = Data_Map_Internal.fromFoldable(Data_Ord.ordString)(Data_Foldable.foldableArray)(Data_Functor.map(Data_Functor.functorArray)(function (v) {
           return new Data_Tuple.Tuple(Keys.keyPassengerType(v), v);
       })(types));
-      var today = Data_Functor.mapFlipped(Effect.functorEffect)(Control_Bind.bind(Effect.bindEffect)(Data_JSDate.now)(Data_JSDate.toISOString))(Data_String_CodePoints.take(19));
       var sendPassenger = function ($$this) {
           return function __do() {
               var s = React.getState($$this)();
@@ -8511,7 +8186,7 @@ var PS = {};
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([ Lib_React.cn("m-2  ") ])([ React_DOM.form([ React_DOM_Props.noValidate(true) ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.passenger_data")) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("firstName") ])([ React_DOM.text(props.keyText("key.firstName")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("firstName"), React_DOM_Props.required(true), React_DOM_Props.value(state.firstName), Lib_React.onChangeValue(function (v) {
+              return React_DOM.div([ Lib_React.cn("m-2  ") ])([ React_DOM.form([ React_DOM_Props.noValidate(true) ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.passenger_data")) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("firstName") ])([ React_DOM.text(props.keyText("key.first_name")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("firstName"), React_DOM_Props.required(true), React_DOM_Props.value(state.firstName), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v,
@@ -8524,7 +8199,7 @@ var PS = {};
                           mapQ: v1.mapQ
                       };
                   });
-              }), React_DOM_Props.value(state.firstName) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lastName") ])([ React_DOM.text(props.keyText("key.lastName")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lastName"), React_DOM_Props.required(true), React_DOM_Props.value(state.lastName), Lib_React.onChangeValue(function (v) {
+              }), React_DOM_Props.value(state.firstName) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lastName") ])([ React_DOM.text(props.keyText("key.last_name")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lastName"), React_DOM_Props.required(true), React_DOM_Props.value(state.lastName), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -8537,7 +8212,7 @@ var PS = {};
                           mapQ: v1.mapQ
                       };
                   });
-              }), React_DOM_Props.value(state.lastName) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.lastName.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text(props.keyText("key.phone")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), React_DOM_Props.value(state.phone), Lib_React.onChangeValue(function (v) {
+              }), React_DOM_Props.value(state.lastName) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.last_name.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text(props.keyText("key.phone")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), React_DOM_Props.value(state.phone), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -8695,15 +8370,15 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Rider (line 210, column 11 - line 218, column 30): " + [ state.mapQ.constructor.name ]);
-              })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.disabled(Data_Maybe.isNothing(state.mapQ)), React_DOM_Props.onClick(function (v) {
+                  throw new Error("Failed pattern match at App.Rider (line 208, column 11 - line 216, column 30): " + [ state.mapQ.constructor.name ]);
+              })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return sendPassenger($$this);
               }) ])([ React_DOM.text(props.keyText("key.add")) ]) ]) ]);
           };
       };
       return React.component()("Rider")(function ($$this) {
           return function __do() {
-              var date = today();
+              var date = Format.todayISO();
               var props = React.getProps($$this)();
               return {
                   state: {
@@ -8745,7 +8420,7 @@ var PS = {};
                           if (v instanceof Data_Either.Right) {
                               return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                           };
-                          throw new Error("Failed pattern match at App.Rider (line 68, column 28 - line 70, column 31): " + [ v.constructor.name ]);
+                          throw new Error("Failed pattern match at App.Rider (line 69, column 28 - line 71, column 31): " + [ v.constructor.name ]);
                       })((function () {
                           var $30 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
                           var $31 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
@@ -8828,7 +8503,7 @@ var PS = {};
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([  ])([ React_DOM.ul([ Lib_React.cn("nav nav-tabs") ])(Data_Functor.map(Data_Functor.functorArray)(function (t) {
+              return React_DOM.div([  ])([ React_DOM.ul([ Lib_React.cn("nav nav-pills nav-pills-primary justify-content-center") ])(Data_Functor.map(Data_Functor.functorArray)(function (t) {
                   return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.a([ Lib_React.cn("nav-link" + (function () {
                       var $8 = Data_Eq.eq(eqTab)(t)(state.tab);
                       if ($8) {
@@ -9095,7 +8770,7 @@ var PS = {};
               if (v instanceof Data_Either.Right) {
                   return Lib_WebSocket.send(props.ws)(Api_Pull.encodePull(v.value0))();
               };
-              throw new Error("Failed pattern match at App.Home (line 74, column 3 - line 76, column 51): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at App.Home (line 79, column 3 - line 81, column 51): " + [ v.constructor.name ]);
           };
       };
   };
@@ -9104,13 +8779,13 @@ var PS = {};
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([  ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.home.text")) ]), React_DOM.div([ Lib_React.cn((function () {
+              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.home.head")) ]) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React_DOM.span([  ])([ React_DOM.text(props.keyText("key.home.text")) ]) ]), React_DOM.div([ Lib_React.cn((function () {
                   var $10 = Data_Maybe.isJust(props.user);
                   if ($10) {
                       return "d-none";
                   };
                   return "";
-              })()) ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center"), React_DOM_Props["_id"]("login-widget") ])([  ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.home.login.hint")) ]) ]) ]);
+              })()) ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3"), React_DOM_Props["_id"]("login-widget") ])([  ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React_DOM.div([ Lib_React.cn("alert alert-info") ])([ React_DOM.text(props.keyText("key.home.login.hint")) ]) ]) ]) ]);
           };
       };
       return React.component()("Home")(function ($$this) {
@@ -9139,16 +8814,21 @@ var PS = {};
   "use strict";
   $PS["App.View"] = $PS["App.View"] || {};
   var exports = $PS["App.View"];
+  var Api_Pull = $PS["Api.Pull"];
   var Api_Push = $PS["Api.Push"];
   var Control_Applicative = $PS["Control.Applicative"];
+  var Data_Array = $PS["Data.Array"];
   var Data_Either = $PS["Data.Either"];
   var Data_Eq = $PS["Data.Eq"];
   var Data_Functor = $PS["Data.Functor"];
+  var Data_JSDate = $PS["Data.JSDate"];
+  var Data_Maybe = $PS["Data.Maybe"];
   var Data_Show = $PS["Data.Show"];
   var Data_Traversable = $PS["Data.Traversable"];
   var Data_Unit = $PS["Data.Unit"];
   var Effect = $PS["Effect"];
   var Effect_Console = $PS["Effect.Console"];
+  var Format = $PS["Format"];
   var Lib_React = $PS["Lib.React"];
   var Lib_WebSocket = $PS["Lib.WebSocket"];
   var Proto_Decode = $PS["Proto.Decode"];
@@ -9177,7 +8857,7 @@ var PS = {};
       if (v instanceof ViewP) {
           return "key.passengers";
       };
-      throw new Error("Failed pattern match at App.View (line 43, column 1 - line 43, column 24): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at App.View (line 48, column 1 - line 48, column 24): " + [ v.constructor.name ]);
   };
   var eqTab = new Data_Eq.Eq(function (x) {
       return function (y) {
@@ -9191,14 +8871,49 @@ var PS = {};
       };
   });
   var viewClass = (function () {
+      var handleMsg = function ($$this) {
+          return function (v) {
+              if (v instanceof Api_Push.FreeDrivers) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          tab: v1.tab,
+                          date: v1.date,
+                          drivers: v.value0.freeDrivers
+                      };
+                  });
+              };
+              return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
+          };
+      };
+      var fetchDrivers = function ($$this) {
+          return function __do() {
+              var p = React.getProps($$this)();
+              var s = React.getState($$this)();
+              var d = Data_JSDate.parse(s.date)();
+              return Lib_WebSocket.send(p.ws)(Api_Pull.encodePull(new Api_Pull.GetFreeDrivers({
+                  date: Data_JSDate.getTime(d)
+              })))();
+          };
+      };
+      var driversList = function (drivers) {
+          return Data_Functor.map(Effect.functorEffect)(Data_Array.catMaybes)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect)(Data_Functor.map(Data_Functor.functorArray)(function (di) {
+              return function __do() {
+                  var t = Format.formatTime(Data_JSDate.fromTime(di.date))();
+                  return Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(Data_Array.head(di.routes))(function (route) {
+                      return React_DOM.tr([  ])([ React_DOM.td([  ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(route.fromAddress) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(route.toAddress) ]) ]), React_DOM.td([  ])([ React_DOM.text(t) ]) ]);
+                  });
+              };
+          })(drivers)));
+      };
       var render = function ($$this) {
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([  ])([ React_DOM.ul([ Lib_React.cn("nav nav-tabs") ])(Data_Functor.map(Data_Functor.functorArray)(function (t) {
+              var dl = driversList(state.drivers)();
+              return React_DOM.div([  ])([ React_DOM.ul([ Lib_React.cn("nav nav-pills nav-pills-primary justify-content-center") ])(Data_Functor.map(Data_Functor.functorArray)(function (t) {
                   return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.a([ Lib_React.cn("nav-link" + (function () {
-                      var $9 = Data_Eq.eq(eqTab)(t)(state.tab);
-                      if ($9) {
+                      var $16 = Data_Eq.eq(eqTab)(t)(state.tab);
+                      if ($16) {
                           return " active";
                       };
                       return "";
@@ -9208,6 +8923,7 @@ var PS = {};
                           return React.modifyState($$this)(function (v1) {
                               return {
                                   tab: t,
+                                  date: v1.date,
                                   drivers: v1.drivers
                               };
                           })();
@@ -9215,33 +8931,40 @@ var PS = {};
                   }) ])([ React_DOM.text(props.keyText(tabKey(t))) ]) ]);
               })([ ViewD.value, ViewP.value ])), (function () {
                   if (state.tab instanceof ViewD) {
-                      return React_DOM.text("1");
+                      return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("row") ])([ React_DOM.div([ Lib_React.cn("input-group mb-3 col-md-6") ])([ React_DOM.div([ Lib_React.cn("input-group-prepend") ])([ React_DOM.span([ Lib_React.cn("input-group-text") ])([ React_DOM.text(props.keyText("key.date")) ]) ]), React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
+                          return React.modifyState($$this)(function (v1) {
+                              return {
+                                  tab: v1.tab,
+                                  date: v,
+                                  drivers: v1.drivers
+                              };
+                          });
+                      }) ]), React_DOM.div([ Lib_React.cn("input-group-append") ])([ React_DOM.button([ Lib_React.cn("btn btn-outline-secondary"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+                          return fetchDrivers($$this);
+                      }) ])([ React_DOM.text(props.keyText("key.search")) ]) ]) ]) ]), React_DOM.div([ Lib_React.cn("row") ])([ React_DOM.table([ Lib_React.cn("table table-borderless table-hover col-md-6") ])([ React_DOM.thead([  ])([ React_DOM.tr([  ])([ React_DOM.th([  ])([ React_DOM.text(props.keyText("key.address")) ]), React_DOM.th([  ])([ React_DOM.text(props.keyText("key.time")) ]) ]) ]), React_DOM.tbody([  ])(dl) ]) ]) ]);
                   };
                   if (state.tab instanceof ViewP) {
                       return React_DOM.text("2");
                   };
-                  throw new Error("Failed pattern match at App.View (line 86, column 9 - line 88, column 28): " + [ state.tab.constructor.name ]);
+                  throw new Error("Failed pattern match at App.View (line 118, column 9 - line 154, column 28): " + [ state.tab.constructor.name ]);
               })() ]);
-          };
-      };
-      var handleMsg = function ($$this) {
-          return function (msg) {
-              return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
           };
       };
       return React.component()("View")(function ($$this) {
           return function __do() {
+              var date = Format.todayDateISO();
               var props = React.getProps($$this)();
               return {
                   state: {
                       tab: ViewD.value,
+                      date: date,
                       drivers: [  ]
                   },
                   render: render($$this),
                   componentDidMount: function __do() {
                       var p = React.getProps($$this)();
-                      var s = React.getState($$this)();
-                      return Lib_WebSocket.onMsg(props.ws)(function (x) {
+                      fetchDrivers($$this)();
+                      return Lib_WebSocket.onMsg(p.ws)(function (x) {
                           var v = Api_Push.decodePush(x);
                           if (v instanceof Data_Either.Left) {
                               return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
@@ -9249,12 +8972,12 @@ var PS = {};
                           if (v instanceof Data_Either.Right) {
                               return handleMsg($$this)(v.value0.val);
                           };
-                          throw new Error("Failed pattern match at App.View (line 60, column 28 - line 62, column 46): " + [ v.constructor.name ]);
+                          throw new Error("Failed pattern match at App.View (line 66, column 30 - line 68, column 46): " + [ v.constructor.name ]);
                       })((function () {
-                          var $14 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $15 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($16) {
-                              return $14($15($16));
+                          var $21 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $22 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($23) {
+                              return $21($22($23));
                           };
                       })())();
                   }
@@ -9336,6 +9059,7 @@ var PS = {};
   var App_Add = $PS["App.Add"];
   var App_Home = $PS["App.Home"];
   var App_View = $PS["App.View"];
+  var Control_Alt = $PS["Control.Alt"];
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Bind = $PS["Control.Bind"];
   var Data_Array = $PS["Data.Array"];
@@ -9345,7 +9069,6 @@ var PS = {};
   var Data_Functor = $PS["Data.Functor"];
   var Data_Map_Internal = $PS["Data.Map.Internal"];
   var Data_Maybe = $PS["Data.Maybe"];
-  var Data_Monoid = $PS["Data.Monoid"];
   var Data_Ord = $PS["Data.Ord"];
   var Data_Ordering = $PS["Data.Ordering"];
   var Data_Show = $PS["Data.Show"];
@@ -9398,7 +9121,7 @@ var PS = {};
       if (v instanceof AddItem) {
           return "key.menu.add";
       };
-      throw new Error("Failed pattern match at App (line 53, column 1 - line 57, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at App (line 55, column 1 - line 59, column 33): " + [ v.constructor.name ]);
   });
   var eqMenuItem = new Data_Eq.Eq(function (x) {
       return function (y) {
@@ -9439,10 +9162,25 @@ var PS = {};
           if (x instanceof AddItem && y instanceof AddItem) {
               return Data_Ordering.EQ.value;
           };
-          throw new Error("Failed pattern match at App (line 59, column 1 - line 59, column 44): " + [ x.constructor.name, y.constructor.name ]);
+          throw new Error("Failed pattern match at App (line 61, column 1 - line 61, column 44): " + [ x.constructor.name, y.constructor.name ]);
       };
   });
   var appClass = (function () {
+      var userIcon = function ($$this) {
+          return function __do() {
+              var state = React.getState($$this)();
+              if (state.user instanceof Data_Maybe.Just && state.user.value0.photo instanceof Data_Maybe.Just) {
+                  return React_DOM.li([ Lib_React.cn("nav-item avatar") ])([ React_DOM.a([ Lib_React.cn("nav-link p-0"), React_DOM_Props.href("#") ])([ React_DOM.img([ React_DOM_Props.src(state.user.value0.photo.value0), Lib_React.cn("rounded-circle z-depth-0 mr-1"), React_DOM_Props.height("35") ]), React_DOM.text(Data_Maybe.fromMaybe(state.user.value0.username)(Control_Alt.alt(Data_Maybe.altMaybe)(state.user.value0.firstName)(state.user.value0.lastName))) ]) ]);
+              };
+              if (state.user instanceof Data_Maybe.Just) {
+                  return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.a([ Lib_React.cn("nav-link"), React_DOM_Props.href("#") ])([ React_DOM.text(Data_Maybe.fromMaybe(state.user.value0.username)(Control_Alt.alt(Data_Maybe.altMaybe)(state.user.value0.firstName)(state.user.value0.lastName))) ]) ]);
+              };
+              if (state.user instanceof Data_Maybe.Nothing) {
+                  return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.a([ Lib_React.cn("nav-link"), React_DOM_Props.href("#") ])([ React_DOM.text(state.keyText("key.login")) ]) ]);
+              };
+              throw new Error("Failed pattern match at App (line 145, column 12 - line 162, column 10): " + [ state.user.constructor.name ]);
+          };
+      };
       var setLang = function ($$this) {
           return function (lang) {
               return Ajax.getEff("/langs/" + (lang + ".js"))(function (err) {
@@ -9458,7 +9196,8 @@ var PS = {};
                           keyText: function (key) {
                               return Data_Maybe.fromMaybe(key)(Data_Map_Internal.lookup(Data_Ord.ordString)(Data_String_Common.toLower(key))(keys));
                           },
-                          menuItem: v1.menuItem
+                          menuItem: v1.menuItem,
+                          expand: v1.expand
                       };
                   });
               });
@@ -9468,10 +9207,36 @@ var PS = {};
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([  ])([ React_DOM.nav([ Lib_React.cn("navbar navbar-expand-lg navbar-light bg-light") ])([ React_DOM.ul([ Lib_React.cn("navbar-nav mr-auto mt-2 mt-lg-0") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
+              var u = userIcon($$this)();
+              return React_DOM.div([  ])([ React_DOM.nav([ Lib_React.cn("navbar navbar-expand-lg navbar-dark bg-primary") ])([ React_DOM.a([ Lib_React.cn("navbar-brand"), React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          user: v1.user,
+                          lang: v1.lang,
+                          keyText: v1.keyText,
+                          menuItem: HomeItem.value,
+                          expand: v1.expand
+                      };
+                  });
+              }) ])([ React_DOM.text("Ridehub") ]), React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto nav-flex-icons d-lg-none") ])([ u ]), React_DOM.button([ Lib_React.cn("navbar-toggler collapsed"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          user: s.user,
+                          lang: s.lang,
+                          keyText: s.keyText,
+                          menuItem: s.menuItem,
+                          expand: !s.expand
+                      };
+                  });
+              }) ])([ React_DOM.span([ Lib_React.cn("navbar-toggler-icon") ])([  ]) ]), React_DOM.div([ Lib_React.cn("navbar-collapse" + (function () {
+                  if (state.expand) {
+                      return "";
+                  };
+                  return " collapse";
+              })()) ])([ React_DOM.ul([ Lib_React.cn("navbar-nav mr-auto") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.li([ Lib_React.cn("nav-item" + (function () {
-                      var $17 = Data_Eq.eq(eqMenuItem)(v)(state.menuItem);
-                      if ($17) {
+                      var $26 = Data_Eq.eq(eqMenuItem)(v)(state.menuItem);
+                      if ($26) {
                           return " active";
                       };
                       return "";
@@ -9481,31 +9246,12 @@ var PS = {};
                               user: v2.user,
                               lang: v2.lang,
                               keyText: v2.keyText,
-                              menuItem: v
+                              menuItem: v,
+                              expand: false
                           };
                       });
                   }) ])([ React_DOM.text(state.keyText(Data_Show.show(showMenuItem)(v))) ]) ]);
-              })([ HomeItem.value, ViewItem.value, AddItem.value ])), (function () {
-                  if (state.user instanceof Data_Maybe.Just) {
-                      return React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto mr-2 nav-flex-icons") ])([ React_DOM.li([ Lib_React.cn("nav-item avatar") ])([ React_DOM.a([ Lib_React.cn("nav-link p-0"), React_DOM_Props.href("#") ])([ React_DOM.img([ React_DOM_Props.src(Data_Maybe.fromMaybe("")(state.user.value0.photo)), Lib_React.cn("rounded-circle z-depth-0 mr-1"), React_DOM_Props.height("35") ]), React_DOM.text(Data_Maybe.fromMaybe(state.user.value0.username)(Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(state.user.value0.firstName)(function (fn) {
-                          return fn + (" " + Data_Maybe.fromMaybe("")(state.user.value0.lastName));
-                      }))) ]) ]) ]);
-                  };
-                  if (state.user instanceof Data_Maybe.Nothing) {
-                      return Data_Monoid.mempty(React.monoidReactElement);
-                  };
-                  throw new Error("Failed pattern match at App (line 108, column 11 - line 118, column 30): " + [ state.user.constructor.name ]);
-              })(), React_DOM.div([ Lib_React.cn("btn-group btn-group-sm btn-group-toggle") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
-                  return React_DOM.label([ Lib_React.cn("btn btn-secondary" + (function () {
-                      var $20 = state.lang === v;
-                      if ($20) {
-                          return " active";
-                      };
-                      return "";
-                  })()) ])([ React_DOM.input([ React_DOM_Props["_type"]("radio"), React_DOM_Props.name("options"), React_DOM_Props.checked(state.lang === v), React_DOM_Props.onClick(function (v1) {
-                      return setLang($$this)(v);
-                  }) ]), React_DOM.text(state.keyText("key." + v)) ]);
-              })([ "uk", "ru" ])) ]), React_DOM.div([ Lib_React.cn("m-2") ])((function () {
+              })([ HomeItem.value, AddItem.value, ViewItem.value ])) ]), React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto nav-flex-icons d-none d-lg-inline") ])([ u ]) ]), React_DOM.div([ Lib_React.cn("m-2") ])((function () {
                   if (state.menuItem instanceof HomeItem) {
                       return [ React.createLeafElement()(App_Home.homeClass)({
                           ws: props.ws,
@@ -9530,7 +9276,7 @@ var PS = {};
                           user: state.user
                       }) ];
                   };
-                  throw new Error("Failed pattern match at App (line 130, column 11 - line 136, column 26): " + [ state.menuItem.constructor.name ]);
+                  throw new Error("Failed pattern match at App (line 133, column 11 - line 139, column 26): " + [ state.menuItem.constructor.name ]);
               })()) ]);
           };
       };
@@ -9542,7 +9288,8 @@ var PS = {};
                   keyText: function (key) {
                       return key;
                   },
-                  menuItem: HomeItem.value
+                  menuItem: HomeItem.value,
+                  expand: false
               },
               render: render($$this),
               componentDidMount: function __do() {
@@ -9560,19 +9307,20 @@ var PS = {};
                                   user: new Data_Maybe.Just(v.value0.val.value0.user),
                                   lang: v1.lang,
                                   keyText: v1.keyText,
-                                  menuItem: v1.menuItem
+                                  menuItem: v1.menuItem,
+                                  expand: v1.expand
                               };
                           });
                       };
                       if (v instanceof Data_Either.Right) {
                           return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                       };
-                      throw new Error("Failed pattern match at App (line 76, column 28 - line 79, column 31): " + [ v.constructor.name ]);
+                      throw new Error("Failed pattern match at App (line 79, column 28 - line 82, column 31): " + [ v.constructor.name ]);
                   })((function () {
-                      var $28 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                      var $29 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                      return function ($30) {
-                          return $28($29($30));
+                      var $34 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                      var $35 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                      return function ($36) {
+                          return $34($35($36));
                       };
                   })())();
               }

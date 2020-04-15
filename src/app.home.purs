@@ -18,7 +18,7 @@ import Foreign (Foreign, F, readNumber, readString, typeOf)
 import Foreign.Index ((!)) as F
 import Foreign.Keys (keys) as F
 import React (ReactClass, getProps, getState, component, ReactThis)
-import React.DOM (text, div)
+import React.DOM (text, div, h6, span)
 import React.DOM.Props (_id, _type, onClick, name, checked, href, src, height, async)
 
 import Api.Pull (encodePull, Pull(TelegramLogin), TelegramData(TelegramString, TelegramNum))
@@ -54,14 +54,19 @@ homeClass = component "Home" \this -> do
   render this = do
     props <- getProps this
     state <- getState this
-    pure $ div []
-      [ div [ cn "d-flex justify-content-center" ] 
-        [ text $ props.keyText "key.home.text"
+    pure $ div [ cn "m-2" ]
+      [ div [ cn "d-flex justify-content-center mb-3" ] 
+        [ h6 [] [ text $ props.keyText "key.home.head" ]
+        ]
+      , div [ cn "d-flex justify-content-center mb-3" ] 
+        [ span [] [ text $ props.keyText "key.home.text" ]
         ]
       , div [ cn $ if (isJust props.user) then "d-none" else "" ] 
-        [ div [ cn $ "d-flex justify-content-center", _id "login-widget"] []
-        , div [ cn "d-flex justify-content-center" ] 
-          [ text $ props.keyText "key.home.login.hint"
+        [ div [ cn $ "d-flex justify-content-center mb-3", _id "login-widget"] []
+        , div [ cn "d-flex justify-content-center mb-3" ] 
+          [ div [ cn "alert alert-info" ] 
+            [ text $ props.keyText "key.home.login.hint"
+            ]
           ]
         ]
       ]

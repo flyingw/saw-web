@@ -27,6 +27,7 @@ import Api (PassengerType(..))
 import Api.Push (decodePush, UserData)
 import Api.Pull (Pull(AddPassenger), encodePull, Address)
 import Keys (keyPassengerType)
+import Format (todayISO)
 
 type Props =
   { ws :: WebSocket
@@ -48,7 +49,7 @@ type State =
 
 riderClass :: ReactClass Props
 riderClass = component "Rider" \this -> do
-  date <- today
+  date <- todayISO
   props <- getProps this
   pure
     { state:
@@ -77,9 +78,6 @@ riderClass = component "Rider" \this -> do
   
   typesMap :: Map String PassengerType
   typesMap = fromFoldable $ map (\v -> Tuple (keyPassengerType v) v) types
-
-  today :: Effect String 
-  today = now >>= toISOString <#> (take 19)
 
   sendPassenger :: ReactThis Props State -> Effect Unit
   sendPassenger this = do
@@ -115,7 +113,7 @@ riderClass = component "Rider" \this -> do
         [ h6 [] [ text $ props.keyText "key.passenger_data" ]
         , div [ cn "form-row" ]
           [ div [ cn "col-md-2 mb-3" ]
-            [ label [ htmlFor "firstName" ] [ text $ props.keyText "key.firstName" ]
+            [ label [ htmlFor "firstName" ] [ text $ props.keyText "key.first_name" ]
             , input [ _type "text", cn "form-control", _id "firstName", required true 
                     , value state.firstName
                     , onChangeValue \v -> modifyState this _{ firstName=v }
@@ -123,13 +121,13 @@ riderClass = component "Rider" \this -> do
                     ]
             ]
           , div [ cn "col-md-2 mb-3" ]
-            [ label [ htmlFor "lastName" ] [ text $ props.keyText "key.lastName" ]
+            [ label [ htmlFor "lastName" ] [ text $ props.keyText "key.last_name" ]
             , input [ _type "text", cn "form-control", _id "lastName", required true 
                     , value state.lastName
                     , onChangeValue \v -> modifyState this _{ lastName=v }
                     , value state.lastName
                     ]
-            , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.lastName.hint" ]
+            , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.last_name.hint" ]
             ]
           , div [ cn "col-md-4 mb-3" ]
             [ label [ htmlFor "phone" ] [ text $ props.keyText "key.phone" ]

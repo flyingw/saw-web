@@ -7,8 +7,8 @@ import Prelude hiding (div)
 
 import Data.Maybe (Maybe(..), maybe, fromMaybe, isJust)
 import React (ReactClass, getProps, getState, modifyState, component, createLeafElement)
-import React.DOM (text, div, ul, li, a)
-import React.DOM.Props (href, onClick)
+import React.DOM (text, div, ul, li, a, button)
+import React.DOM.Props (href, onClick, _type)
 import React.SyntheticEvent (preventDefault) as R
 
 import Lib.React(cn)
@@ -44,12 +44,12 @@ addClass = component "Add" \this -> do
       }
     , render: render this
     }
-  where  
+  where
   render this = do
     props <- getProps this
     state <- getState this
     pure $ div []
-      [ ul [ cn "nav nav-tabs" ] $
+      [ ul [ cn "nav nav-pills nav-pills-primary justify-content-center" ] $
         map (\t ->
           li [ cn "nav-item" ]
             [ a [ cn $ "nav-link" <> if t == state.tab then " active" else ""

@@ -34,15 +34,15 @@ type UserData' = { id :: Maybe Number, username :: Maybe String, firstName :: Ma
 type AddRouteOk = { id :: String }
 type AddRouteOk' = { id :: Maybe String }
 type FreeDrivers = { freeDrivers :: Array DriverInfo }
-type DriverInfo = { id :: String, date :: String, routes :: Array RouteInfo, types :: Array PassengerType }
-type DriverInfo' = { id :: Maybe String, date :: Maybe String, routes :: Array RouteInfo, types :: Array PassengerType }
+type DriverInfo = { id :: String, date :: Number, routes :: Array RouteInfo, types :: Array PassengerType }
+type DriverInfo' = { id :: Maybe String, date :: Maybe Number, routes :: Array RouteInfo, types :: Array PassengerType }
 type RouteInfo = { fromAddress :: String, fromLocation :: Location, toAddress :: String, toLocation :: Location }
 type RouteInfo' = { fromAddress :: Maybe String, fromLocation :: Maybe Location, toAddress :: Maybe String, toLocation :: Maybe Location }
 type Location = { lat :: Number, lng :: Number }
 type Location' = { lat :: Maybe Number, lng :: Maybe Number }
 type FreePassengers = { freePassengers :: Array PassengerInfo }
-type PassengerInfo = { id :: String, date :: String, fromAddress :: String, fromLocation :: Location, toAddress :: String, toLocation :: Location, tpe :: PassengerType }
-type PassengerInfo' = { id :: Maybe String, date :: Maybe String, fromAddress :: Maybe String, fromLocation :: Maybe Location, toAddress :: Maybe String, toLocation :: Maybe Location, tpe :: Maybe PassengerType }
+type PassengerInfo = { id :: String, date :: Number, fromAddress :: String, fromLocation :: Location, toAddress :: String, toLocation :: Location, tpe :: PassengerType }
+type PassengerInfo' = { id :: Maybe String, date :: Maybe Number, fromAddress :: Maybe String, fromLocation :: Maybe Location, toAddress :: Maybe String, toLocation :: Maybe Location, tpe :: Maybe PassengerType }
 
 decodePush :: Uint8Array -> Decode.Result Push
 decodePush _xs_ = do
@@ -200,7 +200,7 @@ decodeDriverInfo _xs_ pos0 = do
       { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
       case tag `zshr` 3 of
         1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { id = Just val }
-        6 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { date = Just val }
+        6 -> decodeFieldLoop end (Decode.double _xs_ pos2) \val -> acc { date = Just val }
         8 -> decodeFieldLoop end (decodeRouteInfo _xs_ pos2) \val -> acc { routes = snoc acc.routes val }
         9 -> decodeFieldLoop end (decodePassengerType _xs_ pos2) \val -> acc { types = snoc acc.types val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
@@ -268,7 +268,7 @@ decodePassengerInfo _xs_ pos0 = do
       { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
       case tag `zshr` 3 of
         1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { id = Just val }
-        5 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { date = Just val }
+        5 -> decodeFieldLoop end (Decode.double _xs_ pos2) \val -> acc { date = Just val }
         6 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { fromAddress = Just val }
         7 -> decodeFieldLoop end (decodeLocation _xs_ pos2) \val -> acc { fromLocation = Just val }
         8 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { toAddress = Just val }

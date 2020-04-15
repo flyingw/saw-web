@@ -16,7 +16,7 @@ import Effect.Console (error)
 import Global (encodeURI)
 import React (ReactClass, ReactThis, getProps, getState, modifyState, component)
 import React.DOM (text, div, form, label, input, button, h6, small, iframe)
-import React.DOM.Props (htmlFor, _id, _type, noValidate, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, disabled, checked)
+import React.DOM.Props (htmlFor, _id, _type, noValidate, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, disabled, checked, placeholder)
 
 import Lib.React(cn, onChangeValue, onChangeValueInt)
 import Lib.WebSocket (WebSocket)
@@ -26,6 +26,7 @@ import Api (PassengerType(..))
 import Api.Pull (Pull(AddDriver), encodePull, Address)
 import Api.Push (decodePush, Push(AddRouteOk), UserData)
 import Keys (keyPassengerType)
+import Format (todayISO)
 
 type Props =
   { ws :: WebSocket
@@ -51,7 +52,7 @@ type State =
 
 driverClass :: ReactClass Props
 driverClass = component "Driver" \this -> do
-  date <- today
+  date <- todayISO
   props <- getProps this
   pure
     { state:
@@ -80,9 +81,6 @@ driverClass = component "Driver" \this -> do
     }
   where
 
-  today :: Effect String 
-  today = now >>= toISOString <#> (take 19)
-  
   sendDriver :: ReactThis Props State -> Effect Unit
   sendDriver this = do
     s <- getState this
@@ -117,12 +115,12 @@ driverClass = component "Driver" \this -> do
   render this = do
     props <- getProps this
     state <- getState this
-    pure $ div [ cn "m-2  " ]
+    pure $ div [ cn "m-2" ]
       [ form [ noValidate true ]
         [ h6 [] [ text $ props.keyText "key.driver_data" ]
         , div [ cn "form-row" ]
           [ div [ cn "col-md-2 mb-3" ]
-            [ label [ htmlFor "firstName" ] [ text $ props.keyText "key.firstName" ]
+            [ label [ htmlFor "firstName" ] [ text $ props.keyText "key.first_name" ]
             , input [ _type "text", cn "form-control", _id "firstName", required true 
                     , value state.firstName
                     , onChangeValue \v -> modifyState this _{ firstName=v }
@@ -130,19 +128,20 @@ driverClass = component "Driver" \this -> do
                     ]
             ]
           , div [ cn "col-md-2 mb-3" ]
-            [ label [ htmlFor "lastName" ] [ text $ props.keyText "key.lastName" ]
+            [ label [ htmlFor "lastName" ] [ text $ props.keyText "key.last_name" ]
             , input [ _type "text", cn "form-control", _id "lastName", required true 
                     , value state.lastName
                     , onChangeValue \v -> modifyState this _{ lastName=v }
                     , value state.lastName
                     ]
-            , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.lastName.hint" ]
+            , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.last_name.hint" ]
             ]
           , div [ cn "col-md-4 mb-3" ]
             [ label [ htmlFor "phone" ] [ text $ props.keyText "key.phone" ]
             , input [ _type "text", cn "form-control", _id "phone", autoComplete "phone", required true 
                     , value state.phone
                     , onChangeValue \v -> modifyState this _{ phone=v }
+                    , placeholder "+38-000-000000"
                     ]
             , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.phone.hint" ]
             ]
@@ -158,9 +157,16 @@ driverClass = component "Driver" \this -> do
         , div [ cn "form-row" ]
           [ div [ cn "col-md-8" ]
             [ div [ cn "form-row" ]
-              [ div [ cn "col-md-6 mb-3" ]
+              [ div [ cn "col-md-4 mb-3" ]
                 [ label [ htmlFor "date" ] [ text $ props.keyText "key.date" ]
-                , input [ _type "datetime-local", cn "form-control", _id "date", required true
+                , input [ _type "date", cn "form-control", _id "date", required true
+                        , value state.date
+                        , onChangeValue \v -> modifyState this _{ date=v }
+                        ]
+                ]
+              , div [ cn "col-md-2 mb-3" ]
+                [ label [ htmlFor "date" ] [ text $ props.keyText "key.date" ]
+                , input [ _type "time", cn "form-control", _id "date", required true
                         , value state.date
                         , onChangeValue \v -> modifyState this _{ date=v }
                         ]

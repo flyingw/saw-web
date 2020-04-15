@@ -4,6 +4,7 @@ import Prelude hiding (div)
 
 import Control.Monad.Except (runExcept)
 import Data.Array (take, drop, mapMaybe)
+import Control.Alt ((<|>))
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), maybe, fromMaybe)
 import Data.String.Common (joinWith, split, toLower)
@@ -18,7 +19,7 @@ import Foreign (Foreign, F, readNumber, readString, typeOf)
 import Foreign.Keys (keys) as F
 import Foreign.Index ((!)) as F
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
-import React.DOM (div, text, nav, ul, li, a, label, input, img)
+import React.DOM (div, text, nav, ul, li, a, label, input, img, button, span)
 import React.DOM.Props (_type, onClick, name, checked, href, src, height)
 import ReactDOM (render)
 import Web.DOM.NonElementParentNode (getElementById)
@@ -47,6 +48,7 @@ type State =
   , lang :: String
   , keyText :: String -> String
   , menuItem :: MenuItem
+  , expand :: Boolean
   }
 
 data MenuItem = HomeItem | ViewItem | AddItem
@@ -66,6 +68,7 @@ appClass = component "App" \this -> do
       , lang: "uk"
       , keyText: \key -> key
       , menuItem: HomeItem
+      , expand: false
       }:: State
     , render: render this
     , componentDidMount: do
@@ -92,49 +95,71 @@ appClass = component "App" \this -> do
   render :: ReactThis Props State -> Effect ReactElement
   render this = do
     props <- getProps this
-    let ws = props.ws
     state <- getState this
+    u     <- userIcon this
     pure $ div []
-      [ nav [ cn "navbar navbar-expand-lg navbar-light bg-light" ]
-        [ ul [ cn "navbar-nav mr-auto mt-2 mt-lg-0" ] $
+      [ nav [ cn "navbar navbar-expand-lg navbar-dark bg-primary" ]
+        [ a [ cn "navbar-brand", href "#", onClick \_ -> modifyState this _{ menuItem = HomeItem } ] [ text "Ridehub" ]
+        , ul [ cn "navbar-nav ml-auto nav-flex-icons d-lg-none" ] [ u ]
+        , button [ cn "navbar-toggler collapsed", _type "button" 
+                 , onClick \_ -> modifyState this \s -> s { expand = not s.expand }
+                 ] 
+          [ span [ cn "navbar-toggler-icon" ] [] 
+          ]
+        , div [ cn $ "navbar-collapse" <> if state.expand then "" else " collapse" ]
+          [ ul [ cn "navbar-nav mr-auto" ] $
             map (\v ->
               li [ cn $ "nav-item" <> if v == state.menuItem then " active" else "" ]
               [ a [ cn "nav-link", href "#"
-                  , onClick \_ -> modifyState this _{ menuItem = v }
+                  , onClick \_ -> modifyState this _{ menuItem = v, expand = false }
                   ] 
                 [ text $ state.keyText $ show v ]
               ]
-            ) [ HomeItem, ViewItem, AddItem ]
-        , case state.user of
-            Just user ->
-                ul [ cn "navbar-nav ml-auto mr-2 nav-flex-icons" ]
-                [ li [ cn "nav-item avatar" ]
-                  [ a [ cn "nav-link p-0", href "#" ]
-                    [ img [ src $ fromMaybe "" user.photo, cn "rounded-circle z-depth-0 mr-1", height "35" ]
-                    , text $ fromMaybe user.username $ user.firstName <#> \fn -> fn <> " " <> (fromMaybe "" user.lastName)
-                    ]
-                  ]
-                ]
-            Nothing -> mempty
-        , div [ cn "btn-group btn-group-sm btn-group-toggle" ] $
-            map (\v ->
-              label [ cn $ "btn btn-secondary" <> if state.lang == v then " active" else "" ]
-              [ input [ _type "radio", name "options", checked $ state.lang == v
-                      , onClick \_ -> setLang this v
-                      ]
-              , text $ state.keyText $ "key." <> v
-              ]
-            ) [ "uk", "ru" ]
+            ) [ HomeItem, AddItem, ViewItem ]
+          ]
+        , ul [ cn "navbar-nav ml-auto nav-flex-icons d-none d-lg-inline" ] [ u ]
+        
+        -- , div [ cn "btn-group btn-group-sm btn-group-toggle" ] $
+        --     map (\v ->
+        --       label [ cn $ "btn btn-outline-secondary" <> if state.lang == v then " active" else "" ]
+        --       [ input [ _type "radio", name "options", checked $ state.lang == v
+        --               , onClick \_ -> setLang this v
+        --               ]
+        --       , text $ state.keyText $ "key." <> v
+        --       ]
+        --     ) [ "uk", "ru" ]
         ]
       , div [ cn "m-2"] $
           case state.menuItem of
-            HomeItem -> [ createLeafElement homeClass {ws: ws, lang: state.lang, keyText: state.keyText, user: state.user}
+            HomeItem -> [ createLeafElement homeClass {ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user}
                         ]
-            ViewItem -> [ createLeafElement viewClass {ws: ws, lang: state.lang, keyText: state.keyText, user: state.user}
+            ViewItem -> [ createLeafElement viewClass {ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user}
                         ]
-            AddItem  -> [ createLeafElement addClass {ws: ws, lang: state.lang, keyText: state.keyText, user: state.user}
+            AddItem  -> [ createLeafElement addClass {ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user}
                         ]
       ]
+
+  userIcon :: ReactThis Props State -> Effect ReactElement
+  userIcon this = do
+    state <- getState this
+    pure $ case state.user of
+      Just user @ { photo: Just photo } ->
+        li [ cn "nav-item avatar" ]
+        [ a [ cn "nav-link p-0", href "#" ]
+          [ img [ src photo, cn "rounded-circle z-depth-0 mr-1", height "35" ]
+          , text $ fromMaybe user.username $ user.firstName <|> user.lastName 
+          ]
+        ]
+      Just user ->
+        li [ cn "nav-item" ]
+        [ a [ cn "nav-link", href "#" ]
+          [ text $ fromMaybe user.username $ user.firstName <|> user.lastName ]
+        ]
+      Nothing ->
+        li [ cn "nav-item" ]
+        [ a [ cn "nav-link", href "#" ]
+          [ text $ state.keyText "key.login" ]
+        ]
 
 view :: Effect Unit
 view = do
