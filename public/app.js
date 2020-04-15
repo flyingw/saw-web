@@ -8932,7 +8932,7 @@ var PS = {};
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
               var dl = driversList($$this)();
-              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center row mb-3") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control col-5 col-sm-4 col-md-3 col-lg-2 mr-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
+              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center row mb-3") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           date: v,
@@ -9062,7 +9062,7 @@ var PS = {};
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
               var dl = passengersList($$this)();
-              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control col-5 col-sm-4 col-md-3 col-lg-2 mr-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
+              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           date: v,

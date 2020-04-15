@@ -81,7 +81,7 @@ ridersClass = component "View.Passengers" \this -> do
     pure $
       div [ cn "m-2" ]
       [ div [ cn "d-flex justify-content-center mb-3" ]
-        [ input [ _type "date", cn "form-control col-5 col-sm-4 col-md-3 col-lg-2 mr-2", _id "date"
+        [ input [ _type "date", cn "form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2", _id "date"
                 , value state.date
                 , onChangeValue \v -> modifyState this _{ date=v }
                 ]
