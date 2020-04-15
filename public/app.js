@@ -6521,7 +6521,6 @@ var PS = {};
   var src = $foreign.unsafeMkProps("src");    
   var selected = $foreign.unsafeMkProps("selected");
   var required = $foreign.unsafeMkProps("required");
-  var placeholder = $foreign.unsafeMkProps("placeholder");
   var onClick = function (f) {
       return $foreign.unsafeMkProps("onClick")(Effect_Uncurried.mkEffectFn1(f));
   };
@@ -6554,7 +6553,6 @@ var PS = {};
   exports["key"] = key;
   exports["max"] = max;
   exports["min"] = min;
-  exports["placeholder"] = placeholder;
   exports["required"] = required;
   exports["selected"] = selected;
   exports["src"] = src;
@@ -7265,7 +7263,7 @@ var PS = {};
               return React.modifyState($$this)(function (state) {
                   return {
                       mapQ: new Data_Maybe.Just(q),
-                      routeN: state.routeN,
+                      routeId: state.routeId,
                       firstName: state.firstName,
                       lastName: state.lastName,
                       phone: state.phone,
@@ -7275,7 +7273,8 @@ var PS = {};
                       seats: state.seats,
                       from: state.from,
                       to: state.to,
-                      types: state.types
+                      types: state.types,
+                      "await": state["await"]
                   };
               })();
           };
@@ -7285,6 +7284,23 @@ var PS = {};
               var s = React.getState($$this)();
               var p = React.getProps($$this)();
               var d = Data_JSDate.parse(s.date)();
+              React.modifyState($$this)(function (v) {
+                  return {
+                      mapQ: v.mapQ,
+                      routeId: v.routeId,
+                      firstName: v.firstName,
+                      lastName: v.lastName,
+                      phone: v.phone,
+                      carPlate: v.carPlate,
+                      date: v.date,
+                      lap: v.lap,
+                      seats: v.seats,
+                      from: v.from,
+                      to: v.to,
+                      types: v.types,
+                      "await": true
+                  };
+              })();
               var driver = new Api_Pull.AddDriver({
                   firstName: s.firstName,
                   lastName: s.lastName,
@@ -7317,8 +7333,9 @@ var PS = {};
                           types: v1.types,
                           from: v1.from,
                           to: v1.to,
+                          "await": v1["await"],
                           mapQ: v1.mapQ,
-                          routeN: v1.routeN
+                          routeId: v1.routeId
                       };
                   });
               }), React_DOM_Props.value(state.firstName) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lastName") ])([ React_DOM.text(props.keyText("key.last_name")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lastName"), React_DOM_Props.required(true), React_DOM_Props.value(state.lastName), Lib_React.onChangeValue(function (v) {
@@ -7334,8 +7351,9 @@ var PS = {};
                           types: v1.types,
                           from: v1.from,
                           to: v1.to,
+                          "await": v1["await"],
                           mapQ: v1.mapQ,
-                          routeN: v1.routeN
+                          routeId: v1.routeId
                       };
                   });
               }), React_DOM_Props.value(state.lastName) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.last_name.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text(props.keyText("key.phone")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), React_DOM_Props.value(state.phone), Lib_React.onChangeValue(function (v) {
@@ -7351,11 +7369,12 @@ var PS = {};
                           types: v1.types,
                           from: v1.from,
                           to: v1.to,
+                          "await": v1["await"],
                           mapQ: v1.mapQ,
-                          routeN: v1.routeN
+                          routeId: v1.routeId
                       };
                   });
-              }), React_DOM_Props.placeholder("+38-000-000000") ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("carPlate") ])([ React_DOM.text(props.keyText("key.car_plate")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("carPlate"), React_DOM_Props.autoComplete("carPlate"), React_DOM_Props.required(true), React_DOM_Props.value(state.carPlate), Lib_React.onChangeValue(function (v) {
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("carPlate") ])([ React_DOM.text(props.keyText("key.car_plate")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("carPlate"), React_DOM_Props.autoComplete("carPlate"), React_DOM_Props.required(true), React_DOM_Props.value(state.carPlate), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -7368,8 +7387,9 @@ var PS = {};
                           types: v1.types,
                           from: v1.from,
                           to: v1.to,
+                          "await": v1["await"],
                           mapQ: v1.mapQ,
-                          routeN: v1.routeN
+                          routeId: v1.routeId
                       };
                   });
               }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_plate.hint")) ]) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_data")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React_DOM.input([ React_DOM_Props["_type"]("datetime-local"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
@@ -7385,8 +7405,9 @@ var PS = {};
                           types: v1.types,
                           from: v1.from,
                           to: v1.to,
+                          "await": v1["await"],
                           mapQ: v1.mapQ,
-                          routeN: v1.routeN
+                          routeId: v1.routeId
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 col-lg-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lap") ])([ React_DOM.text(props.keyText("key.lap")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lap"), React_DOM_Props.min("2"), React_DOM_Props.max("10"), React_DOM_Props.value("3"), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.lap)), Lib_React.onChangeValueInt(function (v) {
@@ -7402,8 +7423,9 @@ var PS = {};
                           types: v1.types,
                           from: v1.from,
                           to: v1.to,
+                          "await": v1["await"],
                           mapQ: v1.mapQ,
-                          routeN: v1.routeN
+                          routeId: v1.routeId
                       };
                   });
               }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.lap.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 col-lg-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("seats") ])([ React_DOM.text(props.keyText("key.seats")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("seats"), React_DOM_Props.min("1"), React_DOM_Props.max("5"), React_DOM_Props.value("1"), React_DOM_Props.disabled(true), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.seats)), Lib_React.onChangeValueInt(function (v) {
@@ -7419,8 +7441,9 @@ var PS = {};
                           types: v1.types,
                           from: v1.from,
                           to: v1.to,
+                          "await": v1["await"],
                           mapQ: v1.mapQ,
-                          routeN: v1.routeN
+                          routeId: v1.routeId
                       };
                   });
               }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.seats.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 d-lg-none mb-md-3") ])([  ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-5 mb-3") ])([ React_DOM.div([  ])([ React_DOM.label([  ])([ React_DOM.text(props.keyText("key.passenger")) ]) ]), React_DOM.div([ Lib_React.cn("mb-2") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
@@ -7435,16 +7458,17 @@ var PS = {};
                               lap: v2.lap,
                               seats: v2.seats,
                               types: (function () {
-                                  var $34 = Data_Foldable.elem(Data_Foldable.foldableArray)(Api.eqPassengerType)(v)(state.types);
-                                  if ($34) {
+                                  var $35 = Data_Foldable.elem(Data_Foldable.foldableArray)(Api.eqPassengerType)(v)(state.types);
+                                  if ($35) {
                                       return Data_Array["delete"](Api.eqPassengerType)(v)(state.types);
                                   };
                                   return Data_Array.cons(v)(state.types);
                               })(),
                               from: v2.from,
                               to: v2.to,
+                              "await": v2["await"],
                               mapQ: v2.mapQ,
-                              routeN: v2.routeN
+                              routeId: v2.routeId
                           };
                       });
                   }) ]), React_DOM.label([ Lib_React.cn("form-check-label"), React_DOM_Props.htmlFor(Keys.keyPassengerType(v)) ])([ React_DOM.text(props.keyText(Keys.keyPassengerType(v))) ]) ]);
@@ -7466,8 +7490,9 @@ var PS = {};
                               building: s.from.building
                           },
                           to: s.to,
+                          "await": s["await"],
                           mapQ: s.mapQ,
-                          routeN: s.routeN
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityFrom") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.city), Lib_React.onChangeValue(function (v) {
@@ -7488,8 +7513,9 @@ var PS = {};
                               building: s.from.building
                           },
                           to: s.to,
+                          "await": s["await"],
                           mapQ: s.mapQ,
-                          routeN: s.routeN
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetFrom") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.street), Lib_React.onChangeValue(function (v) {
@@ -7510,8 +7536,9 @@ var PS = {};
                               building: s.from.building
                           },
                           to: s.to,
+                          "await": s["await"],
                           mapQ: s.mapQ,
-                          routeN: s.routeN
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("buildingFrom") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("buildingFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.building), Lib_React.onChangeValue(function (v) {
@@ -7532,8 +7559,9 @@ var PS = {};
                               building: v
                           },
                           to: s.to,
+                          "await": s["await"],
                           mapQ: s.mapQ,
-                          routeN: s.routeN
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_end")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("countryTo") ])([ React_DOM.text(props.keyText("key.country")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("countryTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.country), Lib_React.onChangeValue(function (v) {
@@ -7554,8 +7582,9 @@ var PS = {};
                               street: s.to.street,
                               building: s.to.building
                           },
+                          "await": s["await"],
                           mapQ: s.mapQ,
-                          routeN: s.routeN
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityTo") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.city), Lib_React.onChangeValue(function (v) {
@@ -7576,8 +7605,9 @@ var PS = {};
                               street: s.to.street,
                               building: s.to.building
                           },
+                          "await": s["await"],
                           mapQ: s.mapQ,
-                          routeN: s.routeN
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetTo") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.street), Lib_React.onChangeValue(function (v) {
@@ -7598,8 +7628,9 @@ var PS = {};
                               street: v,
                               building: s.to.building
                           },
+                          "await": s["await"],
                           mapQ: s.mapQ,
-                          routeN: s.routeN
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("houseTo") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("houseTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.building), Lib_React.onChangeValue(function (v) {
@@ -7620,8 +7651,9 @@ var PS = {};
                               street: s.to.street,
                               building: v
                           },
+                          "await": s["await"],
                           mapQ: s.mapQ,
-                          routeN: s.routeN
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]) ]), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
@@ -7633,10 +7665,23 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 262, column 9 - line 270, column 28): " + [ state.mapQ.constructor.name ]);
-              })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
-                  return sendDriver($$this);
-              }) ])([ React_DOM.text(props.keyText("key.add")) ]) ]);
+                  throw new Error("Failed pattern match at App.Driver (line 264, column 9 - line 272, column 28): " + [ state.mapQ.constructor.name ]);
+              })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), (function () {
+                  if (state.routeId instanceof Data_Maybe.Just) {
+                      return React_DOM.div([ Lib_React.cn("alert alert-success") ])([ React_DOM.text(props.keyText("key.add.success") + (" " + state.routeId.value0)) ]);
+                  };
+                  if (state.routeId instanceof Data_Maybe.Nothing) {
+                      return React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.disabled(state["await"]), React_DOM_Props.onClick(function (v) {
+                          return sendDriver($$this);
+                      }) ])([ React_DOM.text(props.keyText("key.add")), (function () {
+                          if (state["await"]) {
+                              return React_DOM.div([ Lib_React.cn("spinner-border text-light spinner-border-sm ml-1") ])([  ]);
+                          };
+                          return Data_Monoid.mempty(React.monoidReactElement);
+                      })() ]);
+                  };
+                  throw new Error("Failed pattern match at App.Driver (line 284, column 9 - line 294, column 14): " + [ state.routeId.constructor.name ]);
+              })() ]);
           };
       };
       return React.component()("Driver")(function ($$this) {
@@ -7646,7 +7691,7 @@ var PS = {};
               return {
                   state: {
                       mapQ: Data_Maybe.Nothing.value,
-                      routeN: Data_Maybe.Nothing.value,
+                      routeId: Data_Maybe.Nothing.value,
                       firstName: Data_Maybe.fromMaybe("")(Control_Bind.bind(Data_Maybe.bindMaybe)(props.user)(function (v) {
                           return v.firstName;
                       })),
@@ -7674,7 +7719,8 @@ var PS = {};
                           street: "\u041b\u044c\u0432\u0430 \u0422\u043e\u043b\u0441\u0442\u043e\u0433\u043e",
                           building: "1"
                       },
-                      types: Data_Array.fromFoldable(Data_Foldable.foldableArray)([ Api.Medical.value, Api.Police.value, Api.Firefighter.value, Api.Army.value, Api.Farmacy.value, Api.Cashier.value, Api.Regular.value ])
+                      types: Data_Array.fromFoldable(Data_Foldable.foldableArray)([ Api.Medical.value, Api.Police.value, Api.Firefighter.value, Api.Army.value, Api.Farmacy.value, Api.Cashier.value, Api.Regular.value ]),
+                      "await": false
                   },
                   render: render($$this),
                   componentDidMount: function __do() {
@@ -7697,20 +7743,21 @@ var PS = {};
                                       types: v1.types,
                                       from: v1.from,
                                       to: v1.to,
+                                      "await": v1["await"],
                                       mapQ: v1.mapQ,
-                                      routeN: new Data_Maybe.Just(v.value0.val.value0.id)
+                                      routeId: new Data_Maybe.Just(v.value0.val.value0.id)
                                   };
                               });
                           };
                           if (v instanceof Data_Either.Right) {
                               return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                           };
-                          throw new Error("Failed pattern match at App.Driver (line 76, column 28 - line 79, column 31): " + [ v.constructor.name ]);
+                          throw new Error("Failed pattern match at App.Driver (line 78, column 28 - line 81, column 31): " + [ v.constructor.name ]);
                       })((function () {
-                          var $43 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $44 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($45) {
-                              return $43($44($45));
+                          var $47 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $48 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($49) {
+                              return $47($48($49));
                           };
                       })())();
                   }
@@ -8194,13 +8241,15 @@ var PS = {};
               return React.modifyState($$this)(function (state) {
                   return {
                       mapQ: new Data_Maybe.Just(q),
+                      routeId: state.routeId,
                       firstName: state.firstName,
                       lastName: state.lastName,
                       phone: state.phone,
                       date: state.date,
                       tpe: state.tpe,
                       from: state.from,
-                      to: state.to
+                      to: state.to,
+                      "await": state["await"]
                   };
               })();
           };
@@ -8214,6 +8263,20 @@ var PS = {};
               var s = React.getState($$this)();
               var p = React.getProps($$this)();
               var d = Data_JSDate.parse(s.date)();
+              React.modifyState($$this)(function (v) {
+                  return {
+                      mapQ: v.mapQ,
+                      routeId: v.routeId,
+                      firstName: v.firstName,
+                      lastName: v.lastName,
+                      phone: v.phone,
+                      date: v.date,
+                      tpe: v.tpe,
+                      from: v.from,
+                      to: v.to,
+                      "await": true
+                  };
+              })();
               var driver = new Api_Pull.AddPassenger({
                   firstName: s.firstName,
                   lastName: s.lastName,
@@ -8239,8 +8302,10 @@ var PS = {};
                           tpe: v1.tpe,
                           from: v1.from,
                           to: v1.to,
+                          "await": v1["await"],
                           date: v1.date,
-                          mapQ: v1.mapQ
+                          mapQ: v1.mapQ,
+                          routeId: v1.routeId
                       };
                   });
               }), React_DOM_Props.value(state.firstName) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lastName") ])([ React_DOM.text(props.keyText("key.last_name")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lastName"), React_DOM_Props.required(true), React_DOM_Props.value(state.lastName), Lib_React.onChangeValue(function (v) {
@@ -8252,8 +8317,10 @@ var PS = {};
                           tpe: v1.tpe,
                           from: v1.from,
                           to: v1.to,
+                          "await": v1["await"],
                           date: v1.date,
-                          mapQ: v1.mapQ
+                          mapQ: v1.mapQ,
+                          routeId: v1.routeId
                       };
                   });
               }), React_DOM_Props.value(state.lastName) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.last_name.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text(props.keyText("key.phone")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), React_DOM_Props.value(state.phone), Lib_React.onChangeValue(function (v) {
@@ -8265,11 +8332,13 @@ var PS = {};
                           tpe: v1.tpe,
                           from: v1.from,
                           to: v1.to,
+                          "await": v1["await"],
                           date: v1.date,
-                          mapQ: v1.mapQ
+                          mapQ: v1.mapQ,
+                          routeId: v1.routeId
                       };
                   });
-              }), React_DOM_Props.placeholder("+38-000-000000") ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("specialization") ])([ React_DOM.text(props.keyText("key.specialization")) ]), React_DOM.select([ Lib_React.cn("custom-select"), React_DOM_Props["_id"]("type"), React_DOM_Props.value(Keys.keyPassengerType(state.tpe)), Lib_React.onChangeValue(function (v) {
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("specialization") ])([ React_DOM.text(props.keyText("key.specialization")) ]), React_DOM.select([ Lib_React.cn("custom-select"), React_DOM_Props["_id"]("type"), React_DOM_Props.value(Keys.keyPassengerType(state.tpe)), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -8278,8 +8347,10 @@ var PS = {};
                           tpe: Data_Maybe.fromMaybe(Api.Regular.value)(Data_Map_Internal.lookup(Data_Ord.ordString)(v)(typesMap)),
                           from: v1.from,
                           to: v1.to,
+                          "await": v1["await"],
                           date: v1.date,
-                          mapQ: v1.mapQ
+                          mapQ: v1.mapQ,
+                          routeId: v1.routeId
                       };
                   });
               }) ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
@@ -8298,8 +8369,10 @@ var PS = {};
                               building: s.from.building
                           },
                           to: s.to,
+                          "await": s["await"],
                           date: s.date,
-                          mapQ: s.mapQ
+                          mapQ: s.mapQ,
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityFrom") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.city), Lib_React.onChangeValue(function (v) {
@@ -8316,8 +8389,10 @@ var PS = {};
                               building: s.from.building
                           },
                           to: s.to,
+                          "await": s["await"],
                           date: s.date,
-                          mapQ: s.mapQ
+                          mapQ: s.mapQ,
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetFrom") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.street), Lib_React.onChangeValue(function (v) {
@@ -8334,8 +8409,10 @@ var PS = {};
                               building: s.from.building
                           },
                           to: s.to,
+                          "await": s["await"],
                           date: s.date,
-                          mapQ: s.mapQ
+                          mapQ: s.mapQ,
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("buildingFrom") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("buildingFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.building), Lib_React.onChangeValue(function (v) {
@@ -8352,8 +8429,10 @@ var PS = {};
                               building: v
                           },
                           to: s.to,
+                          "await": s["await"],
                           date: s.date,
-                          mapQ: s.mapQ
+                          mapQ: s.mapQ,
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_end")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("countryTo") ])([ React_DOM.text(props.keyText("key.country")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("countryTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.country), Lib_React.onChangeValue(function (v) {
@@ -8370,8 +8449,10 @@ var PS = {};
                               street: s.to.street,
                               building: s.to.building
                           },
+                          "await": s["await"],
                           date: s.date,
-                          mapQ: s.mapQ
+                          mapQ: s.mapQ,
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityTo") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.city), Lib_React.onChangeValue(function (v) {
@@ -8388,8 +8469,10 @@ var PS = {};
                               street: s.to.street,
                               building: s.to.building
                           },
+                          "await": s["await"],
                           date: s.date,
-                          mapQ: s.mapQ
+                          mapQ: s.mapQ,
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetTo") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.street), Lib_React.onChangeValue(function (v) {
@@ -8406,8 +8489,10 @@ var PS = {};
                               street: v,
                               building: s.to.building
                           },
+                          "await": s["await"],
                           date: s.date,
-                          mapQ: s.mapQ
+                          mapQ: s.mapQ,
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("houseTo") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("houseTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.building), Lib_React.onChangeValue(function (v) {
@@ -8424,8 +8509,10 @@ var PS = {};
                               street: s.to.street,
                               building: v
                           },
+                          "await": s["await"],
                           date: s.date,
-                          mapQ: s.mapQ
+                          mapQ: s.mapQ,
+                          routeId: s.routeId
                       };
                   });
               }) ]) ]) ]), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
@@ -8437,10 +8524,23 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Rider (line 216, column 9 - line 224, column 28): " + [ state.mapQ.constructor.name ]);
-              })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
-                  return sendPassenger($$this);
-              }) ])([ React_DOM.text(props.keyText("key.add")) ]) ]);
+                  throw new Error("Failed pattern match at App.Rider (line 221, column 9 - line 229, column 28): " + [ state.mapQ.constructor.name ]);
+              })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), (function () {
+                  if (state.routeId instanceof Data_Maybe.Just) {
+                      return React_DOM.div([ Lib_React.cn("alert alert-success") ])([ React_DOM.text(props.keyText("key.add.success") + (" " + state.routeId.value0)) ]);
+                  };
+                  if (state.routeId instanceof Data_Maybe.Nothing) {
+                      return React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.disabled(state["await"]), React_DOM_Props.onClick(function (v) {
+                          return sendPassenger($$this);
+                      }) ])([ React_DOM.text(props.keyText("key.add")), (function () {
+                          if (state["await"]) {
+                              return React_DOM.div([ Lib_React.cn("spinner-border text-light spinner-border-sm ml-1") ])([  ]);
+                          };
+                          return Data_Monoid.mempty(React.monoidReactElement);
+                      })() ]);
+                  };
+                  throw new Error("Failed pattern match at App.Rider (line 241, column 9 - line 251, column 14): " + [ state.routeId.constructor.name ]);
+              })() ]);
           };
       };
       return React.component()("Rider")(function ($$this) {
@@ -8450,6 +8550,7 @@ var PS = {};
               return {
                   state: {
                       mapQ: Data_Maybe.Nothing.value,
+                      routeId: Data_Maybe.Nothing.value,
                       firstName: Data_Maybe.fromMaybe("")(Control_Bind.bind(Data_Maybe.bindMaybe)(props.user)(function (v) {
                           return v.firstName;
                       })),
@@ -8464,17 +8565,18 @@ var PS = {};
                           return v.tpe;
                       })),
                       from: {
-                          country: "ua",
+                          country: "\u0423\u043a\u0440\u0430\u0438\u043d\u0430",
                           city: "\u041a\u0438\u0435\u0432",
                           street: "\u0421\u043f\u043e\u0440\u0442\u0438\u0432\u043d\u0430\u044f",
                           building: "1"
                       },
                       to: {
-                          country: "ua",
+                          country: "\u0423\u043a\u0440\u0430\u0438\u043d\u0430",
                           city: "\u041a\u0438\u0435\u0432",
                           street: "\u041b\u044c\u0432\u0430 \u0422\u043e\u043b\u0441\u0442\u043e\u0433\u043e",
                           building: "1"
-                      }
+                      },
+                      "await": false
                   },
                   render: render($$this),
                   componentDidMount: function __do() {
@@ -8484,15 +8586,31 @@ var PS = {};
                           if (v instanceof Data_Either.Left) {
                               return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
                           };
+                          if (v instanceof Data_Either.Right && v.value0.val instanceof Api_Push.AddRouteOk) {
+                              return React.modifyState($$this)(function (v1) {
+                                  return {
+                                      firstName: v1.firstName,
+                                      lastName: v1.lastName,
+                                      phone: v1.phone,
+                                      tpe: v1.tpe,
+                                      from: v1.from,
+                                      to: v1.to,
+                                      "await": v1["await"],
+                                      date: v1.date,
+                                      mapQ: v1.mapQ,
+                                      routeId: new Data_Maybe.Just(v.value0.val.value0.id)
+                                  };
+                              });
+                          };
                           if (v instanceof Data_Either.Right) {
                               return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                           };
-                          throw new Error("Failed pattern match at App.Rider (line 69, column 28 - line 71, column 31): " + [ v.constructor.name ]);
+                          throw new Error("Failed pattern match at App.Rider (line 73, column 28 - line 76, column 31): " + [ v.constructor.name ]);
                       })((function () {
-                          var $33 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $34 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($35) {
-                              return $33($34($35));
+                          var $41 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $42 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($43) {
+                              return $41($42($43));
                           };
                       })())();
                   }
@@ -8961,7 +9079,7 @@ var PS = {};
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
               var dl = driversList($$this)();
-              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center row mb-3") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
+              return React_DOM.div([  ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center row mb-3") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           date: v,
@@ -9091,7 +9209,7 @@ var PS = {};
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
               var dl = passengersList($$this)();
-              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
+              return React_DOM.div([  ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           date: v,
@@ -9421,7 +9539,7 @@ var PS = {};
           return function __do() {
               var state = React.getState($$this)();
               if (state.user instanceof Data_Maybe.Just && state.user.value0.photo instanceof Data_Maybe.Just) {
-                  return React_DOM.li([ Lib_React.cn("nav-item avatar") ])([ React_DOM.span([ Lib_React.cn("nav-link p-0") ])([ React_DOM.img([ React_DOM_Props.src(state.user.value0.photo.value0), Lib_React.cn("rounded-circle z-depth-0 mr-1"), React_DOM_Props.height("35") ]), React_DOM.text(Data_Maybe.fromMaybe(state.user.value0.username)(Control_Alt.alt(Data_Maybe.altMaybe)(state.user.value0.firstName)(state.user.value0.lastName))) ]) ]);
+                  return React_DOM.li([ Lib_React.cn("avatar") ])([ React_DOM.span([ Lib_React.cn("nav-link p-0") ])([ React_DOM.img([ React_DOM_Props.src(state.user.value0.photo.value0), Lib_React.cn("rounded-circle z-depth-0 mr-1"), React_DOM_Props.height("35") ]), React_DOM.text(Data_Maybe.fromMaybe(state.user.value0.username)(Control_Alt.alt(Data_Maybe.altMaybe)(state.user.value0.firstName)(state.user.value0.lastName))) ]) ]);
               };
               if (state.user instanceof Data_Maybe.Just) {
                   return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.span([ Lib_React.cn("nav-link") ])([ React_DOM.text(Data_Maybe.fromMaybe(state.user.value0.username)(Control_Alt.alt(Data_Maybe.altMaybe)(state.user.value0.firstName)(state.user.value0.lastName))) ]) ]);
@@ -9528,7 +9646,7 @@ var PS = {};
                   return setLang($$this)(v);
               }) ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.option([ React_DOM_Props.value(v), React_DOM_Props.selected(v === state.lang) ])([ React_DOM.text(state.keyText("key." + v)) ]);
-              })([ "uk", "ru" ])) ]), React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto nav-flex-icons d-none d-lg-inline") ])([ u ]) ]), React_DOM.div([ Lib_React.cn("m-3") ])((function () {
+              })([ "uk", "ru" ])) ]), React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto nav-flex-icons d-none d-lg-inline") ])([ u ]) ]), React_DOM.div([ Lib_React.cn("m-sm-3 m-2") ])((function () {
                   if (state.menuItem instanceof HomeItem) {
                       return [ React.createLeafElement()(App_Home.homeClass)({
                           ws: props.ws,

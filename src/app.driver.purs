@@ -37,7 +37,7 @@ type Props =
 
 type State =
   { mapQ :: Maybe String
-  , routeN :: Maybe String
+  , routeId :: Maybe String
   , firstName :: String
   , lastName :: String
   , phone :: String
@@ -48,6 +48,7 @@ type State =
   , from :: Address
   , to :: Address
   , types :: Array PassengerType
+  , await :: Boolean
   }
 
 driverClass :: ReactClass Props
@@ -57,7 +58,7 @@ driverClass = component "Driver" \this -> do
   pure
     { state:
       { mapQ: Nothing
-      , routeN: Nothing
+      , routeId: Nothing
       , firstName: fromMaybe "" $ props.user >>= _.firstName
       , lastName: fromMaybe "" $ props.user >>= _.lastName
       , phone: fromMaybe "" $ props.user >>= _.phone
@@ -68,6 +69,7 @@ driverClass = component "Driver" \this -> do
       , from: { country: "Украина", city: "Киев", street: "Спортивная", building: "1" }
       , to: { country: "Украина", city: "Киев", street: "Льва Толстого", building: "1" }
       , types: fromFoldable [ Medical, Police, Firefighter, Army, Farmacy, Cashier, Regular ]
+      , await: false
       } :: State
     , render: render this
     , componentDidMount: do
@@ -75,7 +77,7 @@ driverClass = component "Driver" \this -> do
         let ws = p.ws
         WS.onMsg ws (\x -> case decodePush x of
           Left y -> error $ show y
-          Right { val: AddRouteOk r } -> modifyState this _{ routeN=Just r.id }
+          Right { val: AddRouteOk r } -> modifyState this _{ routeId=Just r.id }
           Right _ -> pure unit
         ) (sequence <<< map error)
     }
@@ -86,6 +88,7 @@ driverClass = component "Driver" \this -> do
     s <- getState this
     p <- getProps this
     d <- parse s.date
+    _ <- modifyState this _{ await = true }
     let driver = AddDriver { 
         firstName: s.firstName
       , lastName: s.lastName
@@ -141,7 +144,6 @@ driverClass = component "Driver" \this -> do
           , input [ _type "text", cn "form-control", _id "phone", autoComplete "phone", required true 
                   , value state.phone
                   , onChangeValue \v -> modifyState this _{ phone=v }
-                  , placeholder "+38-000-000000"
                   ]
           , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.phone.hint" ]
           ]
@@ -279,10 +281,15 @@ driverClass = component "Driver" \this -> do
           ]
         ]
       , div [ cn "alert alert-info col-md-12" ] [ text $ props.keyText "key.add.hint" ]
-      , button [ cn "btn btn-primary mb-3", _type "button"
-              --  , disabled $ isNothing state.mapQ
-                , onClick \_ -> sendDriver this 
-                ] 
-        [ text $ props.keyText "key.add"
-        ]
+      , case state.routeId of
+          Just id -> div [ cn "alert alert-success" ] [ text $ props.keyText "key.add.success" <> " " <> id ]
+          Nothing ->
+            button [ cn "btn btn-primary mb-3", _type "button"
+                  --  , disabled $ isNothing state.mapQ
+                    , disabled state.await
+                    , onClick \_ -> sendDriver this 
+                    ] 
+            [ text $ props.keyText "key.add"
+            , if state.await then div [ cn "spinner-border text-light spinner-border-sm ml-1" ] [] else mempty
+            ]
       ]

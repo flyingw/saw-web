@@ -79,7 +79,7 @@ driversClass = component "View.Drivers" \this -> do
     state <- getState this
     dl    <- driversList this
     pure $
-      div [ cn "m-2" ]
+      div []
       [ div [ cn "d-flex justify-content-center row mb-3" ]
         [ input [ _type "date", cn "form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2", _id "date"
                 , value state.date

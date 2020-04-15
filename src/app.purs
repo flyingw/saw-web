@@ -129,7 +129,7 @@ appClass = component "App" \this -> do
           ]
         , ul [ cn "navbar-nav ml-auto nav-flex-icons d-none d-lg-inline" ] [ u ]
         ]
-      , div [ cn "m-3"] $
+      , div [ cn "m-sm-3 m-2"] $
           case state.menuItem of
             HomeItem -> [ createLeafElement homeClass {ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user}
                         ]
@@ -144,7 +144,7 @@ appClass = component "App" \this -> do
     state <- getState this
     pure $ case state.user of
       Just user @ { photo: Just photo } ->
-        li [ cn "nav-item avatar" ]
+        li [ cn "avatar" ]
         [ span [ cn "nav-link p-0" ]
           [ img [ src photo, cn "rounded-circle z-depth-0 mr-1", height "35" ]
           , text $ fromMaybe user.username $ user.firstName <|> user.lastName 

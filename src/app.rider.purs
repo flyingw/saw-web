@@ -24,7 +24,7 @@ import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
 import Api (PassengerType(..))
-import Api.Push (decodePush, UserData)
+import Api.Push (decodePush, UserData, Push(AddRouteOk))
 import Api.Pull (Pull(AddPassenger), encodePull, Address)
 import Keys (keyPassengerType)
 import Format (todayISO)
@@ -38,6 +38,7 @@ type Props =
 
 type State =
   { mapQ :: Maybe String
+  , routeId :: Maybe String
   , firstName :: String
   , lastName :: String
   , phone :: String
@@ -45,6 +46,7 @@ type State =
   , tpe :: PassengerType
   , from :: Address
   , to :: Address
+  , await :: Boolean
   }
 
 riderClass :: ReactClass Props
@@ -54,13 +56,15 @@ riderClass = component "Rider" \this -> do
   pure
     { state:
       { mapQ: Nothing
+      , routeId: Nothing
       , firstName: fromMaybe "" $ props.user >>= _.firstName
       , lastName: fromMaybe "" $ props.user >>= _.lastName
       , phone: fromMaybe "" $ props.user >>= _.phone
       , date: date
       , tpe: fromMaybe Medical $ props.user >>= _.tpe
-      , from: { country: "ua", city: "Киев", street: "Спортивная", building: "1" }
-      , to: { country: "ua", city: "Киев", street: "Льва Толстого", building: "1" }
+      , from: { country: "Украина", city: "Киев", street: "Спортивная", building: "1" }
+      , to: { country: "Украина", city: "Киев", street: "Льва Толстого", building: "1" }
+      , await: false
       }
     , render: render this
     , componentDidMount: do
@@ -68,6 +72,7 @@ riderClass = component "Rider" \this -> do
         let ws = p.ws
         WS.onMsg ws (\x -> case decodePush x of
           Left y -> error $ show y
+          Right { val: AddRouteOk r } -> modifyState this _{ routeId=Just r.id }
           Right _ -> pure unit
         ) (sequence <<< map error)
     }
@@ -84,6 +89,7 @@ riderClass = component "Rider" \this -> do
     s <- getState this
     p <- getProps this
     d <- parse s.date
+    _ <- modifyState this _{ await = true }
     let driver = AddPassenger { 
         firstName: s.firstName
       , lastName: s.lastName
@@ -134,7 +140,6 @@ riderClass = component "Rider" \this -> do
           , input [ _type "text", cn "form-control", _id "phone", autoComplete "phone", required true 
                   , value state.phone
                   , onChangeValue \v -> modifyState this _{ phone=v }
-                  , placeholder "+38-000-000000"
                   ]
           , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.phone.hint" ]
           ]
@@ -233,10 +238,15 @@ riderClass = component "Rider" \this -> do
           ]
         ]
       , div [ cn "alert alert-info col-md-12" ] [ text $ props.keyText "key.add.hint" ]
-      , button [ cn "btn btn-primary mb-3", _type "button"
-              --  , disabled $ isNothing state.mapQ
-                , onClick \_ -> sendPassenger this 
-                ] 
-        [ text $ props.keyText "key.add"
-        ]
+      , case state.routeId of
+          Just id -> div [ cn "alert alert-success" ] [ text $ props.keyText "key.add.success" <> " " <> id ]
+          Nothing ->
+            button [ cn "btn btn-primary mb-3", _type "button"
+                  --  , disabled $ isNothing state.mapQ
+                    , disabled state.await
+                    , onClick \_ -> sendPassenger this 
+                    ] 
+            [ text $ props.keyText "key.add"
+            , if state.await then div [ cn "spinner-border text-light spinner-border-sm ml-1" ] [] else mempty
+            ]
       ]
