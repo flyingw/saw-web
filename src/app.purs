@@ -129,7 +129,7 @@ appClass = component "App" \this -> do
         --       ]
         --     ) [ "uk", "ru" ]
         ]
-      , div [ cn "m-2"] $
+      , div [ cn "m-3"] $
           case state.menuItem of
             HomeItem -> [ createLeafElement homeClass {ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user}
                         ]
@@ -157,7 +157,7 @@ appClass = component "App" \this -> do
         ]
       Nothing ->
         li [ cn "nav-item" ]
-        [ a [ cn "nav-link", href "#" ]
+        [ a [ cn "nav-link", href "#", onClick \_ -> modifyState this _{ menuItem = HomeItem } ]
           [ text $ state.keyText "key.login" ]
         ]
 

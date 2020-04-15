@@ -54,7 +54,7 @@ homeClass = component "Home" \this -> do
   render this = do
     props <- getProps this
     state <- getState this
-    pure $ div [ cn "m-2" ]
+    pure $ div []
       [ div [ cn "d-flex justify-content-center mb-3" ] 
         [ h6 [] [ text $ props.keyText "key.home.head" ]
         ]

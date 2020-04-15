@@ -49,7 +49,7 @@ addClass = component "Add" \this -> do
     props <- getProps this
     state <- getState this
     pure $ div []
-      [ ul [ cn "nav nav-pills nav-pills-primary justify-content-center" ] $
+      [ ul [ cn "nav nav-pills nav-pills-primary justify-content-center mb-3" ] $
         map (\t ->
           li []
           [ a [ cn $ "nav-link" <> if t == state.tab then " active" else ""

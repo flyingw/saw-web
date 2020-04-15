@@ -6522,8 +6522,7 @@ var PS = {};
   };
   var onChange = function (f) {
       return $foreign.unsafeMkProps("onChange")(Effect_Uncurried.mkEffectFn1(f));
-  };                                          
-  var noValidate = $foreign.unsafeMkProps("noValidate");
+  };                                                  
   var min = $foreign.unsafeMkProps("min");            
   var max = $foreign.unsafeMkProps("max");            
   var htmlFor = $foreign.unsafeMkProps("htmlFor");  
@@ -6547,7 +6546,6 @@ var PS = {};
   exports["_id"] = _id;
   exports["max"] = max;
   exports["min"] = min;
-  exports["noValidate"] = noValidate;
   exports["placeholder"] = placeholder;
   exports["required"] = required;
   exports["src"] = src;
@@ -7180,7 +7178,6 @@ var PS = {};
   };                        
   var iframe = mkDOM(false)("iframe");
   var h6 = mkDOM(false)("h6");
-  var form = mkDOM(false)("form");
   var div = mkDOM(false)("div");  
   var button = mkDOM(false)("button");
   var a = mkDOM(false)("a");
@@ -7188,7 +7185,6 @@ var PS = {};
   exports["a"] = a;
   exports["button"] = button;
   exports["div"] = div;
-  exports["form"] = form;
   exports["h6"] = h6;
   exports["iframe"] = iframe;
   exports["img"] = img;
@@ -7287,7 +7283,7 @@ var PS = {};
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.form([ React_DOM_Props.noValidate(true) ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.driver_data")) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("firstName") ])([ React_DOM.text(props.keyText("key.first_name")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("firstName"), React_DOM_Props.required(true), React_DOM_Props.value(state.firstName), Lib_React.onChangeValue(function (v) {
+              return React_DOM.div([  ])([ React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.driver_data")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("firstName") ])([ React_DOM.text(props.keyText("key.first_name")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("firstName"), React_DOM_Props.required(true), React_DOM_Props.value(state.firstName), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v,
@@ -7297,14 +7293,14 @@ var PS = {};
                           date: v1.date,
                           lap: v1.lap,
                           seats: v1.seats,
+                          types: v1.types,
                           from: v1.from,
                           to: v1.to,
-                          types: v1.types,
                           mapQ: v1.mapQ,
                           routeN: v1.routeN
                       };
                   });
-              }), React_DOM_Props.value(state.firstName) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lastName") ])([ React_DOM.text(props.keyText("key.last_name")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lastName"), React_DOM_Props.required(true), React_DOM_Props.value(state.lastName), Lib_React.onChangeValue(function (v) {
+              }), React_DOM_Props.value(state.firstName) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lastName") ])([ React_DOM.text(props.keyText("key.last_name")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lastName"), React_DOM_Props.required(true), React_DOM_Props.value(state.lastName), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -7314,14 +7310,14 @@ var PS = {};
                           date: v1.date,
                           lap: v1.lap,
                           seats: v1.seats,
+                          types: v1.types,
                           from: v1.from,
                           to: v1.to,
-                          types: v1.types,
                           mapQ: v1.mapQ,
                           routeN: v1.routeN
                       };
                   });
-              }), React_DOM_Props.value(state.lastName) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.last_name.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text(props.keyText("key.phone")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), React_DOM_Props.value(state.phone), Lib_React.onChangeValue(function (v) {
+              }), React_DOM_Props.value(state.lastName) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.last_name.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text(props.keyText("key.phone")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), React_DOM_Props.value(state.phone), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -7331,14 +7327,14 @@ var PS = {};
                           date: v1.date,
                           lap: v1.lap,
                           seats: v1.seats,
+                          types: v1.types,
                           from: v1.from,
                           to: v1.to,
-                          types: v1.types,
                           mapQ: v1.mapQ,
                           routeN: v1.routeN
                       };
                   });
-              }), React_DOM_Props.placeholder("+38-000-000000") ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("carPlate") ])([ React_DOM.text(props.keyText("key.car_plate")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("carPlate"), React_DOM_Props.autoComplete("carPlate"), React_DOM_Props.required(true), React_DOM_Props.value(state.carPlate), Lib_React.onChangeValue(function (v) {
+              }), React_DOM_Props.placeholder("+38-000-000000") ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("carPlate") ])([ React_DOM.text(props.keyText("key.car_plate")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("carPlate"), React_DOM_Props.autoComplete("carPlate"), React_DOM_Props.required(true), React_DOM_Props.value(state.carPlate), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -7348,14 +7344,14 @@ var PS = {};
                           date: v1.date,
                           lap: v1.lap,
                           seats: v1.seats,
+                          types: v1.types,
                           from: v1.from,
                           to: v1.to,
-                          types: v1.types,
                           mapQ: v1.mapQ,
                           routeN: v1.routeN
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_plate.hint")) ]) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-8") ])([ React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React_DOM.input([ React_DOM_Props["_type"]("datetime-local"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_plate.hint")) ]) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_data")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React_DOM.input([ React_DOM_Props["_type"]("datetime-local"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -7365,14 +7361,14 @@ var PS = {};
                           date: v,
                           lap: v1.lap,
                           seats: v1.seats,
+                          types: v1.types,
                           from: v1.from,
                           to: v1.to,
-                          types: v1.types,
                           mapQ: v1.mapQ,
                           routeN: v1.routeN
                       };
                   });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lap") ])([ React_DOM.text(props.keyText("key.lap")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lap"), React_DOM_Props.min("2"), React_DOM_Props.max("10"), React_DOM_Props.value("3"), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.lap)), Lib_React.onChangeValueInt(function (v) {
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 col-lg-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lap") ])([ React_DOM.text(props.keyText("key.lap")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lap"), React_DOM_Props.min("2"), React_DOM_Props.max("10"), React_DOM_Props.value("3"), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.lap)), Lib_React.onChangeValueInt(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -7382,14 +7378,14 @@ var PS = {};
                           date: v1.date,
                           lap: v,
                           seats: v1.seats,
+                          types: v1.types,
                           from: v1.from,
                           to: v1.to,
-                          types: v1.types,
                           mapQ: v1.mapQ,
                           routeN: v1.routeN
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.lap.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("seats") ])([ React_DOM.text(props.keyText("key.seats")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("seats"), React_DOM_Props.min("1"), React_DOM_Props.max("5"), React_DOM_Props.value("1"), React_DOM_Props.disabled(true), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.seats)), Lib_React.onChangeValueInt(function (v) {
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.lap.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 col-lg-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("seats") ])([ React_DOM.text(props.keyText("key.seats")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("seats"), React_DOM_Props.min("1"), React_DOM_Props.max("5"), React_DOM_Props.value("1"), React_DOM_Props.disabled(true), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.seats)), Lib_React.onChangeValueInt(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -7399,146 +7395,14 @@ var PS = {};
                           date: v1.date,
                           lap: v1.lap,
                           seats: v,
+                          types: v1.types,
                           from: v1.from,
                           to: v1.to,
-                          types: v1.types,
                           mapQ: v1.mapQ,
                           routeN: v1.routeN
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.seats.hint")) ]) ]) ]), React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.route_start")) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-6 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityFrom") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.city), Lib_React.onChangeValue(function (v) {
-                  return React.modifyState($$this)(function (s) {
-                      return {
-                          firstName: s.firstName,
-                          lastName: s.lastName,
-                          phone: s.phone,
-                          carPlate: s.carPlate,
-                          date: s.date,
-                          lap: s.lap,
-                          seats: s.seats,
-                          from: {
-                              city: v,
-                              street: s.from.street,
-                              building: s.from.building,
-                              country: s.from.country
-                          },
-                          to: s.to,
-                          types: s.types,
-                          mapQ: s.mapQ,
-                          routeN: s.routeN
-                      };
-                  });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetFrom") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.street), Lib_React.onChangeValue(function (v) {
-                  return React.modifyState($$this)(function (s) {
-                      return {
-                          firstName: s.firstName,
-                          lastName: s.lastName,
-                          phone: s.phone,
-                          carPlate: s.carPlate,
-                          date: s.date,
-                          lap: s.lap,
-                          seats: s.seats,
-                          from: {
-                              city: s.from.city,
-                              street: v,
-                              building: s.from.building,
-                              country: s.from.country
-                          },
-                          to: s.to,
-                          types: s.types,
-                          mapQ: s.mapQ,
-                          routeN: s.routeN
-                      };
-                  });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("buildingFrom") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("buildingFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.building), Lib_React.onChangeValue(function (v) {
-                  return React.modifyState($$this)(function (s) {
-                      return {
-                          firstName: s.firstName,
-                          lastName: s.lastName,
-                          phone: s.phone,
-                          carPlate: s.carPlate,
-                          date: s.date,
-                          lap: s.lap,
-                          seats: s.seats,
-                          from: {
-                              city: s.from.city,
-                              street: s.from.street,
-                              building: v,
-                              country: s.from.country
-                          },
-                          to: s.to,
-                          types: s.types,
-                          mapQ: s.mapQ,
-                          routeN: s.routeN
-                      };
-                  });
-              }) ]) ]) ]), React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.route_end")) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-6 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityTo") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.city), Lib_React.onChangeValue(function (v) {
-                  return React.modifyState($$this)(function (s) {
-                      return {
-                          firstName: s.firstName,
-                          lastName: s.lastName,
-                          phone: s.phone,
-                          carPlate: s.carPlate,
-                          date: s.date,
-                          lap: s.lap,
-                          seats: s.seats,
-                          from: s.from,
-                          to: {
-                              city: v,
-                              street: s.to.street,
-                              building: s.to.building,
-                              country: s.to.country
-                          },
-                          types: s.types,
-                          mapQ: s.mapQ,
-                          routeN: s.routeN
-                      };
-                  });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetTo") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.street), Lib_React.onChangeValue(function (v) {
-                  return React.modifyState($$this)(function (s) {
-                      return {
-                          firstName: s.firstName,
-                          lastName: s.lastName,
-                          phone: s.phone,
-                          carPlate: s.carPlate,
-                          date: s.date,
-                          lap: s.lap,
-                          seats: s.seats,
-                          from: s.from,
-                          to: {
-                              city: s.to.city,
-                              street: v,
-                              building: s.to.building,
-                              country: s.to.country
-                          },
-                          types: s.types,
-                          mapQ: s.mapQ,
-                          routeN: s.routeN
-                      };
-                  });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("houseTo") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("houseTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.building), Lib_React.onChangeValue(function (v) {
-                  return React.modifyState($$this)(function (s) {
-                      return {
-                          firstName: s.firstName,
-                          lastName: s.lastName,
-                          phone: s.phone,
-                          carPlate: s.carPlate,
-                          date: s.date,
-                          lap: s.lap,
-                          seats: s.seats,
-                          from: s.from,
-                          to: {
-                              city: s.to.city,
-                              street: s.to.street,
-                              building: v,
-                              country: s.to.country
-                          },
-                          types: s.types,
-                          mapQ: s.mapQ,
-                          routeN: s.routeN
-                      };
-                  });
-              }) ]) ]) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4") ])([ React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.passenger")) ]) ]), React_DOM.div([ Lib_React.cn("mb-2") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.seats.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 d-lg-none mb-md-3") ])([  ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-5 mb-3") ])([ React_DOM.div([  ])([ React_DOM.label([  ])([ React_DOM.text(props.keyText("key.passenger")) ]) ]), React_DOM.div([ Lib_React.cn("mb-2") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ Lib_React.cn("form-check-input"), React_DOM_Props["_type"]("checkbox"), React_DOM_Props.value(""), React_DOM_Props["_id"](Keys.keyPassengerType(v)), React_DOM_Props.checked(Data_Foldable.elem(Data_Foldable.foldableArray)(Api.eqPassengerType)(v)(state.types)), React_DOM_Props.onChange(function (v1) {
                       return React.modifyState($$this)(function (v2) {
                           return {
@@ -7549,33 +7413,209 @@ var PS = {};
                               date: v2.date,
                               lap: v2.lap,
                               seats: v2.seats,
-                              from: v2.from,
-                              to: v2.to,
                               types: (function () {
-                                  var $30 = Data_Foldable.elem(Data_Foldable.foldableArray)(Api.eqPassengerType)(v)(state.types);
-                                  if ($30) {
+                                  var $34 = Data_Foldable.elem(Data_Foldable.foldableArray)(Api.eqPassengerType)(v)(state.types);
+                                  if ($34) {
                                       return Data_Array["delete"](Api.eqPassengerType)(v)(state.types);
                                   };
                                   return Data_Array.cons(v)(state.types);
                               })(),
+                              from: v2.from,
+                              to: v2.to,
                               mapQ: v2.mapQ,
                               routeN: v2.routeN
                           };
                       });
                   }) ]), React_DOM.label([ Lib_React.cn("form-check-label"), React_DOM_Props.htmlFor(Keys.keyPassengerType(v)) ])([ React_DOM.text(props.keyText(Keys.keyPassengerType(v))) ]) ]);
-              })([ Api.Medical.value, Api.Police.value, Api.Firefighter.value, Api.Army.value, Api.Farmacy.value, Api.Cashier.value, Api.Regular.value ])) ]) ]), React_DOM.button([ Lib_React.cn("btn btn-secondary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+              })([ Api.Medical.value, Api.Police.value, Api.Firefighter.value, Api.Army.value, Api.Farmacy.value, Api.Cashier.value, Api.Regular.value ])) ]), React_DOM.div([ Lib_React.cn("col-md-5 d-lg-none mb-md-3") ])([  ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_start")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("countryFrom") ])([ React_DOM.text(props.keyText("key.country")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("countryFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.country), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          firstName: s.firstName,
+                          lastName: s.lastName,
+                          phone: s.phone,
+                          carPlate: s.carPlate,
+                          date: s.date,
+                          lap: s.lap,
+                          seats: s.seats,
+                          types: s.types,
+                          from: {
+                              country: v,
+                              city: s.from.city,
+                              street: s.from.street,
+                              building: s.from.building
+                          },
+                          to: s.to,
+                          mapQ: s.mapQ,
+                          routeN: s.routeN
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityFrom") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.city), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          firstName: s.firstName,
+                          lastName: s.lastName,
+                          phone: s.phone,
+                          carPlate: s.carPlate,
+                          date: s.date,
+                          lap: s.lap,
+                          seats: s.seats,
+                          types: s.types,
+                          from: {
+                              country: s.from.country,
+                              city: v,
+                              street: s.from.street,
+                              building: s.from.building
+                          },
+                          to: s.to,
+                          mapQ: s.mapQ,
+                          routeN: s.routeN
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetFrom") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.street), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          firstName: s.firstName,
+                          lastName: s.lastName,
+                          phone: s.phone,
+                          carPlate: s.carPlate,
+                          date: s.date,
+                          lap: s.lap,
+                          seats: s.seats,
+                          types: s.types,
+                          from: {
+                              country: s.from.country,
+                              city: s.from.city,
+                              street: v,
+                              building: s.from.building
+                          },
+                          to: s.to,
+                          mapQ: s.mapQ,
+                          routeN: s.routeN
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("buildingFrom") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("buildingFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.building), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          firstName: s.firstName,
+                          lastName: s.lastName,
+                          phone: s.phone,
+                          carPlate: s.carPlate,
+                          date: s.date,
+                          lap: s.lap,
+                          seats: s.seats,
+                          types: s.types,
+                          from: {
+                              country: s.from.country,
+                              city: s.from.city,
+                              street: s.from.street,
+                              building: v
+                          },
+                          to: s.to,
+                          mapQ: s.mapQ,
+                          routeN: s.routeN
+                      };
+                  });
+              }) ]) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_end")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("countryTo") ])([ React_DOM.text(props.keyText("key.country")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("countryTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.country), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          firstName: s.firstName,
+                          lastName: s.lastName,
+                          phone: s.phone,
+                          carPlate: s.carPlate,
+                          date: s.date,
+                          lap: s.lap,
+                          seats: s.seats,
+                          types: s.types,
+                          from: s.from,
+                          to: {
+                              country: v,
+                              city: s.to.city,
+                              street: s.to.street,
+                              building: s.to.building
+                          },
+                          mapQ: s.mapQ,
+                          routeN: s.routeN
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityTo") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.city), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          firstName: s.firstName,
+                          lastName: s.lastName,
+                          phone: s.phone,
+                          carPlate: s.carPlate,
+                          date: s.date,
+                          lap: s.lap,
+                          seats: s.seats,
+                          types: s.types,
+                          from: s.from,
+                          to: {
+                              country: s.to.country,
+                              city: v,
+                              street: s.to.street,
+                              building: s.to.building
+                          },
+                          mapQ: s.mapQ,
+                          routeN: s.routeN
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetTo") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.street), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          firstName: s.firstName,
+                          lastName: s.lastName,
+                          phone: s.phone,
+                          carPlate: s.carPlate,
+                          date: s.date,
+                          lap: s.lap,
+                          seats: s.seats,
+                          types: s.types,
+                          from: s.from,
+                          to: {
+                              country: s.to.country,
+                              city: s.to.city,
+                              street: v,
+                              building: s.to.building
+                          },
+                          mapQ: s.mapQ,
+                          routeN: s.routeN
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("houseTo") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("houseTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.building), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          firstName: s.firstName,
+                          lastName: s.lastName,
+                          phone: s.phone,
+                          carPlate: s.carPlate,
+                          date: s.date,
+                          lap: s.lap,
+                          seats: s.seats,
+                          types: s.types,
+                          from: s.from,
+                          to: {
+                              country: s.to.country,
+                              city: s.to.city,
+                              street: s.to.street,
+                              building: v
+                          },
+                          mapQ: s.mapQ,
+                          routeN: s.routeN
+                      };
+                  });
+              }) ]) ]) ]), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return updateMap($$this);
               }) ])([ React_DOM.text(props.keyText("key.overview_route")) ]), (function () {
                   if (state.mapQ instanceof Data_Maybe.Just) {
-                      return React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-6 mb-3") ])([ React_DOM.iframe([ React_DOM_Props.width("100%"), React_DOM_Props.height("400"), React_DOM_Props.frameBorder("0"), React_DOM_Props.src(state.mapQ.value0) ])([  ]) ]) ]);
+                      return React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-12 mb-3") ])([ React_DOM.iframe([ React_DOM_Props.width("100%"), React_DOM_Props.height("400"), React_DOM_Props.frameBorder("0"), React_DOM_Props.src(state.mapQ.value0) ])([  ]) ]) ]);
                   };
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 247, column 11 - line 255, column 30): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 262, column 9 - line 270, column 28): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return sendDriver($$this);
-              }) ])([ React_DOM.text(props.keyText("key.add")) ]) ]) ]);
+              }) ])([ React_DOM.text(props.keyText("key.add")) ]) ]);
           };
       };
       return React.component()("Driver")(function ($$this) {
@@ -7602,13 +7642,13 @@ var PS = {};
                       lap: 3,
                       seats: 1,
                       from: {
-                          country: "ua",
+                          country: "\u0423\u043a\u0440\u0430\u0438\u043d\u0430",
                           city: "\u041a\u0438\u0435\u0432",
                           street: "\u0421\u043f\u043e\u0440\u0442\u0438\u0432\u043d\u0430\u044f",
                           building: "1"
                       },
                       to: {
-                          country: "ua",
+                          country: "\u0423\u043a\u0440\u0430\u0438\u043d\u0430",
                           city: "\u041a\u0438\u0435\u0432",
                           street: "\u041b\u044c\u0432\u0430 \u0422\u043e\u043b\u0441\u0442\u043e\u0433\u043e",
                           building: "1"
@@ -7633,9 +7673,9 @@ var PS = {};
                                       date: v1.date,
                                       lap: v1.lap,
                                       seats: v1.seats,
+                                      types: v1.types,
                                       from: v1.from,
                                       to: v1.to,
-                                      types: v1.types,
                                       mapQ: v1.mapQ,
                                       routeN: new Data_Maybe.Just(v.value0.val.value0.id)
                                   };
@@ -7646,10 +7686,10 @@ var PS = {};
                           };
                           throw new Error("Failed pattern match at App.Driver (line 76, column 28 - line 79, column 31): " + [ v.constructor.name ]);
                       })((function () {
-                          var $39 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $40 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($41) {
-                              return $39($40($41));
+                          var $43 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $44 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($45) {
+                              return $43($44($45));
                           };
                       })())();
                   }
@@ -8169,194 +8209,217 @@ var PS = {};
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([ Lib_React.cn("m-2  ") ])([ React_DOM.form([ React_DOM_Props.noValidate(true) ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.passenger_data")) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("firstName") ])([ React_DOM.text(props.keyText("key.first_name")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("firstName"), React_DOM_Props.required(true), React_DOM_Props.value(state.firstName), Lib_React.onChangeValue(function (v) {
+              return React_DOM.div([  ])([ React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.passenger_data")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("firstName") ])([ React_DOM.text(props.keyText("key.first_name")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("firstName"), React_DOM_Props.required(true), React_DOM_Props.value(state.firstName), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v,
                           lastName: v1.lastName,
                           phone: v1.phone,
                           tpe: v1.tpe,
-                          date: v1.date,
                           from: v1.from,
                           to: v1.to,
+                          date: v1.date,
                           mapQ: v1.mapQ
                       };
                   });
-              }), React_DOM_Props.value(state.firstName) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lastName") ])([ React_DOM.text(props.keyText("key.last_name")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lastName"), React_DOM_Props.required(true), React_DOM_Props.value(state.lastName), Lib_React.onChangeValue(function (v) {
+              }), React_DOM_Props.value(state.firstName) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lastName") ])([ React_DOM.text(props.keyText("key.last_name")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lastName"), React_DOM_Props.required(true), React_DOM_Props.value(state.lastName), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
                           lastName: v,
                           phone: v1.phone,
                           tpe: v1.tpe,
-                          date: v1.date,
                           from: v1.from,
                           to: v1.to,
+                          date: v1.date,
                           mapQ: v1.mapQ
                       };
                   });
-              }), React_DOM_Props.value(state.lastName) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.last_name.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text(props.keyText("key.phone")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), React_DOM_Props.value(state.phone), Lib_React.onChangeValue(function (v) {
+              }), React_DOM_Props.value(state.lastName) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.last_name.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text(props.keyText("key.phone")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), React_DOM_Props.value(state.phone), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
                           lastName: v1.lastName,
                           phone: v,
                           tpe: v1.tpe,
-                          date: v1.date,
                           from: v1.from,
                           to: v1.to,
+                          date: v1.date,
                           mapQ: v1.mapQ
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("specialization") ])([ React_DOM.text(props.keyText("key.specialization")) ]), React_DOM.select([ Lib_React.cn("custom-select"), React_DOM_Props["_id"]("type"), React_DOM_Props.value(Keys.keyPassengerType(state.tpe)), Lib_React.onChangeValue(function (v) {
+              }), React_DOM_Props.placeholder("+38-000-000000") ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("specialization") ])([ React_DOM.text(props.keyText("key.specialization")) ]), React_DOM.select([ Lib_React.cn("custom-select"), React_DOM_Props["_id"]("type"), React_DOM_Props.value(Keys.keyPassengerType(state.tpe)), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
                           lastName: v1.lastName,
                           phone: v1.phone,
                           tpe: Data_Maybe.fromMaybe(Api.Regular.value)(Data_Map_Internal.lookup(Data_Ord.ordString)(v)(typesMap)),
-                          date: v1.date,
                           from: v1.from,
                           to: v1.to,
+                          date: v1.date,
                           mapQ: v1.mapQ
                       };
                   });
               }) ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.option([ React_DOM_Props.value(Keys.keyPassengerType(v)) ])([ React_DOM.text(props.keyText(Keys.keyPassengerType(v))) ]);
-              })(types)) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React_DOM.input([ React_DOM_Props["_type"]("datetime-local"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
-                  return React.modifyState($$this)(function (v1) {
-                      return {
-                          firstName: v1.firstName,
-                          lastName: v1.lastName,
-                          phone: v1.phone,
-                          tpe: v1.tpe,
-                          date: v,
-                          from: v1.from,
-                          to: v1.to,
-                          mapQ: v1.mapQ
-                      };
-                  });
-              }) ]) ]) ]), React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.route_start")) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityFrom") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.city), Lib_React.onChangeValue(function (v) {
+              })(types)) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_start")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("countryFrom") ])([ React_DOM.text(props.keyText("key.country")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("countryFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.country), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           firstName: s.firstName,
                           lastName: s.lastName,
                           phone: s.phone,
                           tpe: s.tpe,
-                          date: s.date,
                           from: {
-                              city: v,
-                              street: s.from.street,
-                              building: s.from.building,
-                              country: s.from.country
-                          },
-                          to: s.to,
-                          mapQ: s.mapQ
-                      };
-                  });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetFrom") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.street), Lib_React.onChangeValue(function (v) {
-                  return React.modifyState($$this)(function (s) {
-                      return {
-                          firstName: s.firstName,
-                          lastName: s.lastName,
-                          phone: s.phone,
-                          tpe: s.tpe,
-                          date: s.date,
-                          from: {
-                              city: s.from.city,
-                              street: v,
-                              building: s.from.building,
-                              country: s.from.country
-                          },
-                          to: s.to,
-                          mapQ: s.mapQ
-                      };
-                  });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("buildingFrom") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("buildingFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.building), Lib_React.onChangeValue(function (v) {
-                  return React.modifyState($$this)(function (s) {
-                      return {
-                          firstName: s.firstName,
-                          lastName: s.lastName,
-                          phone: s.phone,
-                          tpe: s.tpe,
-                          date: s.date,
-                          from: {
+                              country: v,
                               city: s.from.city,
                               street: s.from.street,
-                              building: v,
-                              country: s.from.country
+                              building: s.from.building
                           },
                           to: s.to,
+                          date: s.date,
                           mapQ: s.mapQ
                       };
                   });
-              }) ]) ]) ]), React_DOM.div([  ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.route_end")) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityTo") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.city), Lib_React.onChangeValue(function (v) {
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityFrom") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.city), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           firstName: s.firstName,
                           lastName: s.lastName,
                           phone: s.phone,
                           tpe: s.tpe,
+                          from: {
+                              country: s.from.country,
+                              city: v,
+                              street: s.from.street,
+                              building: s.from.building
+                          },
+                          to: s.to,
                           date: s.date,
+                          mapQ: s.mapQ
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetFrom") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.street), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          firstName: s.firstName,
+                          lastName: s.lastName,
+                          phone: s.phone,
+                          tpe: s.tpe,
+                          from: {
+                              country: s.from.country,
+                              city: s.from.city,
+                              street: v,
+                              building: s.from.building
+                          },
+                          to: s.to,
+                          date: s.date,
+                          mapQ: s.mapQ
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("buildingFrom") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("buildingFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.building), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          firstName: s.firstName,
+                          lastName: s.lastName,
+                          phone: s.phone,
+                          tpe: s.tpe,
+                          from: {
+                              country: s.from.country,
+                              city: s.from.city,
+                              street: s.from.street,
+                              building: v
+                          },
+                          to: s.to,
+                          date: s.date,
+                          mapQ: s.mapQ
+                      };
+                  });
+              }) ]) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_end")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("countryTo") ])([ React_DOM.text(props.keyText("key.country")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("countryTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.country), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          firstName: s.firstName,
+                          lastName: s.lastName,
+                          phone: s.phone,
+                          tpe: s.tpe,
                           from: s.from,
                           to: {
+                              country: v,
+                              city: s.to.city,
+                              street: s.to.street,
+                              building: s.to.building
+                          },
+                          date: s.date,
+                          mapQ: s.mapQ
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityTo") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.city), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (s) {
+                      return {
+                          firstName: s.firstName,
+                          lastName: s.lastName,
+                          phone: s.phone,
+                          tpe: s.tpe,
+                          from: s.from,
+                          to: {
+                              country: s.to.country,
                               city: v,
                               street: s.to.street,
-                              building: s.to.building,
-                              country: s.to.country
+                              building: s.to.building
                           },
+                          date: s.date,
                           mapQ: s.mapQ
                       };
                   });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetTo") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.street), Lib_React.onChangeValue(function (v) {
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetTo") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.street), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           firstName: s.firstName,
                           lastName: s.lastName,
                           phone: s.phone,
                           tpe: s.tpe,
-                          date: s.date,
                           from: s.from,
                           to: {
+                              country: s.to.country,
                               city: s.to.city,
                               street: v,
-                              building: s.to.building,
-                              country: s.to.country
+                              building: s.to.building
                           },
+                          date: s.date,
                           mapQ: s.mapQ
                       };
                   });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("houseTo") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("houseTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.building), Lib_React.onChangeValue(function (v) {
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("houseTo") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("houseTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.building), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           firstName: s.firstName,
                           lastName: s.lastName,
                           phone: s.phone,
                           tpe: s.tpe,
-                          date: s.date,
                           from: s.from,
                           to: {
+                              country: s.to.country,
                               city: s.to.city,
                               street: s.to.street,
-                              building: v,
-                              country: s.to.country
+                              building: v
                           },
+                          date: s.date,
                           mapQ: s.mapQ
                       };
                   });
-              }) ]) ]) ]), React_DOM.button([ Lib_React.cn("btn btn-secondary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+              }) ]) ]) ]), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return updateMap($$this);
               }) ])([ React_DOM.text(props.keyText("key.overview_route")) ]), (function () {
                   if (state.mapQ instanceof Data_Maybe.Just) {
-                      return React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-6 mb-3") ])([ React_DOM.iframe([ React_DOM_Props.width("100%"), React_DOM_Props.height("400"), React_DOM_Props.frameBorder("0"), React_DOM_Props.src(state.mapQ.value0) ])([  ]) ]) ]);
+                      return React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-12 mb-3") ])([ React_DOM.iframe([ React_DOM_Props.width("100%"), React_DOM_Props.height("400"), React_DOM_Props.frameBorder("0"), React_DOM_Props.src(state.mapQ.value0) ])([  ]) ]) ]);
                   };
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Rider (line 208, column 11 - line 216, column 30): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Rider (line 216, column 9 - line 224, column 28): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return sendPassenger($$this);
-              }) ])([ React_DOM.text(props.keyText("key.add")) ]) ]) ]);
+              }) ])([ React_DOM.text(props.keyText("key.add")) ]) ]);
           };
       };
       return React.component()("Rider")(function ($$this) {
@@ -8405,10 +8468,10 @@ var PS = {};
                           };
                           throw new Error("Failed pattern match at App.Rider (line 69, column 28 - line 71, column 31): " + [ v.constructor.name ]);
                       })((function () {
-                          var $30 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $31 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($32) {
-                              return $30($31($32));
+                          var $33 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $34 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($35) {
+                              return $33($34($35));
                           };
                       })())();
                   }
@@ -8486,7 +8549,7 @@ var PS = {};
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([  ])([ React_DOM.ul([ Lib_React.cn("nav nav-pills nav-pills-primary justify-content-center") ])(Data_Functor.map(Data_Functor.functorArray)(function (t) {
+              return React_DOM.div([  ])([ React_DOM.ul([ Lib_React.cn("nav nav-pills nav-pills-primary justify-content-center mb-3") ])(Data_Functor.map(Data_Functor.functorArray)(function (t) {
                   return React_DOM.li([  ])([ React_DOM.a([ Lib_React.cn("nav-link" + (function () {
                       var $8 = Data_Eq.eq(eqTab)(t)(state.tab);
                       if ($8) {
@@ -8762,7 +8825,7 @@ var PS = {};
           return function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.home.head")) ]) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React_DOM.span([  ])([ React_DOM.text(props.keyText("key.home.text")) ]) ]), React_DOM.div([ Lib_React.cn((function () {
+              return React_DOM.div([  ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.home.head")) ]) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React_DOM.span([  ])([ React_DOM.text(props.keyText("key.home.text")) ]) ]), React_DOM.div([ Lib_React.cn((function () {
                   var $10 = Data_Maybe.isJust(props.user);
                   if ($10) {
                       return "d-none";
@@ -9159,7 +9222,17 @@ var PS = {};
                   return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.a([ Lib_React.cn("nav-link"), React_DOM_Props.href("#") ])([ React_DOM.text(Data_Maybe.fromMaybe(state.user.value0.username)(Control_Alt.alt(Data_Maybe.altMaybe)(state.user.value0.firstName)(state.user.value0.lastName))) ]) ]);
               };
               if (state.user instanceof Data_Maybe.Nothing) {
-                  return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.a([ Lib_React.cn("nav-link"), React_DOM_Props.href("#") ])([ React_DOM.text(state.keyText("key.login")) ]) ]);
+                  return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.a([ Lib_React.cn("nav-link"), React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
+                      return React.modifyState($$this)(function (v1) {
+                          return {
+                              user: v1.user,
+                              lang: v1.lang,
+                              keyText: v1.keyText,
+                              menuItem: HomeItem.value,
+                              expand: v1.expand
+                          };
+                      });
+                  }) ])([ React_DOM.text(state.keyText("key.login")) ]) ]);
               };
               throw new Error("Failed pattern match at App (line 145, column 12 - line 162, column 10): " + [ state.user.constructor.name ]);
           };
@@ -9218,8 +9291,8 @@ var PS = {};
                   return " collapse";
               })()) ])([ React_DOM.ul([ Lib_React.cn("navbar-nav mr-auto") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.li([ Lib_React.cn("nav-item" + (function () {
-                      var $26 = Data_Eq.eq(eqMenuItem)(v)(state.menuItem);
-                      if ($26) {
+                      var $28 = Data_Eq.eq(eqMenuItem)(v)(state.menuItem);
+                      if ($28) {
                           return " active";
                       };
                       return "";
@@ -9234,7 +9307,7 @@ var PS = {};
                           };
                       });
                   }) ])([ React_DOM.text(state.keyText(Data_Show.show(showMenuItem)(v))) ]) ]);
-              })([ HomeItem.value, AddItem.value, ViewItem.value ])) ]), React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto nav-flex-icons d-none d-lg-inline") ])([ u ]) ]), React_DOM.div([ Lib_React.cn("m-2") ])((function () {
+              })([ HomeItem.value, AddItem.value, ViewItem.value ])) ]), React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto nav-flex-icons d-none d-lg-inline") ])([ u ]) ]), React_DOM.div([ Lib_React.cn("m-3") ])((function () {
                   if (state.menuItem instanceof HomeItem) {
                       return [ React.createLeafElement()(App_Home.homeClass)({
                           ws: props.ws,
@@ -9300,10 +9373,10 @@ var PS = {};
                       };
                       throw new Error("Failed pattern match at App (line 79, column 28 - line 82, column 31): " + [ v.constructor.name ]);
                   })((function () {
-                      var $34 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                      var $35 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                      return function ($36) {
-                          return $34($35($36));
+                      var $36 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                      var $37 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                      return function ($38) {
+                          return $36($37($38));
                       };
                   })())();
               }

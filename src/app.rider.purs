@@ -17,7 +17,7 @@ import Effect.Console (error)
 import Global (encodeURI)
 import React (ReactClass, ReactThis, getProps, getState, modifyState, component)
 import React.DOM (text, div, form, label, input, button, h6, small, iframe, select, option)
-import React.DOM.Props (htmlFor, _id, _type, noValidate, required, autoComplete, value, src, width, height, frameBorder, onClick, disabled)
+import React.DOM.Props (htmlFor, _id, _type, noValidate, required, autoComplete, value, src, width, height, frameBorder, onClick, disabled, placeholder)
 
 import Lib.React(cn, onChangeValue)
 import Lib.WebSocket (WebSocket)
@@ -108,128 +108,135 @@ riderClass = component "Rider" \this -> do
   render this = do
     props <- getProps this
     state <- getState this
-    pure $ div [ cn "m-2  " ]
-      [ form [ noValidate true ]
-        [ h6 [] [ text $ props.keyText "key.passenger_data" ]
-        , div [ cn "form-row" ]
-          [ div [ cn "col-md-2 mb-3" ]
-            [ label [ htmlFor "firstName" ] [ text $ props.keyText "key.first_name" ]
-            , input [ _type "text", cn "form-control", _id "firstName", required true 
-                    , value state.firstName
-                    , onChangeValue \v -> modifyState this _{ firstName=v }
-                    , value state.firstName
-                    ]
-            ]
-          , div [ cn "col-md-2 mb-3" ]
-            [ label [ htmlFor "lastName" ] [ text $ props.keyText "key.last_name" ]
-            , input [ _type "text", cn "form-control", _id "lastName", required true 
-                    , value state.lastName
-                    , onChangeValue \v -> modifyState this _{ lastName=v }
-                    , value state.lastName
-                    ]
-            , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.last_name.hint" ]
-            ]
-          , div [ cn "col-md-4 mb-3" ]
-            [ label [ htmlFor "phone" ] [ text $ props.keyText "key.phone" ]
-            , input [ _type "text", cn "form-control", _id "phone", autoComplete "phone", required true 
-                    , value state.phone
-                    , onChangeValue \v -> modifyState this _{ phone=v }
-                    ]
-            , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.phone.hint" ]
-            ]
-          , div [ cn "col-md-4 mb-3" ]
-            [ label [ htmlFor "specialization" ] [ text $ props.keyText "key.specialization" ]
-            , select [ cn "custom-select"
-                     , _id "type"
-                     , value $ keyPassengerType state.tpe
-                     , onChangeValue \v -> modifyState this _{ tpe = fromMaybe Regular $ lookup v typesMap }
-                     ] $
-              map (\v -> option [ value $ keyPassengerType v ] [ text $ props.keyText $ keyPassengerType v ]) types
-            ]
+    pure $ 
+      div []
+      [ h6 [ cn "d-flex justify-content-center" ] [ text $ props.keyText "key.passenger_data" ]
+      , div [ cn "d-flex justify-content-center form-row" ]
+        [ div [ cn "col-md-5 col-lg-3 mb-3" ]
+          [ label [ htmlFor "firstName" ] [ text $ props.keyText "key.first_name" ]
+          , input [ _type "text", cn "form-control", _id "firstName", required true 
+                  , value state.firstName
+                  , onChangeValue \v -> modifyState this _{ firstName=v }
+                  , value state.firstName
+                  ]
           ]
-        , div [ cn "form-row" ]
-          [ div [ cn "col-md-4 mb-3" ]
-            [ label [ htmlFor "date" ] [ text $ props.keyText "key.date" ]
-            , input [ _type "datetime-local", cn "form-control", _id "date", required true
-                    , value state.date
-                    , onChangeValue \v -> modifyState this _{ date=v }
-                    ]
-            ]
+        , div [ cn "col-md-5 col-lg-3 mb-3" ]
+          [ label [ htmlFor "lastName" ] [ text $ props.keyText "key.last_name" ]
+          , input [ _type "text", cn "form-control", _id "lastName", required true 
+                  , value state.lastName
+                  , onChangeValue \v -> modifyState this _{ lastName=v }
+                  , value state.lastName
+                  ]
+          , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.last_name.hint" ]
           ]
-        , div [] [ h6 [] [ text $ props.keyText "key.route_start" ] ]
-        , div [ cn "form-row" ]
-          [ div [ cn "col-md-4 mb-3" ]
-            [ label [ htmlFor "cityFrom" ] [ text $ props.keyText "key.city" ]
-            , input [ _type "text", cn "form-control", _id "cityFrom", required true
-                    , value state.from.city
-                    , onChangeValue \v -> modifyState this \s -> s{ from=s.from{ city=v } }
-                    ]
-            ]
-          , div [ cn "col-md-3 mb-3" ]
-            [ label [ htmlFor "streetFrom" ] [ text $ props.keyText "key.street" ]
-            , input [ _type "text", cn "form-control", _id "streetFrom", required true
-                    , value state.from.street
-                    , onChangeValue \v -> modifyState this \s -> s{ from=s.from{ street=v } }
-                    ]
-            ] 
-          , div [ cn "col-md-1 mb-3" ]
-            [ label [ htmlFor "buildingFrom" ] [ text $ props.keyText "key.building" ]
-            , input [ _type "text", cn "form-control", _id "buildingFrom", required true
-                    , value state.from.building
-                    , onChangeValue \v -> modifyState this \s -> s{ from=s.from{ building=v } }
-                    ]
-            ]
+        , div [ cn "col-md-5 col-lg-3 mb-3" ]
+          [ label [ htmlFor "phone" ] [ text $ props.keyText "key.phone" ]
+          , input [ _type "text", cn "form-control", _id "phone", autoComplete "phone", required true 
+                  , value state.phone
+                  , onChangeValue \v -> modifyState this _{ phone=v }
+                  , placeholder "+38-000-000000"
+                  ]
+          , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.phone.hint" ]
           ]
-        , div [] [ h6 [] [ text $ props.keyText "key.route_end" ] ]
-        , div [ cn "form-row" ]
-          [ div [ cn "col-md-4 mb-3" ]
-            [ label [ htmlFor "cityTo" ] [ text $ props.keyText "key.city" ]
-            , input [ _type "text", cn "form-control", _id "cityTo", required true
-                    , value state.to.city
-                    , onChangeValue \v -> modifyState this \s -> s{ to=s.to{ city=v } } 
-                    ]
-            ]
-          , div [ cn "col-md-3 mb-3" ]
-            [ label [ htmlFor "streetTo" ] [ text $ props.keyText "key.street" ]
-            , input [ _type "text", cn "form-control", _id "streetTo", required true
-                    , value state.to.street
-                    , onChangeValue \v -> modifyState this \s -> s{ to=s.to{ street=v } } 
-                    ]
-            ]
-          , div [ cn "col-md-1 mb-3" ]
-            [ label [ htmlFor "houseTo" ] [ text $ props.keyText "key.building" ]
-            , input [ _type "text", cn "form-control", _id "houseTo", required true
-                    , value state.to.building
-                    , onChangeValue \v -> modifyState this \s -> s{ to=s.to{ building=v } } 
-                    ]
-            ]
+        , div [ cn "col-md-5 col-lg-3 mb-3" ]
+          [ label [ htmlFor "specialization" ] [ text $ props.keyText "key.specialization" ]
+          , select [ cn "custom-select"
+                    , _id "type"
+                    , value $ keyPassengerType state.tpe
+                    , onChangeValue \v -> modifyState this _{ tpe = fromMaybe Regular $ lookup v typesMap }
+                    ] $
+            map (\v -> option [ value $ keyPassengerType v ] [ text $ props.keyText $ keyPassengerType v ]) types
           ]
-        , button [ cn "btn btn-secondary mb-3", _type "button", onClick \_ -> updateMap this ] [ text $ props.keyText "key.overview_route" ]
-        , case state.mapQ of
-            Just q -> 
-              div [ cn "form-row" ]
-              [ div [ cn "col-md-6 mb-3" ]
-                [ iframe [ width "100%", height "400", frameBorder "0", src q ]
-                  []
-                ]
+        ]
+      , h6 [ cn "d-flex justify-content-center" ] [ text $ props.keyText "key.route_start" ]
+      , div [ cn "d-flex justify-content-center form-row" ]
+        [ div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+          [ label [ htmlFor "countryFrom" ] [ text $ props.keyText "key.country" ]
+          , input [ _type "text", cn "form-control", _id "countryFrom", required true
+                  , value state.from.country
+                  , onChangeValue \v -> modifyState this \s -> s{ from=s.from{ country=v } }
+                  ]
+          ]
+        , div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+          [ label [ htmlFor "cityFrom" ] [ text $ props.keyText "key.city" ]
+          , input [ _type "text", cn "form-control", _id "cityFrom", required true
+                  , value state.from.city
+                  , onChangeValue \v -> modifyState this \s -> s{ from=s.from{ city=v } }
+                  ]
+          ]
+        , div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+          [ label [ htmlFor "streetFrom" ] [ text $ props.keyText "key.street" ]
+          , input [ _type "text", cn "form-control", _id "streetFrom", required true
+                  , value state.from.street
+                  , onChangeValue \v -> modifyState this \s -> s{ from=s.from{ street=v } }
+                  ]
+          ] 
+        , div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+          [ label [ htmlFor "buildingFrom" ] [ text $ props.keyText "key.building" ]
+          , input [ _type "text", cn "form-control", _id "buildingFrom", required true
+                  , value state.from.building
+                  , onChangeValue \v -> modifyState this \s -> s{ from=s.from{ building=v } }
+                  ]
+          ]
+        ]
+      , h6 [ cn "d-flex justify-content-center" ] [ text $ props.keyText "key.route_end" ]
+      , div [ cn "d-flex justify-content-center form-row" ]
+        [ div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+          [ label [ htmlFor "countryTo" ] [ text $ props.keyText "key.country" ]
+          , input [ _type "text", cn "form-control", _id "countryTo", required true
+                  , value state.to.country
+                  , onChangeValue \v -> modifyState this \s -> s{ to=s.to{ country=v } }
+                  ]
+          ] 
+        , div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+          [ label [ htmlFor "cityTo" ] [ text $ props.keyText "key.city" ]
+          , input [ _type "text", cn "form-control", _id "cityTo", required true
+                  , value state.to.city
+                  , onChangeValue \v -> modifyState this \s -> s{ to=s.to{ city=v } } 
+                  ]
+          ]
+        , div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+          [ label [ htmlFor "streetTo" ] [ text $ props.keyText "key.street" ]
+          , input [ _type "text", cn "form-control", _id "streetTo", required true
+                  , value state.to.street
+                  , onChangeValue \v -> modifyState this \s -> s{ to=s.to{ street=v } } 
+                  ]
+          ]
+        , div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+          [ label [ htmlFor "houseTo" ] [ text $ props.keyText "key.building" ]
+          , input [ _type "text", cn "form-control", _id "houseTo", required true
+                  , value state.to.building
+                  , onChangeValue \v -> modifyState this \s -> s{ to=s.to{ building=v } } 
+                  ]
+          ]
+        ]
+      , button [ cn "btn btn-outline-secondary mb-3", _type "button"
+               , onClick \_ -> updateMap this ] [ text $ props.keyText "key.overview_route"
+               ]
+      , case state.mapQ of
+          Just q -> 
+            div [ cn "form-row" ]
+            [ div [ cn "col-md-12 mb-3" ]
+              [ iframe [ width "100%", height "400", frameBorder "0", src q ]
+                []
               ]
-            Nothing -> mempty
-        , div [ cn "form-group" ]
-          [ div [ cn "form-check" ]
-            [ input [ _type "checkbox", cn "form-check-input", _id "agree_terms" ]
-            , label [ htmlFor "agree_terms", cn "form-check-label" ] [ text $ props.keyText "key.agree_terms" ]
             ]
-          , div [ cn "form-check" ]
-            [ input [ _type "checkbox", cn "form-check-input", _id "agree_rules" ]
-            , label [ htmlFor "agree_rules", cn "form-check-label" ] [ text $ props.keyText "key.agree_rules" ]
-            ]
+          Nothing -> mempty
+      , div [ cn "form-group" ]
+        [ div [ cn "form-check" ]
+          [ input [ _type "checkbox", cn "form-check-input", _id "agree_terms" ]
+          , label [ htmlFor "agree_terms", cn "form-check-label" ] [ text $ props.keyText "key.agree_terms" ]
           ]
-        , div [ cn "alert alert-info col-md-12" ] [ text $ props.keyText "key.add.hint" ]
-        , button [ cn "btn btn-primary mb-3", _type "button"
-                --  , disabled $ isNothing state.mapQ
-                 , onClick \_ -> sendPassenger this 
-                 ] 
-          [ text $ props.keyText "key.add"
+        , div [ cn "form-check" ]
+          [ input [ _type "checkbox", cn "form-check-input", _id "agree_rules" ]
+          , label [ htmlFor "agree_rules", cn "form-check-label" ] [ text $ props.keyText "key.agree_rules" ]
           ]
+        ]
+      , div [ cn "alert alert-info col-md-12" ] [ text $ props.keyText "key.add.hint" ]
+      , button [ cn "btn btn-primary mb-3", _type "button"
+              --  , disabled $ isNothing state.mapQ
+                , onClick \_ -> sendPassenger this 
+                ] 
+        [ text $ props.keyText "key.add"
         ]
       ]
