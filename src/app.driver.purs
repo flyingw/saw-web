@@ -159,14 +159,7 @@ driverClass = component "Driver" \this -> do
             [ div [ cn "form-row" ]
               [ div [ cn "col-md-4 mb-3" ]
                 [ label [ htmlFor "date" ] [ text $ props.keyText "key.date" ]
-                , input [ _type "date", cn "form-control", _id "date", required true
-                        , value state.date
-                        , onChangeValue \v -> modifyState this _{ date=v }
-                        ]
-                ]
-              , div [ cn "col-md-2 mb-3" ]
-                [ label [ htmlFor "date" ] [ text $ props.keyText "key.date" ]
-                , input [ _type "time", cn "form-control", _id "date", required true
+                , input [ _type "datetime-local", cn "form-control", _id "date", required true
                         , value state.date
                         , onChangeValue \v -> modifyState this _{ date=v }
                         ]

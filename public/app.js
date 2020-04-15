@@ -7355,24 +7355,7 @@ var PS = {};
                           routeN: v1.routeN
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_plate.hint")) ]) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-8") ])([ React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
-                  return React.modifyState($$this)(function (v1) {
-                      return {
-                          firstName: v1.firstName,
-                          lastName: v1.lastName,
-                          phone: v1.phone,
-                          carPlate: v1.carPlate,
-                          date: v,
-                          lap: v1.lap,
-                          seats: v1.seats,
-                          from: v1.from,
-                          to: v1.to,
-                          types: v1.types,
-                          mapQ: v1.mapQ,
-                          routeN: v1.routeN
-                      };
-                  });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React_DOM.input([ React_DOM_Props["_type"]("time"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_plate.hint")) ]) ]) ]), React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-8") ])([ React_DOM.div([ Lib_React.cn("form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-4 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React_DOM.input([ React_DOM_Props["_type"]("datetime-local"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -7569,8 +7552,8 @@ var PS = {};
                               from: v2.from,
                               to: v2.to,
                               types: (function () {
-                                  var $31 = Data_Foldable.elem(Data_Foldable.foldableArray)(Api.eqPassengerType)(v)(state.types);
-                                  if ($31) {
+                                  var $30 = Data_Foldable.elem(Data_Foldable.foldableArray)(Api.eqPassengerType)(v)(state.types);
+                                  if ($30) {
                                       return Data_Array["delete"](Api.eqPassengerType)(v)(state.types);
                                   };
                                   return Data_Array.cons(v)(state.types);
@@ -7589,7 +7572,7 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 254, column 11 - line 262, column 30): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 247, column 11 - line 255, column 30): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return sendDriver($$this);
               }) ])([ React_DOM.text(props.keyText("key.add")) ]) ]) ]);
@@ -7663,10 +7646,10 @@ var PS = {};
                           };
                           throw new Error("Failed pattern match at App.Driver (line 76, column 28 - line 79, column 31): " + [ v.constructor.name ]);
                       })((function () {
-                          var $40 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $41 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($42) {
-                              return $40($41($42));
+                          var $39 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $40 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($41) {
+                              return $39($40($41));
                           };
                       })())();
                   }
@@ -8504,7 +8487,7 @@ var PS = {};
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
               return React_DOM.div([  ])([ React_DOM.ul([ Lib_React.cn("nav nav-pills nav-pills-primary justify-content-center") ])(Data_Functor.map(Data_Functor.functorArray)(function (t) {
-                  return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.a([ Lib_React.cn("nav-link" + (function () {
+                  return React_DOM.li([  ])([ React_DOM.a([ Lib_React.cn("nav-link" + (function () {
                       var $8 = Data_Eq.eq(eqTab)(t)(state.tab);
                       if ($8) {
                           return " active";
@@ -8911,7 +8894,7 @@ var PS = {};
               var state = React.getState($$this)();
               var dl = driversList(state.drivers)();
               return React_DOM.div([  ])([ React_DOM.ul([ Lib_React.cn("nav nav-pills nav-pills-primary justify-content-center") ])(Data_Functor.map(Data_Functor.functorArray)(function (t) {
-                  return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.a([ Lib_React.cn("nav-link" + (function () {
+                  return React_DOM.li([  ])([ React_DOM.a([ Lib_React.cn("nav-link" + (function () {
                       var $16 = Data_Eq.eq(eqTab)(t)(state.tab);
                       if ($16) {
                           return " active";
@@ -8946,7 +8929,7 @@ var PS = {};
                   if (state.tab instanceof ViewP) {
                       return React_DOM.text("2");
                   };
-                  throw new Error("Failed pattern match at App.View (line 118, column 9 - line 154, column 28): " + [ state.tab.constructor.name ]);
+                  throw new Error("Failed pattern match at App.View (line 118, column 9 - line 153, column 28): " + [ state.tab.constructor.name ]);
               })() ]);
           };
       };

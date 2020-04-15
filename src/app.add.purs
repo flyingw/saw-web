@@ -51,14 +51,14 @@ addClass = component "Add" \this -> do
     pure $ div []
       [ ul [ cn "nav nav-pills nav-pills-primary justify-content-center" ] $
         map (\t ->
-          li [ cn "nav-item" ]
-            [ a [ cn $ "nav-link" <> if t == state.tab then " active" else ""
-                , href "#"
-                , onClick \e -> (R.preventDefault e) >>= \_ -> modifyState this _{ tab = t }
-                ]
-              [ text $ props.keyText $ tabKey t ]
-            ]
-        ) [AddD, AddR]
+          li []
+          [ a [ cn $ "nav-link" <> if t == state.tab then " active" else ""
+              , href "#"
+              , onClick \e -> (R.preventDefault e) >>= \_ -> modifyState this _{ tab = t }
+              ]
+            [ text $ props.keyText $ tabKey t ]
+          ]
+        ) [ AddD, AddR ]
       , case state.tab of
           AddD -> createLeafElement driverClass props
           AddR -> createLeafElement riderClass props

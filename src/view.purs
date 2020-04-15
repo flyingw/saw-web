@@ -107,13 +107,13 @@ viewClass = component "View" \this -> do
     pure $ div []
       [ ul [ cn "nav nav-pills nav-pills-primary justify-content-center" ] $
         map (\t ->
-          li [ cn "nav-item" ]
-            [ a [ cn $ "nav-link" <> if t == state.tab then " active" else ""
-                , href "#"
-                , onClick \e -> (R.preventDefault e) >>= \_ -> modifyState this _{ tab = t }
-                ]
-              [ text $ props.keyText $ tabKey t ]
-            ]
+          li []
+          [ a [ cn $ "nav-link" <> if t == state.tab then " active" else ""
+              , href "#"
+              , onClick \e -> (R.preventDefault e) >>= \_ -> modifyState this _{ tab = t }
+              ]
+            [ text $ props.keyText $ tabKey t ]
+          ]
         ) [ViewD, ViewP]
       , case state.tab of
           ViewD ->
@@ -150,6 +150,5 @@ viewClass = component "View" \this -> do
                 ]
               ]
             ]
-            
           ViewP -> text "2"
       ]
