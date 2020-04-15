@@ -80,17 +80,15 @@ ridersClass = component "View.Passengers" \this -> do
     dl    <- passengersList this
     pure $
       div [ cn "m-2" ]
-      [ div [ cn "d-flex justify-content-center row mb-3" ]
-        [ form [ cn "form-inline my-2 my-lg-0" ]
-          [ input [ _type "date", cn "form-control mr-sm-2", _id "date"
-                  , value state.date
-                  , onChangeValue \v -> modifyState this _{ date=v }
-                  ]
-          , button [ cn "btn btn-outline-secondary my-2 my-sm-0", _type "button" 
-                   , onClick \_ -> fetchPassengers this 
-                   ]
-            [ text $ props.keyText "key.search" ]
-          ]
+      [ div [ cn "d-flex justify-content-center mb-3" ]
+        [ input [ _type "date", cn "form-control col-5 col-sm-4 col-md-3 col-lg-2 mr-2", _id "date"
+                , value state.date
+                , onChangeValue \v -> modifyState this _{ date=v }
+                ]
+        , button [ cn "btn btn-outline-secondary", _type "button" 
+                 , onClick \_ -> fetchPassengers this 
+                 ]
+          [ text $ props.keyText "key.search" ]
         ]
       , dl
       ]

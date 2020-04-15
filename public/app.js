@@ -7176,7 +7176,6 @@ var PS = {};
   };                        
   var iframe = mkDOM(false)("iframe");
   var h6 = mkDOM(false)("h6");
-  var form = mkDOM(false)("form");
   var div = mkDOM(false)("div");  
   var button = mkDOM(false)("button");
   var a = mkDOM(false)("a");
@@ -7184,7 +7183,6 @@ var PS = {};
   exports["a"] = a;
   exports["button"] = button;
   exports["div"] = div;
-  exports["form"] = form;
   exports["h6"] = h6;
   exports["iframe"] = iframe;
   exports["img"] = img;
@@ -8934,7 +8932,7 @@ var PS = {};
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
               var dl = driversList($$this)();
-              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center row mb-3") ])([ React_DOM.form([ Lib_React.cn("form-inline my-2 my-lg-0") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control mr-sm-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
+              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center row mb-3") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control col-5 col-sm-4 col-md-3 col-lg-2 mr-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           date: v,
@@ -8942,9 +8940,9 @@ var PS = {};
                           showItem: v1.showItem
                       };
                   });
-              }) ]), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary my-2 my-sm-0"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+              }) ]), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return fetchDrivers($$this);
-              }) ])([ React_DOM.text(props.keyText("key.search")) ]) ]) ]), dl ]);
+              }) ])([ React_DOM.text(props.keyText("key.search")) ]) ]), dl ]);
           };
       };
       return React.component()("View.Drivers")(function ($$this) {
@@ -9064,7 +9062,7 @@ var PS = {};
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
               var dl = passengersList($$this)();
-              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center row mb-3") ])([ React_DOM.form([ Lib_React.cn("form-inline my-2 my-lg-0") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control mr-sm-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
+              return React_DOM.div([ Lib_React.cn("m-2") ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control col-5 col-sm-4 col-md-3 col-lg-2 mr-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           date: v,
@@ -9072,9 +9070,9 @@ var PS = {};
                           showItem: v1.showItem
                       };
                   });
-              }) ]), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary my-2 my-sm-0"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+              }) ]), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return fetchPassengers($$this);
-              }) ])([ React_DOM.text(props.keyText("key.search")) ]) ]) ]), dl ]);
+              }) ])([ React_DOM.text(props.keyText("key.search")) ]) ]), dl ]);
           };
       };
       return React.component()("View.Passengers")(function ($$this) {
