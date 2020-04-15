@@ -19,8 +19,8 @@ import Foreign (Foreign, F, readNumber, readString, typeOf)
 import Foreign.Keys (keys) as F
 import Foreign.Index ((!)) as F
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
-import React.DOM (div, text, nav, ul, li, a, label, input, img, button, span)
-import React.DOM.Props (_type, onClick, name, checked, href, src, height)
+import React.DOM (div, text, nav, ul, li, a, label, input, img, button, span, select, option)
+import React.DOM.Props (_type, onClick, name, checked, href, src, height, style, selected, value)
 import ReactDOM (render)
 import Web.DOM.NonElementParentNode (getElementById)
 import Web.HTML (window)
@@ -28,7 +28,7 @@ import Web.HTML.HTMLDocument (toNonElementParentNode)
 import Web.HTML.Window (document)
 
 import Ajax (getEff)
-import Lib.React (cn)
+import Lib.React (cn, onChangeValue)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
 
@@ -49,6 +49,7 @@ type State =
   , keyText :: String -> String
   , menuItem :: MenuItem
   , expand :: Boolean
+  , connectionLost :: Boolean
   }
 
 data MenuItem = HomeItem | ViewItem | AddItem
@@ -69,14 +70,16 @@ appClass = component "App" \this -> do
       , keyText: \key -> key
       , menuItem: HomeItem
       , expand: false
+      , connectionLost: false
       }:: State
     , render: render this
     , componentDidMount: do
         props  <- getProps this
         state  <- getState this
         _      <- setLang this state.lang
-        let ws = props.ws
-        WS.onMsg ws (\x -> case decodePush x of
+        _      <- WS.onError props.ws \x -> modifyState this _{ connectionLost = true }
+        _      <- WS.onClose props.ws \x -> modifyState this _{ connectionLost = true }
+        WS.onMsg props.ws (\x -> case decodePush x of
           Left y -> error $ show y
           Right { val: LoginOk r} -> modifyState this _{ user = Just r.user }
           Right _ -> pure unit
@@ -98,7 +101,10 @@ appClass = component "App" \this -> do
     state <- getState this
     u     <- userIcon this
     pure $ div []
-      [ nav [ cn "navbar navbar-expand-lg navbar-dark bg-primary" ]
+      [ if state.connectionLost 
+          then div [ cn "bg-warning pl-2" ] [ a [ href "/" ] [ text $ state.keyText "key.connection_lost" ] ]
+          else mempty
+      , nav [ cn "navbar navbar-expand-lg navbar-dark bg-primary" ]
         [ a [ cn "navbar-brand", href "#", onClick \_ -> modifyState this _{ menuItem = HomeItem } ] [ text "Ridehub" ]
         , ul [ cn "navbar-nav ml-auto nav-flex-icons d-lg-none" ] [ u ]
         , button [ cn "navbar-toggler collapsed", _type "button" 
@@ -116,18 +122,12 @@ appClass = component "App" \this -> do
                 [ text $ state.keyText $ show v ]
               ]
             ) [ HomeItem, AddItem, ViewItem ]
+          , select [ cn "custom-select bg-primary text-white-50", style { width: "9.5rem" }
+                   , onChangeValue \v -> setLang this v
+                   ] $
+            map (\v -> option [ value v, selected $ v == state.lang ] [ text $ state.keyText $ "key." <> v ]) [ "uk", "ru" ]
           ]
         , ul [ cn "navbar-nav ml-auto nav-flex-icons d-none d-lg-inline" ] [ u ]
-        
-        -- , div [ cn "btn-group btn-group-sm btn-group-toggle" ] $
-        --     map (\v ->
-        --       label [ cn $ "btn btn-outline-secondary" <> if state.lang == v then " active" else "" ]
-        --       [ input [ _type "radio", name "options", checked $ state.lang == v
-        --               , onClick \_ -> setLang this v
-        --               ]
-        --       , text $ state.keyText $ "key." <> v
-        --       ]
-        --     ) [ "uk", "ru" ]
         ]
       , div [ cn "m-3"] $
           case state.menuItem of
@@ -145,14 +145,14 @@ appClass = component "App" \this -> do
     pure $ case state.user of
       Just user @ { photo: Just photo } ->
         li [ cn "nav-item avatar" ]
-        [ a [ cn "nav-link p-0", href "#" ]
+        [ span [ cn "nav-link p-0" ]
           [ img [ src photo, cn "rounded-circle z-depth-0 mr-1", height "35" ]
           , text $ fromMaybe user.username $ user.firstName <|> user.lastName 
           ]
         ]
       Just user ->
         li [ cn "nav-item" ]
-        [ a [ cn "nav-link", href "#" ]
+        [ span [ cn "nav-link" ]
           [ text $ fromMaybe user.username $ user.firstName <|> user.lastName ]
         ]
       Nothing ->

@@ -101,7 +101,7 @@ ridersClass = component "View.Passengers" \this -> do
       t <- formatTime $ fromTime pi.date
       pure $
         div [ cn "list-group-item", key pi.id ]
-        [ div [ cn "d-flex flex-row mb-2" ]
+        [ div [ cn "d-flex flex-row" ]
           [ div [ cn "mr-3" ]  
             [ small [ cn "d-block" ] [ text $ pi.fromAddress ]
             , small [ cn "d-block" ] [ text $ pi.toAddress ]

@@ -101,7 +101,7 @@ driversClass = component "View.Drivers" \this -> do
       t <- formatTime $ fromTime di.date
       pure $ head di.routes <#> (\route ->
         div [ cn "list-group-item", key di.id ]
-        [ div [ cn "d-flex flex-row mb-2" ]
+        [ div [ cn "d-flex flex-row" ]
           [ div [ cn "mr-3" ]  
             [ small [ cn "d-block" ] [ text $ route.fromAddress ]
             , small [ cn "d-block" ] [ text $ route.toAddress ]

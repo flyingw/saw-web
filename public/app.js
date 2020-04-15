@@ -6459,7 +6459,8 @@ var PS = {};
 
       return props;
     };
-  }                                             
+  }
+  exports.unsafeUnfoldProps = unsafeUnfoldProps;
 
   function unsafePrefixProps(prefix) {
     return function(value){
@@ -6515,8 +6516,10 @@ var PS = {};
   var $foreign = $PS["React.DOM.Props"];
   var Effect_Uncurried = $PS["Effect.Uncurried"];
   var width = $foreign.unsafeMkProps("width");     
-  var value = $foreign.unsafeMkProps("value");  
-  var src = $foreign.unsafeMkProps("src");          
+  var value = $foreign.unsafeMkProps("value");    
+  var style = $foreign.unsafeUnfoldProps("style");
+  var src = $foreign.unsafeMkProps("src");    
+  var selected = $foreign.unsafeMkProps("selected");
   var required = $foreign.unsafeMkProps("required");
   var placeholder = $foreign.unsafeMkProps("placeholder");
   var onClick = function (f) {
@@ -6538,6 +6541,7 @@ var PS = {};
   var autoComplete = $foreign.unsafeMkProps("autoComplete");
   var _type = $foreign.unsafeMkProps("type");
   var _id = $foreign.unsafeMkProps("id");
+  exports["style"] = style;
   exports["autoComplete"] = autoComplete;
   exports["checked"] = checked;
   exports["className"] = className;
@@ -6552,6 +6556,7 @@ var PS = {};
   exports["min"] = min;
   exports["placeholder"] = placeholder;
   exports["required"] = required;
+  exports["selected"] = selected;
   exports["src"] = src;
   exports["_type"] = _type;
   exports["value"] = value;
@@ -6708,8 +6713,12 @@ var PS = {};
   var exports = $PS["Web.Socket.Event.EventTypes"];
   var onOpen = "open";
   var onMessage = "message";
+  var onError = "error";
+  var onClose = "close";
   exports["onOpen"] = onOpen;
   exports["onMessage"] = onMessage;
+  exports["onError"] = onError;
+  exports["onClose"] = onClose;
 })(PS);
 (function(exports) {
   "use strict";
@@ -6917,6 +6926,24 @@ var PS = {};
           };
       };
   };
+  var onError = function (ws) {
+      return function (handler) {
+          var target = Web_Socket_WebSocket.toEventTarget(ws);
+          return function __do() {
+              var l = Web_Event_EventTarget.eventListener(handler)();
+              return Web_Event_EventTarget.addEventListener(Web_Socket_Event_EventTypes.onError)(l)(false)(target)();
+          };
+      };
+  };
+  var onClose = function (ws) {
+      return function (handler) {
+          var target = Web_Socket_WebSocket.toEventTarget(ws);
+          return function __do() {
+              var l = Web_Event_EventTarget.eventListener(handler)();
+              return Web_Event_EventTarget.addEventListener(Web_Socket_Event_EventTypes.onClose)(l)(false)(target)();
+          };
+      };
+  };
   var create = function (path) {
       return function __do() {
           var location = Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.location)();
@@ -6935,6 +6962,8 @@ var PS = {};
   exports["create"] = create;
   exports["setBinary"] = setBinary;
   exports["onOpen"] = onOpen;
+  exports["onClose"] = onClose;
+  exports["onError"] = onError;
   exports["onMsg"] = onMsg;
   exports["send"] = send;
 })(PS);
@@ -8906,7 +8935,7 @@ var PS = {};
                   return function __do() {
                       var t = Format.formatTime(Data_JSDate.fromTime(di.date))();
                       return Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(Data_Array.head(di.routes))(function (route) {
-                          return React_DOM.div([ Lib_React.cn("list-group-item"), React_DOM_Props.key(di.id) ])([ React_DOM.div([ Lib_React.cn("d-flex flex-row mb-2") ])([ React_DOM.div([ Lib_React.cn("mr-3") ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(route.fromAddress) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(route.toAddress) ]) ]), React_DOM.div([  ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(t) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.a([ React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
+                          return React_DOM.div([ Lib_React.cn("list-group-item"), React_DOM_Props.key(di.id) ])([ React_DOM.div([ Lib_React.cn("d-flex flex-row") ])([ React_DOM.div([ Lib_React.cn("mr-3") ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(route.fromAddress) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(route.toAddress) ]) ]), React_DOM.div([  ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(t) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.a([ React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
                               return React.modifyState($$this)(function (v1) {
                                   return {
                                       date: v1.date,
@@ -9013,7 +9042,7 @@ var PS = {};
               return Data_Functor.map(Effect.functorEffect)(React_DOM.div([ Lib_React.cn("list-group d-flex flex-column justify-content-center") ]))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect)(Data_Functor.map(Data_Functor.functorArray)(function (pi) {
                   return function __do() {
                       var t = Format.formatTime(Data_JSDate.fromTime(pi.date))();
-                      return React_DOM.div([ Lib_React.cn("list-group-item"), React_DOM_Props.key(pi.id) ])([ React_DOM.div([ Lib_React.cn("d-flex flex-row mb-2") ])([ React_DOM.div([ Lib_React.cn("mr-3") ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(pi.fromAddress) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(pi.toAddress) ]) ]), React_DOM.div([  ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(t) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.a([ React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
+                      return React_DOM.div([ Lib_React.cn("list-group-item"), React_DOM_Props.key(pi.id) ])([ React_DOM.div([ Lib_React.cn("d-flex flex-row") ])([ React_DOM.div([ Lib_React.cn("mr-3") ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(pi.fromAddress) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(pi.toAddress) ]) ]), React_DOM.div([  ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(t) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.a([ React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
                           return React.modifyState($$this)(function (v1) {
                               return {
                                   date: v1.date,
@@ -9290,6 +9319,7 @@ var PS = {};
   var Data_Functor = $PS["Data.Functor"];
   var Data_Map_Internal = $PS["Data.Map.Internal"];
   var Data_Maybe = $PS["Data.Maybe"];
+  var Data_Monoid = $PS["Data.Monoid"];
   var Data_Ord = $PS["Data.Ord"];
   var Data_Ordering = $PS["Data.Ordering"];
   var Data_Show = $PS["Data.Show"];
@@ -9342,7 +9372,7 @@ var PS = {};
       if (v instanceof AddItem) {
           return "key.menu.add";
       };
-      throw new Error("Failed pattern match at App (line 55, column 1 - line 59, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at App (line 56, column 1 - line 60, column 33): " + [ v.constructor.name ]);
   });
   var eqMenuItem = new Data_Eq.Eq(function (x) {
       return function (y) {
@@ -9383,7 +9413,7 @@ var PS = {};
           if (x instanceof AddItem && y instanceof AddItem) {
               return Data_Ordering.EQ.value;
           };
-          throw new Error("Failed pattern match at App (line 61, column 1 - line 61, column 44): " + [ x.constructor.name, y.constructor.name ]);
+          throw new Error("Failed pattern match at App (line 62, column 1 - line 62, column 44): " + [ x.constructor.name, y.constructor.name ]);
       };
   });
   var appClass = (function () {
@@ -9391,10 +9421,10 @@ var PS = {};
           return function __do() {
               var state = React.getState($$this)();
               if (state.user instanceof Data_Maybe.Just && state.user.value0.photo instanceof Data_Maybe.Just) {
-                  return React_DOM.li([ Lib_React.cn("nav-item avatar") ])([ React_DOM.a([ Lib_React.cn("nav-link p-0"), React_DOM_Props.href("#") ])([ React_DOM.img([ React_DOM_Props.src(state.user.value0.photo.value0), Lib_React.cn("rounded-circle z-depth-0 mr-1"), React_DOM_Props.height("35") ]), React_DOM.text(Data_Maybe.fromMaybe(state.user.value0.username)(Control_Alt.alt(Data_Maybe.altMaybe)(state.user.value0.firstName)(state.user.value0.lastName))) ]) ]);
+                  return React_DOM.li([ Lib_React.cn("nav-item avatar") ])([ React_DOM.span([ Lib_React.cn("nav-link p-0") ])([ React_DOM.img([ React_DOM_Props.src(state.user.value0.photo.value0), Lib_React.cn("rounded-circle z-depth-0 mr-1"), React_DOM_Props.height("35") ]), React_DOM.text(Data_Maybe.fromMaybe(state.user.value0.username)(Control_Alt.alt(Data_Maybe.altMaybe)(state.user.value0.firstName)(state.user.value0.lastName))) ]) ]);
               };
               if (state.user instanceof Data_Maybe.Just) {
-                  return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.a([ Lib_React.cn("nav-link"), React_DOM_Props.href("#") ])([ React_DOM.text(Data_Maybe.fromMaybe(state.user.value0.username)(Control_Alt.alt(Data_Maybe.altMaybe)(state.user.value0.firstName)(state.user.value0.lastName))) ]) ]);
+                  return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.span([ Lib_React.cn("nav-link") ])([ React_DOM.text(Data_Maybe.fromMaybe(state.user.value0.username)(Control_Alt.alt(Data_Maybe.altMaybe)(state.user.value0.firstName)(state.user.value0.lastName))) ]) ]);
               };
               if (state.user instanceof Data_Maybe.Nothing) {
                   return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.a([ Lib_React.cn("nav-link"), React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
@@ -9404,7 +9434,8 @@ var PS = {};
                               lang: v1.lang,
                               keyText: v1.keyText,
                               menuItem: HomeItem.value,
-                              expand: v1.expand
+                              expand: v1.expand,
+                              connectionLost: v1.connectionLost
                           };
                       });
                   }) ])([ React_DOM.text(state.keyText("key.login")) ]) ]);
@@ -9428,7 +9459,8 @@ var PS = {};
                               return Data_Maybe.fromMaybe(key)(Data_Map_Internal.lookup(Data_Ord.ordString)(Data_String_Common.toLower(key))(keys));
                           },
                           menuItem: v1.menuItem,
-                          expand: v1.expand
+                          expand: v1.expand,
+                          connectionLost: v1.connectionLost
                       };
                   });
               });
@@ -9439,14 +9471,20 @@ var PS = {};
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
               var u = userIcon($$this)();
-              return React_DOM.div([  ])([ React_DOM.nav([ Lib_React.cn("navbar navbar-expand-lg navbar-dark bg-primary") ])([ React_DOM.a([ Lib_React.cn("navbar-brand"), React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
+              return React_DOM.div([  ])([ (function () {
+                  if (state.connectionLost) {
+                      return React_DOM.div([ Lib_React.cn("bg-warning pl-2") ])([ React_DOM.a([ React_DOM_Props.href("/") ])([ React_DOM.text(state.keyText("key.connection_lost")) ]) ]);
+                  };
+                  return Data_Monoid.mempty(React.monoidReactElement);
+              })(), React_DOM.nav([ Lib_React.cn("navbar navbar-expand-lg navbar-dark bg-primary") ])([ React_DOM.a([ Lib_React.cn("navbar-brand"), React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           user: v1.user,
                           lang: v1.lang,
                           keyText: v1.keyText,
                           menuItem: HomeItem.value,
-                          expand: v1.expand
+                          expand: v1.expand,
+                          connectionLost: v1.connectionLost
                       };
                   });
               }) ])([ React_DOM.text("Ridehub") ]), React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto nav-flex-icons d-lg-none") ])([ u ]), React_DOM.button([ Lib_React.cn("navbar-toggler collapsed"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
@@ -9456,7 +9494,8 @@ var PS = {};
                           lang: s.lang,
                           keyText: s.keyText,
                           menuItem: s.menuItem,
-                          expand: !s.expand
+                          expand: !s.expand,
+                          connectionLost: s.connectionLost
                       };
                   });
               }) ])([ React_DOM.span([ Lib_React.cn("navbar-toggler-icon") ])([  ]) ]), React_DOM.div([ Lib_React.cn("navbar-collapse" + (function () {
@@ -9466,8 +9505,8 @@ var PS = {};
                   return " collapse";
               })()) ])([ React_DOM.ul([ Lib_React.cn("navbar-nav mr-auto") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.li([ Lib_React.cn("nav-item" + (function () {
-                      var $28 = Data_Eq.eq(eqMenuItem)(v)(state.menuItem);
-                      if ($28) {
+                      var $31 = Data_Eq.eq(eqMenuItem)(v)(state.menuItem);
+                      if ($31) {
                           return " active";
                       };
                       return "";
@@ -9478,11 +9517,18 @@ var PS = {};
                               lang: v2.lang,
                               keyText: v2.keyText,
                               menuItem: v,
-                              expand: false
+                              expand: false,
+                              connectionLost: v2.connectionLost
                           };
                       });
                   }) ])([ React_DOM.text(state.keyText(Data_Show.show(showMenuItem)(v))) ]) ]);
-              })([ HomeItem.value, AddItem.value, ViewItem.value ])) ]), React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto nav-flex-icons d-none d-lg-inline") ])([ u ]) ]), React_DOM.div([ Lib_React.cn("m-3") ])((function () {
+              })([ HomeItem.value, AddItem.value, ViewItem.value ])), React_DOM.select([ Lib_React.cn("custom-select bg-primary text-white-50"), React_DOM_Props.style({
+                  width: "9.5rem"
+              }), Lib_React.onChangeValue(function (v) {
+                  return setLang($$this)(v);
+              }) ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
+                  return React_DOM.option([ React_DOM_Props.value(v), React_DOM_Props.selected(v === state.lang) ])([ React_DOM.text(state.keyText("key." + v)) ]);
+              })([ "uk", "ru" ])) ]), React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto nav-flex-icons d-none d-lg-inline") ])([ u ]) ]), React_DOM.div([ Lib_React.cn("m-3") ])((function () {
                   if (state.menuItem instanceof HomeItem) {
                       return [ React.createLeafElement()(App_Home.homeClass)({
                           ws: props.ws,
@@ -9520,13 +9566,38 @@ var PS = {};
                       return key;
                   },
                   menuItem: HomeItem.value,
-                  expand: false
+                  expand: false,
+                  connectionLost: false
               },
               render: render($$this),
               componentDidMount: function __do() {
                   var props = React.getProps($$this)();
                   var state = React.getState($$this)();
                   setLang($$this)(state.lang)();
+                  Lib_WebSocket.onError(props.ws)(function (x) {
+                      return React.modifyState($$this)(function (v) {
+                          return {
+                              user: v.user,
+                              lang: v.lang,
+                              keyText: v.keyText,
+                              menuItem: v.menuItem,
+                              expand: v.expand,
+                              connectionLost: true
+                          };
+                      });
+                  })();
+                  Lib_WebSocket.onClose(props.ws)(function (x) {
+                      return React.modifyState($$this)(function (v) {
+                          return {
+                              user: v.user,
+                              lang: v.lang,
+                              keyText: v.keyText,
+                              menuItem: v.menuItem,
+                              expand: v.expand,
+                              connectionLost: true
+                          };
+                      });
+                  })();
                   return Lib_WebSocket.onMsg(props.ws)(function (x) {
                       var v = Api_Push.decodePush(x);
                       if (v instanceof Data_Either.Left) {
@@ -9539,19 +9610,20 @@ var PS = {};
                                   lang: v1.lang,
                                   keyText: v1.keyText,
                                   menuItem: v1.menuItem,
-                                  expand: v1.expand
+                                  expand: v1.expand,
+                                  connectionLost: v1.connectionLost
                               };
                           });
                       };
                       if (v instanceof Data_Either.Right) {
                           return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                       };
-                      throw new Error("Failed pattern match at App (line 79, column 28 - line 82, column 31): " + [ v.constructor.name ]);
+                      throw new Error("Failed pattern match at App (line 82, column 34 - line 85, column 31): " + [ v.constructor.name ]);
                   })((function () {
-                      var $36 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                      var $37 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                      return function ($38) {
-                          return $36($37($38));
+                      var $39 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                      var $40 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                      return function ($41) {
+                          return $39($40($41));
                       };
                   })())();
               }
