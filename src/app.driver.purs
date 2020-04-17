@@ -3,30 +3,28 @@ module App.Driver
   , Props
   ) where
 
-import Prelude hiding (div)
+import Prelude hiding (div, min, max)
 
 import Data.Array (fromFoldable, elem, delete, (:))
 import Data.Either (Either(..))
-import Data.JSDate (parse, now, getTime, toISOString)
-import Data.Maybe (Maybe(..), fromMaybe, isNothing)
-import Data.String (take)
+import Data.JSDate (JSDate, now, getTime)
+import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Traversable (sequence)
 import Effect (Effect)
 import Effect.Console (error)
 import Global (encodeURI)
-import React (ReactClass, ReactThis, getProps, getState, modifyState, component)
-import React.DOM (text, div, form, label, input, button, h6, small, iframe)
-import React.DOM.Props (htmlFor, _id, _type, noValidate, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, disabled, checked, placeholder)
-
-import Lib.React(cn, onChangeValue, onChangeValueInt)
-import Lib.WebSocket (WebSocket)
-import Lib.WebSocket as WS
+import React (ReactClass, ReactThis, getProps, getState, modifyState, component, createLeafElement)
+import React.DOM (text, div, label, input, button, h6, small, iframe)
+import React.DOM.Props (htmlFor, _id, _type, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, disabled, checked)
 
 import Api (PassengerType(..))
 import Api.Pull (Pull(AddDriver), encodePull, Address)
 import Api.Push (decodePush, Push(AddRouteOk), UserData)
+import Datepicker (datepickerClass)
 import Keys (keyPassengerType)
-import Format (todayISO)
+import Lib.React(cn, onChangeValue, onChangeValueInt)
+import Lib.WebSocket (WebSocket)
+import Lib.WebSocket as WS
 
 type Props =
   { ws :: WebSocket
@@ -42,7 +40,7 @@ type State =
   , lastName :: String
   , phone :: String
   , carPlate :: String
-  , date :: String
+  , date :: JSDate
   , lap :: Int
   , seats :: Int
   , from :: Address
@@ -51,9 +49,11 @@ type State =
   , await :: Boolean
   }
 
+type This = ReactThis Props State
+
 driverClass :: ReactClass Props
 driverClass = component "Driver" \this -> do
-  date <- todayISO
+  date  <- now
   props <- getProps this
   pure
     { state:
@@ -74,27 +74,25 @@ driverClass = component "Driver" \this -> do
     , render: render this
     , componentDidMount: do
         p <- getProps this
-        let ws = p.ws
-        WS.onMsg ws (\x -> case decodePush x of
+        WS.onMsg p.ws (\x -> case decodePush x of
           Left y -> error $ show y
-          Right { val: AddRouteOk r } -> modifyState this _{ routeId=Just r.id }
+          Right { val: AddRouteOk r } -> modifyState this _{ routeId = Just r.id }
           Right _ -> pure unit
         ) (sequence <<< map error)
     }
   where
 
-  sendDriver :: ReactThis Props State -> Effect Unit
+  sendDriver :: This -> Effect Unit
   sendDriver this = do
     s <- getState this
     p <- getProps this
-    d <- parse s.date
     _ <- modifyState this _{ await = true }
     let driver = AddDriver { 
         firstName: s.firstName
       , lastName: s.lastName
       , phone: s.phone
       , carPlate: s.carPlate
-      , date: getTime d
+      , date: getTime s.date
       , lap: s.lap
       , seats: s.seats
       , from: s.from
@@ -103,8 +101,7 @@ driverClass = component "Driver" \this -> do
       }
     WS.send p.ws $ encodePull driver
 
-
-  updateMap :: ReactThis Props State -> Effect Unit
+  updateMap :: This -> Effect Unit
   updateMap this = do
     s <- getState this
     let host = "https://www.google.com/maps/embed/v1/directions"
@@ -160,10 +157,17 @@ driverClass = component "Driver" \this -> do
       , div [ cn "d-flex justify-content-center form-row" ] 
         [ div [ cn "col-md-5 col-lg-3 mb-3" ]
           [ label [ htmlFor "date" ] [ text $ props.keyText "key.date" ]
-          , input [ _type "datetime-local", cn "form-control", _id "date", required true
-                  , value state.date
-                  , onChangeValue \v -> modifyState this _{ date=v }
-                  ]
+          , createLeafElement datepickerClass { onChange: \d -> modifyState this _{ date = d }
+                                              , lang: props.lang
+                                              , showTime: true
+                                              , className: "form-control"
+                                              , wrapperClassName: "form-control"
+                                              , _id: "date"
+                                              }
+          -- , input [ _type "datetime-local", cn "form-control", _id "date", required true
+          --         , value state.date
+          --         , onChangeValue \v -> modifyState this _{ date=v }
+          --         ]
           ]
         , div [ cn "col-md-2 col-lg-2 mb-3" ]
           [ label [ htmlFor "lap" ] [ text $ props.keyText "key.lap" ]

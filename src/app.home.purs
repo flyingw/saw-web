@@ -6,20 +6,19 @@ module App.Home
 import Prelude hiding (div)
 
 import Control.Monad.Except (runExcept)
-import Data.Array (take, drop, mapMaybe)
+import Data.Array (mapMaybe)
 import Data.Either (Either(..))
-import Data.Maybe (Maybe(..), maybe, fromMaybe, isJust)
+import Data.Maybe (Maybe(..), isJust)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
-import Effect.Console (error)
 import Effect.Exception (throw)
 import Foreign (Foreign, F, readNumber, readString, typeOf)
 import Foreign.Index ((!)) as F
 import Foreign.Keys (keys) as F
 import React (ReactClass, getProps, getState, component, ReactThis)
 import React.DOM (text, div, h6, span)
-import React.DOM.Props (_id, _type, onClick, name, checked, href, src, height, async)
+import React.DOM.Props (_id)
 
 import Api.Pull (encodePull, Pull(TelegramLogin), TelegramData(TelegramString, TelegramNum))
 import Api.Push (UserData)

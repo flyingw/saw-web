@@ -2,25 +2,21 @@ module App where
 
 import Prelude hiding (div)
 
-import Control.Monad.Except (runExcept)
-import Data.Array (take, drop, mapMaybe)
 import Control.Alt ((<|>))
+import Data.Array (take, drop)
 import Data.Either (Either(..))
+import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe, fromMaybe)
 import Data.String.Common (joinWith, split, toLower)
 import Data.String.Pattern (Pattern(Pattern))
-import Data.Map as Map
-import Data.Tuple (Tuple(Tuple))
 import Data.Traversable (sequence)
+import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
 import Effect.Console (error)
 import Effect.Exception (throw)
-import Foreign (Foreign, F, readNumber, readString, typeOf)
-import Foreign.Keys (keys) as F
-import Foreign.Index ((!)) as F
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
-import React.DOM (div, text, nav, ul, li, a, label, input, img, button, span, select, option)
-import React.DOM.Props (_type, onClick, name, checked, href, src, height, style, selected, value)
+import React.DOM (a, button, div, img, li, nav, option, select, span, text, ul)
+import React.DOM.Props (_type, height, href, onClick, selected, src, style, value)
 import ReactDOM (render)
 import Web.DOM.NonElementParentNode (getElementById)
 import Web.HTML (window)
@@ -28,16 +24,14 @@ import Web.HTML.HTMLDocument (toNonElementParentNode)
 import Web.HTML.Window (document)
 
 import Ajax (getEff)
+import Api.Push (decodePush, Push(LoginOk), UserData)
+import App.Add (addClass)
+import App.Home (homeClass)
+import App.View (viewClass)
+import Datepicker (datepickerLoad)
 import Lib.React (cn, onChangeValue)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
-
-import Api.Pull (encodePull, Pull(TelegramLogin), TelegramData(TelegramString, TelegramNum))
-import Api.Push (decodePush, Push(LoginOk), UserData)
-
-import App.Home (homeClass)
-import App.View (viewClass)
-import App.Add (addClass)
 
 type Props =
   { ws :: WebSocket
@@ -129,7 +123,7 @@ appClass = component "App" \this -> do
           ]
         , ul [ cn "navbar-nav ml-auto nav-flex-icons d-none d-lg-inline" ] [ u ]
         ]
-      , div [ cn "m-sm-3 m-2"] $
+      , div [ cn "m-3"] $
           case state.menuItem of
             HomeItem -> [ createLeafElement homeClass {ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user}
                         ]
@@ -163,10 +157,11 @@ appClass = component "App" \this -> do
 
 view :: Effect Unit
 view = do
-  doc <- window >>= document
-  elem <- getElementById "container" $ toNonElementParentNode doc
+  _         <- datepickerLoad
+  doc       <- window >>= document
+  elem      <- getElementById "container" $ toNonElementParentNode doc
   container <- maybe (throw "container not found") pure elem
-  ws <- WS.create "ridehub.city/ws"
+  ws        <- WS.create "ridehub.city/ws"
   WS.onOpen ws \_ -> WS.setBinary ws
   let element = createLeafElement appClass { ws }
   void $ render element container

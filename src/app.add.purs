@@ -5,10 +5,10 @@ module App.Add
 
 import Prelude hiding (div)
 
-import Data.Maybe (Maybe(..), maybe, fromMaybe, isJust)
+import Data.Maybe (Maybe)
 import React (ReactClass, getProps, getState, modifyState, component, createLeafElement)
-import React.DOM (text, div, ul, li, a, button)
-import React.DOM.Props (href, onClick, _type)
+import React.DOM (a, div, li, text, ul)
+import React.DOM.Props (href, onClick)
 import React.SyntheticEvent (preventDefault) as R
 
 import Lib.React(cn)

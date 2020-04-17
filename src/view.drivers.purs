@@ -6,26 +6,22 @@ module App.View.Drivers
 import Prelude hiding (div)
 
 import Data.Array (catMaybes, head)
-import Data.JSDate (parse, now, getTime, toISOString, fromTime)
 import Data.Either (Either(..))
-import Data.Maybe (Maybe(..), maybe, fromMaybe)
-import Data.Traversable (sequence, traverse)
-import React (ReactClass, ReactElement, ReactThis, getProps, getState, modifyState, component)
-import React.DOM (text, div, ul, li, a, label, input, button, form, span, table, thead, tbody, th, tr, td, small, iframe)
-import React.DOM.Props (href, onClick, htmlFor, _type, _id, value, key, height, frameBorder, width, src)
-import React.SyntheticEvent (preventDefault) as R
+import Data.JSDate (JSDate, fromTime, getTime, now)
+import Data.Maybe (Maybe)
+import Data.Traversable (sequence)
 import Effect (Effect)
 import Effect.Console (error)
-import Effect.Exception (throw)
-import Data.String (take)
+import React (ReactClass, ReactElement, ReactThis, getProps, getState, modifyState, component, createLeafElement)
+import React.DOM (a, button, div, iframe, small, text)
+import React.DOM.Props (_type, frameBorder, height, href, key, onClick, src, width)
 
 import Api.Pull (encodePull, Pull(GetFreeDrivers))
-import Api.Push (decodePush, Push(LoginOk, FreeDrivers), UserData, DriverInfo)
+import Api.Push (decodePush, Push(FreeDrivers), UserData, DriverInfo)
+import Datepicker (datepickerClass, toLocaleTimeString)
 import Lib.React(cn)
-import Lib.React(cn, onChangeValue, onChangeValueInt)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
-import Format (todayDateISO, formatTime)
 
 type Props =
   { ws :: WebSocket
@@ -35,16 +31,16 @@ type Props =
   }
 
 type State = 
-  { date :: String
+  { date :: JSDate
   , drivers :: Array DriverInfo
   , showItem :: String
   }
 
-type This = ReactThis Props State 
+type This = ReactThis Props State
 
 driversClass :: ReactClass Props
 driversClass = component "View.Drivers" \this -> do
-  date  <- todayDateISO
+  date  <- now
   props <- getProps this
   pure
     { state:
@@ -58,7 +54,8 @@ driversClass = component "View.Drivers" \this -> do
         _ <- fetchDrivers this
         WS.onMsg p.ws (\x -> case decodePush x of
           Left y -> error $ show y
-          Right msg -> handleMsg this msg.val
+          Right { val: FreeDrivers r } -> modifyState this _{ drivers = r.freeDrivers }
+          Right msg -> pure unit
         ) (sequence <<< map error)
     }
   where
@@ -66,12 +63,7 @@ driversClass = component "View.Drivers" \this -> do
   fetchDrivers this = do
     p  <- getProps this
     s  <- getState this
-    d  <- parse s.date
-    WS.send p.ws $ encodePull $ GetFreeDrivers { date: getTime d }
-
-  handleMsg :: This -> Push -> Effect Unit
-  handleMsg this (FreeDrivers r) = modifyState this _{ drivers = r.freeDrivers }
-  handleMsg this _ = pure unit
+    WS.send p.ws $ encodePull $ GetFreeDrivers { date: getTime s.date }
 
   render :: This -> Effect ReactElement
   render this = do
@@ -81,10 +73,13 @@ driversClass = component "View.Drivers" \this -> do
     pure $
       div []
       [ div [ cn "d-flex justify-content-center row mb-3" ]
-        [ input [ _type "date", cn "form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2", _id "date"
-                , value state.date
-                , onChangeValue \v -> modifyState this _{ date=v }
-                ]
+        [ createLeafElement datepickerClass { onChange: \d -> modifyState this _{ date = d }
+                                            , lang: props.lang
+                                            , showTime: false
+                                            , className: "form-control"
+                                            , wrapperClassName: "form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2"
+                                            , _id: "date"
+                                            }
         , button [ cn "btn btn-outline-secondary", _type "button" 
                  , onClick \_ -> fetchDrivers this 
                  ]
@@ -98,7 +93,7 @@ driversClass = component "View.Drivers" \this -> do
     state <- getState this
     props <- getProps this
     map (div [ cn "list-group d-flex flex-column justify-content-center" ]) $ map catMaybes $ sequence $ map (\di -> do
-      t <- formatTime $ fromTime di.date
+      t <- toLocaleTimeString $ fromTime di.date
       pure $ head di.routes <#> (\route ->
         div [ cn "list-group-item", key di.id ]
         [ div [ cn "d-flex flex-row" ]

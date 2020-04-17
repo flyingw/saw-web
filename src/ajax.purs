@@ -3,23 +3,15 @@ module Ajax
   , getEff
   ) where
 
-import Prelude (Unit, show, bind, discard, map, pure, void, unit, mempty, (<<<), ($), (>>=), (/=))
+import Prelude hiding (div)
 
 import Affjax as Affjax
-import Affjax.RequestBody as Req
 import Affjax.ResponseFormat as Resp
 import Affjax.StatusCode (StatusCode(StatusCode))
-import Data.Array as Array
 import Data.Either (Either(Left, Right))
-import Data.FormURLEncoded (FormURLEncoded)
-import Data.List (List(Nil), (:))
-import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Effect.Aff (Aff, attempt, runAff_)
+import Effect.Aff (Aff, runAff_)
 import Effect.Exception (Error)
-import Prelude hiding (div)
-import Web.XHR.FormData (FormData)
-import Data.Map (Map)
 
 get :: String -> Aff (Either String String)
 get url = do 

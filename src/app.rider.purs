@@ -3,31 +3,29 @@ module App.Rider
   , Props
   ) where
 
-import Prelude (Unit, bind, map, mempty, pure, show, unit, ($), (<#>), (<<<), (<>), (>>=))
+import Prelude hiding (div)
 
 import Data.Either (Either(Left, Right))
-import Data.JSDate (parse, now, getTime, toISOString)
-import Data.Maybe (Maybe(Just, Nothing), fromMaybe, isNothing)
-import Data.String (take)
+import Data.JSDate (JSDate, now, getTime)
+import Data.Map (Map, fromFoldable, lookup)
+import Data.Maybe (Maybe(Just, Nothing), fromMaybe)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(Tuple))
-import Data.Map (Map, fromFoldable, lookup)
 import Effect (Effect)
 import Effect.Console (error)
 import Global (encodeURI)
-import React (ReactClass, ReactThis, getProps, getState, modifyState, component)
-import React.DOM (text, div, form, label, input, button, h6, small, iframe, select, option)
-import React.DOM.Props (htmlFor, _id, _type, noValidate, required, autoComplete, value, src, width, height, frameBorder, onClick, disabled, placeholder)
+import React (ReactClass, ReactThis, getProps, getState, modifyState, component, createLeafElement)
+import React.DOM (text, div, label, input, button, h6, small, iframe, select, option)
+import React.DOM.Props (htmlFor, _id, _type, required, autoComplete, value, src, width, height, frameBorder, onClick, disabled)
 
+import Api (PassengerType(..))
+import Api.Pull (Pull(AddPassenger), encodePull, Address)
+import Api.Push (decodePush, UserData, Push(AddRouteOk))
+import Datepicker (datepickerClass)
+import Keys (keyPassengerType)
 import Lib.React(cn, onChangeValue)
 import Lib.WebSocket (WebSocket)
 import Lib.WebSocket as WS
-
-import Api (PassengerType(..))
-import Api.Push (decodePush, UserData, Push(AddRouteOk))
-import Api.Pull (Pull(AddPassenger), encodePull, Address)
-import Keys (keyPassengerType)
-import Format (todayISO)
 
 type Props =
   { ws :: WebSocket
@@ -42,7 +40,7 @@ type State =
   , firstName :: String
   , lastName :: String
   , phone :: String
-  , date :: String
+  , date :: JSDate
   , tpe :: PassengerType
   , from :: Address
   , to :: Address
@@ -51,7 +49,7 @@ type State =
 
 riderClass :: ReactClass Props
 riderClass = component "Rider" \this -> do
-  date <- todayISO
+  date  <- now
   props <- getProps this
   pure
     { state:
@@ -88,13 +86,12 @@ riderClass = component "Rider" \this -> do
   sendPassenger this = do
     s <- getState this
     p <- getProps this
-    d <- parse s.date
     _ <- modifyState this _{ await = true }
     let driver = AddPassenger { 
         firstName: s.firstName
       , lastName: s.lastName
       , phone: s.phone
-      , date: getTime d
+      , date: getTime s.date
       , tpe: s.tpe
       , from: s.from
       , to: s.to
@@ -153,30 +150,47 @@ riderClass = component "Rider" \this -> do
             map (\v -> option [ value $ keyPassengerType v ] [ text $ props.keyText $ keyPassengerType v ]) types
           ]
         ]
+      , h6 [ cn "d-flex justify-content-center" ] [ text $ props.keyText "key.route_data" ]
+      , div [ cn "d-flex justify-content-center form-row" ]
+        [ div [ cn "col-md-5 col-lg-3 mb-3" ]
+          [ label [ htmlFor "date" ] [ text $ props.keyText "key.date" ]
+          , createLeafElement datepickerClass { onChange: \d -> modifyState this _{ date = d }
+                                              , lang: props.lang
+                                              , showTime: true
+                                              , className: "form-control"
+                                              , wrapperClassName: "form-control"
+                                              , _id: "date"
+                                              }
+          -- , input [ _type "datetime-local", cn "form-control", _id "date", required true
+          --         , value state.date
+          --         , onChangeValue \v -> modifyState this _{ date=v }
+          --         ]
+          ]
+        ]
       , h6 [ cn "d-flex justify-content-center" ] [ text $ props.keyText "key.route_start" ]
       , div [ cn "d-flex justify-content-center form-row" ]
-        [ div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+        [ div [ cn "col-md-5 col-lg-3 mb-3" ]
           [ label [ htmlFor "countryFrom" ] [ text $ props.keyText "key.country" ]
           , input [ _type "text", cn "form-control", _id "countryFrom", required true
                   , value state.from.country
                   , onChangeValue \v -> modifyState this \s -> s{ from=s.from{ country=v } }
                   ]
           ]
-        , div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+        , div [ cn "col-md-5 col-lg-3 mb-3" ]
           [ label [ htmlFor "cityFrom" ] [ text $ props.keyText "key.city" ]
           , input [ _type "text", cn "form-control", _id "cityFrom", required true
                   , value state.from.city
                   , onChangeValue \v -> modifyState this \s -> s{ from=s.from{ city=v } }
                   ]
           ]
-        , div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+        , div [ cn "col-md-5 col-lg-3 mb-3" ]
           [ label [ htmlFor "streetFrom" ] [ text $ props.keyText "key.street" ]
           , input [ _type "text", cn "form-control", _id "streetFrom", required true
                   , value state.from.street
                   , onChangeValue \v -> modifyState this \s -> s{ from=s.from{ street=v } }
                   ]
           ] 
-        , div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+        , div [ cn "col-md-5 col-lg-3 mb-3" ]
           [ label [ htmlFor "buildingFrom" ] [ text $ props.keyText "key.building" ]
           , input [ _type "text", cn "form-control", _id "buildingFrom", required true
                   , value state.from.building
@@ -186,28 +200,28 @@ riderClass = component "Rider" \this -> do
         ]
       , h6 [ cn "d-flex justify-content-center" ] [ text $ props.keyText "key.route_end" ]
       , div [ cn "d-flex justify-content-center form-row" ]
-        [ div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+        [ div [ cn "col-md-5 col-lg-3 mb-3" ]
           [ label [ htmlFor "countryTo" ] [ text $ props.keyText "key.country" ]
           , input [ _type "text", cn "form-control", _id "countryTo", required true
                   , value state.to.country
                   , onChangeValue \v -> modifyState this \s -> s{ to=s.to{ country=v } }
                   ]
           ] 
-        , div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+        , div [ cn "col-md-5 col-lg-3 mb-3" ]
           [ label [ htmlFor "cityTo" ] [ text $ props.keyText "key.city" ]
           , input [ _type "text", cn "form-control", _id "cityTo", required true
                   , value state.to.city
                   , onChangeValue \v -> modifyState this \s -> s{ to=s.to{ city=v } } 
                   ]
           ]
-        , div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+        , div [ cn "col-md-5 col-lg-3 mb-3" ]
           [ label [ htmlFor "streetTo" ] [ text $ props.keyText "key.street" ]
           , input [ _type "text", cn "form-control", _id "streetTo", required true
                   , value state.to.street
                   , onChangeValue \v -> modifyState this \s -> s{ to=s.to{ street=v } } 
                   ]
           ]
-        , div [ cn "col-md-5 col-lg-3 mb-3 mb-3" ]
+        , div [ cn "col-md-5 col-lg-3 mb-3" ]
           [ label [ htmlFor "houseTo" ] [ text $ props.keyText "key.building" ]
           , input [ _type "text", cn "form-control", _id "houseTo", required true
                   , value state.to.building

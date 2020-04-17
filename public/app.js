@@ -4064,7 +4064,7 @@ var PS = {};
               if (resp instanceof Data_Either.Right) {
                   return Data_Either.Left.create("Request failed: " + (Data_Show.show(Data_Show.showInt)(resp.value0.status) + (", b:" + resp.value0.body)));
               };
-              throw new Error("Failed pattern match at Ajax (line 27, column 10 - line 30, column 106): " + [ resp.constructor.name ]);
+              throw new Error("Failed pattern match at Ajax (line 19, column 10 - line 22, column 106): " + [ resp.constructor.name ]);
           })());
       });
   };
@@ -4081,7 +4081,7 @@ var PS = {};
                   if (v instanceof Data_Either.Right && v.value0 instanceof Data_Either.Right) {
                       return Data_Functor["void"](Effect.functorEffect)(success(v.value0.value0));
                   };
-                  throw new Error("Failed pattern match at Ajax (line 35, column 5 - line 35, column 60): " + [ v.constructor.name ]);
+                  throw new Error("Failed pattern match at Ajax (line 27, column 5 - line 27, column 60): " + [ v.constructor.name ]);
               };
               return Effect_Aff.runAff_(f)(get(url));
           };
@@ -6103,9 +6103,6 @@ var PS = {};
   var $foreign = $PS["Data.JSDate"];
   var getTime = function (dt) {
       return $foreign.dateMethod("getTime", dt);
-  }; 
-  var getSeconds = function (dt) {
-      return $foreign.dateMethodEff("getSeconds", dt);
   };
   var getMonth = function (dt) {
       return $foreign.dateMethodEff("getMonth", dt);
@@ -6128,27 +6125,9 @@ var PS = {};
   exports["getHours"] = getHours;
   exports["getMinutes"] = getMinutes;
   exports["getMonth"] = getMonth;
-  exports["getSeconds"] = getSeconds;
   exports["now"] = $foreign.now;
   exports["parse"] = $foreign.parse;
   exports["fromTime"] = $foreign.fromTime;
-})(PS);
-(function(exports) {
-  "use strict";
-
-  exports.error = function (s) {
-    return function () {
-      console.error(s);
-      return {};
-    };
-  };
-})(PS["Effect.Console"] = PS["Effect.Console"] || {});
-(function($PS) {
-  "use strict";
-  $PS["Effect.Console"] = $PS["Effect.Console"] || {};
-  var exports = $PS["Effect.Console"];
-  var $foreign = $PS["Effect.Console"];
-  exports["error"] = $foreign.error;
 })(PS);
 (function(exports) {
   "use strict";
@@ -6158,7 +6137,43 @@ var PS = {};
       return date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     };
   };
-})(PS["Format"] = PS["Format"] || {});
+
+  var isMobileOrChromeF = function() {
+    var isMobile = false;
+    //http://detectmobilebrowsers.com/mobile
+    (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4)))isMobile=true})(navigator.userAgent||navigator.vendor||window.opera);
+    return isMobile || !!window.chrome;
+  };
+
+  exports.isMobileOrChrome = isMobileOrChromeF
+
+  exports.datepickerLoad = function() {
+    if (!isMobileOrChromeF() && !window.datepicker) {
+      var el1 = document.createElement('script');
+      el1.setAttribute('async', '');
+      el1.setAttribute('src', 'ext.js');
+      document.head.appendChild(el1)
+      var el2 = document.createElement('link');
+      el2.setAttribute('async', '');
+      el2.setAttribute('href', 'ext.css');
+      el2.setAttribute('rel', 'stylesheet');
+      document.head.appendChild(el2)
+    }
+    return {};
+  };
+
+  exports.datepickerExtClass = function() {
+    return window['ext']['DatePicker']
+  };
+
+  exports.uk = function() {
+    return window['ext']['uk']
+  };
+
+  exports.ru = function() {
+    return window['ext']['ru']
+  };
+})(PS["Datepicker"] = PS["Datepicker"] || {});
 (function(exports) {
   "use strict";
 
@@ -6351,85 +6366,19 @@ var PS = {};
   exports["floor"] = floor;
   exports["fromString"] = fromString;
 })(PS);
+(function(exports) {
+  "use strict";
+
+  exports.unsafePerformEffect = function (f) {
+    return f();
+  };
+})(PS["Effect.Unsafe"] = PS["Effect.Unsafe"] || {});
 (function($PS) {
   "use strict";
-  $PS["Format"] = $PS["Format"] || {};
-  var exports = $PS["Format"];
-  var $foreign = $PS["Format"];
-  var Control_Bind = $PS["Control.Bind"];
-  var Data_Functor = $PS["Data.Functor"];
-  var Data_Int = $PS["Data.Int"];
-  var Data_JSDate = $PS["Data.JSDate"];
-  var Data_Show = $PS["Data.Show"];
-  var Effect = $PS["Effect"];                
-  var formatTime = $foreign.toLocaleTimeString;
-  var formatNum = function (n) {
-      var v = Data_Int.floor(n);
-      var $2 = v < 10;
-      if ($2) {
-          return "0" + Data_Show.show(Data_Show.showInt)(v);
-      };
-      return Data_Show.show(Data_Show.showInt)(v);
-  };
-  var formatISO = function (date) {
-      return function __do() {
-          var yyyy = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getFullYear(date))();
-          var mM = Data_Functor.map(Effect.functorEffect)(Data_Functor.map(Data_Functor.functorFn)(formatNum)(function (v) {
-              return v + 1.0;
-          }))(Data_JSDate.getMonth(date))();
-          var dd = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getDate(date))();
-          var hh = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getHours(date))();
-          var mm = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getMinutes(date))();
-          var ss = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getSeconds(date))();
-          return yyyy + ("-" + (mM + ("-" + (dd + ("T" + (hh + (":" + (mm + (":" + ss)))))))));
-      };
-  };
-  var todayISO = Control_Bind.bind(Effect.bindEffect)(Data_JSDate.now)(formatISO);
-  var formatDateISO = function (date) {
-      return function __do() {
-          var yyyy = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getFullYear(date))();
-          var mM = Data_Functor.map(Effect.functorEffect)(Data_Functor.map(Data_Functor.functorFn)(formatNum)(function (v) {
-              return v + 1.0;
-          }))(Data_JSDate.getMonth(date))();
-          var dd = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getDate(date))();
-          return yyyy + ("-" + (mM + ("-" + dd)));
-      };
-  };
-  var todayDateISO = Control_Bind.bind(Effect.bindEffect)(Data_JSDate.now)(formatDateISO);
-  exports["todayISO"] = todayISO;
-  exports["todayDateISO"] = todayDateISO;
-  exports["formatTime"] = formatTime;
-})(PS);
-(function($PS) {
-  "use strict";
-  $PS["Keys"] = $PS["Keys"] || {};
-  var exports = $PS["Keys"];
-  var Api = $PS["Api"];                
-  var keyPassengerType = function (v) {
-      if (v instanceof Api.Medical) {
-          return "key.medical";
-      };
-      if (v instanceof Api.Police) {
-          return "key.police";
-      };
-      if (v instanceof Api.Firefighter) {
-          return "key.firefighter";
-      };
-      if (v instanceof Api.Army) {
-          return "key.army";
-      };
-      if (v instanceof Api.Farmacy) {
-          return "key.farmacy";
-      };
-      if (v instanceof Api.Cashier) {
-          return "key.cashier";
-      };
-      if (v instanceof Api.Regular) {
-          return "key.regular";
-      };
-      throw new Error("Failed pattern match at Keys (line 7, column 1 - line 7, column 44): " + [ v.constructor.name ]);
-  };
-  exports["keyPassengerType"] = keyPassengerType;
+  $PS["Effect.Unsafe"] = $PS["Effect.Unsafe"] || {};
+  var exports = $PS["Effect.Unsafe"];
+  var $foreign = $PS["Effect.Unsafe"];
+  exports["unsafePerformEffect"] = $foreign.unsafePerformEffect;
 })(PS);
 (function(exports) {
   /* global exports */
@@ -6584,6 +6533,443 @@ var PS = {};
   exports["cn"] = cn;
   exports["onChangeValue"] = onChangeValue;
   exports["onChangeValueInt"] = onChangeValueInt;
+})(PS);
+(function(exports) {
+  /* global exports */
+  "use strict";
+  var React =require("react"); 
+
+  function createClass(baseClass) {
+    function bindProperty(instance, prop, value) {
+      switch (prop) {
+        case 'state':
+        case 'render':
+        case 'componentDidMount':
+        case 'componentWillUnmount':
+          instance[prop] = value;
+          break;
+
+        case 'componentDidCatch':
+        case 'componentWillUpdate':
+        case 'shouldComponentUpdate':
+        case 'getSnapshotBeforeUpdate':
+          instance[prop] = function (a, b) { return value(a)(b)(); };
+          break;
+
+        case 'componentDidUpdate':
+          instance[prop] = function (a, b, c) { return value(a)(b)(c)(); };
+          break;
+
+        case 'unsafeComponentWillMount':
+          instance['UNSAFE_componentWillMount'] = value;
+          break;
+
+        case 'unsafeComponentWillReceiveProps':
+          instance['UNSAFE_componentWillReceiveProps'] = function (a) { return value(a)(); };
+          break;
+
+        case 'unsafeComponentWillUpdate':
+          instance['UNSAFE_componentWillUpdate'] = function (a, b) { return value(a)(b)(); };
+          break;
+
+        default:
+          throw new Error('[purescript-react] Not a component property: ' + prop);
+      }
+    }
+
+    return function (displayName) {
+      return function (ctrFn) {
+        var Constructor = function (props) {
+          baseClass.call(this, props);
+          var spec = ctrFn(this)();
+          for (var k in spec) {
+            bindProperty(this, k, spec[k]);
+          }
+        };
+
+        Constructor.displayName = displayName;
+        Constructor.prototype = Object.create(baseClass.prototype);
+        Constructor.prototype.constructor = Constructor;
+
+        return Constructor;
+      };
+    };
+  }
+
+  function createClassWithDerivedState(classCtr) {
+    return function(displayName) {
+      return function(getDerivedStateFromProps) {
+        return function(ctrFn) {
+          var Constructor = componentImpl(displayName)(ctrFn);
+          Constructor.getDerivedStateFromProps = function(a, b) { return getDerivedStateFromProps(a)(b); };
+          return Constructor;
+        };
+      };
+    };
+  }
+
+  var componentImpl = createClass(React.Component);
+  exports.componentImpl = componentImpl;                 
+
+  exports.fragment = React.Fragment;
+
+  function getProps(this_) {
+    return function(){
+      return this_.props;
+    };
+  }
+  exports.getProps = getProps;                 
+
+  function setStateImpl(this_) {
+    return function(state){
+      return function(){
+        this_.setState(state);
+      };
+    };
+  }
+  exports.setStateImpl = setStateImpl;
+
+  function setStateWithCallbackImpl(this_) {
+    return function(state){
+      return function(cb){
+        return function() {
+          this_.setState(state, cb);
+        };
+      };
+    };
+  }                                                           
+
+  function getState(this_) {
+    return function(){
+      if (!this_.state) {
+        throw new Error('[purescript-react] Cannot get state within constructor');
+      }
+      return this_.state;
+    };
+  }
+  exports.getState = getState;
+
+  function forceUpdateWithCallback(this_) {
+    return function(cb) {
+      return function() {
+        this_.forceUpdate(cb);
+      };
+    };
+  }                                                         
+
+  function createElement(class_) {
+    return function(props){
+      return function(children){
+        return React.createElement.apply(React, [class_, props].concat(children));
+      };
+    };
+  }
+  exports.createElementImpl = createElement;
+  exports.createElementTagName = createElement;
+
+  function createLeafElement(class_) {
+    return function(props) {
+      return React.createElement(class_, props);
+    };
+  }
+  exports.createLeafElementImpl = createLeafElement;
+
+  function createElementDynamic(class_) {
+    return function(props) {
+      return function(children){
+        return React.createElement(class_, props, children);
+      };
+    };
+  };                                                      
+  exports.createElementTagNameDynamic = createElementDynamic;
+
+  function createContext(defaultValue) {
+    var context = React.createContext(defaultValue);
+    return {
+      consumer: context.Consumer,
+      provider: context.Provider
+    };
+  }
+})(PS["React"] = PS["React"] || {});
+(function($PS) {
+  "use strict";
+  $PS["React"] = $PS["React"] || {};
+  var exports = $PS["React"];
+  var $foreign = $PS["React"];
+  var Data_Monoid = $PS["Data.Monoid"];
+  var Data_Semigroup = $PS["Data.Semigroup"];
+  var IsReactElement = function (toElement) {
+      this.toElement = toElement;
+  };                                                   
+  var toElement = function (dict) {
+      return dict.toElement;
+  };                                                              
+  var modifyState = $foreign.setStateImpl;
+  var createLeafElement = function (dictReactPropFields) {
+      return $foreign.createLeafElementImpl;
+  };
+  var createElement = function (dictReactPropFields) {
+      return $foreign.createElementImpl;
+  };   
+  var isReactElementArray = new IsReactElement(createElement()($foreign.fragment)({}));
+  var semigroupReactElement = new Data_Semigroup.Semigroup(function (a) {
+      return function (b) {
+          return toElement(isReactElementArray)([ a, b ]);
+      };
+  });
+  var monoidReactElement = new Data_Monoid.Monoid(function () {
+      return semigroupReactElement;
+  }, toElement(isReactElementArray)([  ]));
+  var component = function (dictReactComponentSpec) {
+      return $foreign.componentImpl;
+  };
+  exports["component"] = component;
+  exports["modifyState"] = modifyState;
+  exports["createLeafElement"] = createLeafElement;
+  exports["monoidReactElement"] = monoidReactElement;
+  exports["getProps"] = $foreign.getProps;
+  exports["getState"] = $foreign.getState;
+  exports["createElementTagName"] = $foreign.createElementTagName;
+  exports["createElementTagNameDynamic"] = $foreign.createElementTagNameDynamic;
+})(PS);
+(function(exports) {
+  "use strict";
+
+  // module Unsafe.Coerce
+
+  exports.unsafeCoerce = function (x) {
+    return x;
+  };
+})(PS["Unsafe.Coerce"] = PS["Unsafe.Coerce"] || {});
+(function($PS) {
+  "use strict";
+  $PS["Unsafe.Coerce"] = $PS["Unsafe.Coerce"] || {};
+  var exports = $PS["Unsafe.Coerce"];
+  var $foreign = $PS["Unsafe.Coerce"];
+  exports["unsafeCoerce"] = $foreign.unsafeCoerce;
+})(PS);
+(function($PS) {
+  "use strict";
+  $PS["React.DOM"] = $PS["React.DOM"] || {};
+  var exports = $PS["React.DOM"];
+  var React = $PS["React"];
+  var React_DOM_Props = $PS["React.DOM.Props"];
+  var Unsafe_Coerce = $PS["Unsafe.Coerce"];
+  var text = Unsafe_Coerce.unsafeCoerce;  
+  var mkDOM = function (dynamic) {
+      return function (tag) {
+          return function (props) {
+              var createElement = (function () {
+                  if (!dynamic) {
+                      return React.createElementTagName;
+                  };
+                  if (dynamic) {
+                      return React.createElementTagNameDynamic;
+                  };
+                  throw new Error("Failed pattern match at React.DOM (line 15, column 5 - line 17, column 55): " + [ dynamic.constructor.name ]);
+              })();
+              return createElement(tag)(React_DOM_Props.unsafeFromPropsArray(props));
+          };
+      };
+  };
+  var nav = mkDOM(false)("nav");      
+  var option = mkDOM(false)("option");
+  var select = mkDOM(false)("select");
+  var small = mkDOM(false)("small");
+  var span = mkDOM(false)("span");
+  var ul = mkDOM(false)("ul");
+  var li = mkDOM(false)("li");    
+  var label = mkDOM(false)("label");
+  var input = function (props) {
+      return mkDOM(false)("input")(props)([  ]);
+  };                            
+  var img = function (props) {
+      return mkDOM(false)("img")(props)([  ]);
+  };                        
+  var iframe = mkDOM(false)("iframe");
+  var h6 = mkDOM(false)("h6");
+  var div = mkDOM(false)("div");  
+  var button = mkDOM(false)("button");
+  var a = mkDOM(false)("a");
+  exports["text"] = text;
+  exports["a"] = a;
+  exports["button"] = button;
+  exports["div"] = div;
+  exports["h6"] = h6;
+  exports["iframe"] = iframe;
+  exports["img"] = img;
+  exports["input"] = input;
+  exports["label"] = label;
+  exports["li"] = li;
+  exports["nav"] = nav;
+  exports["option"] = option;
+  exports["select"] = select;
+  exports["small"] = small;
+  exports["span"] = span;
+  exports["ul"] = ul;
+})(PS);
+(function($PS) {
+  "use strict";
+  $PS["Datepicker"] = $PS["Datepicker"] || {};
+  var exports = $PS["Datepicker"];
+  var $foreign = $PS["Datepicker"];
+  var Data_Functor = $PS["Data.Functor"];
+  var Data_Int = $PS["Data.Int"];
+  var Data_JSDate = $PS["Data.JSDate"];
+  var Data_Show = $PS["Data.Show"];
+  var Effect = $PS["Effect"];
+  var Effect_Unsafe = $PS["Effect.Unsafe"];
+  var Lib_React = $PS["Lib.React"];
+  var React = $PS["React"];
+  var React_DOM = $PS["React.DOM"];
+  var React_DOM_Props = $PS["React.DOM.Props"];                
+  var formatNum = function (n) {
+      var v = Data_Int.floor(n);
+      var $4 = v < 10;
+      if ($4) {
+          return "0" + Data_Show.show(Data_Show.showInt)(v);
+      };
+      return Data_Show.show(Data_Show.showInt)(v);
+  };
+  var formatISO = function (date) {
+      return function __do() {
+          var yyyy = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getFullYear(date))();
+          var mM = Data_Functor.map(Effect.functorEffect)(Data_Functor.map(Data_Functor.functorFn)(formatNum)(function (v) {
+              return v + 1.0;
+          }))(Data_JSDate.getMonth(date))();
+          var dd = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getDate(date))();
+          var hh = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getHours(date))();
+          var mm = Data_Functor.map(Effect.functorEffect)(formatNum)(Data_JSDate.getMinutes(date))();
+          return yyyy + ("-" + (mM + ("-" + (dd + ("T" + (hh + (":" + (mm + ":00"))))))));
+      };
+  };
+  var datepickerClass = React.component()("Datepicker")(function ($$this) {
+      return function __do() {
+          var today = Data_JSDate.now();
+          var $$native = $foreign.isMobileOrChrome();
+          return {
+              state: {
+                  date: today
+              },
+              render: function __do() {
+                  var props = React.getProps($$this)();
+                  var state = React.getState($$this)();
+                  if ($$native) {
+                      var vv = formatISO(state.date)();
+                      return React_DOM.input([ React_DOM_Props["_type"]((function () {
+                          if (props.showTime) {
+                              return "datetime-local";
+                          };
+                          return "date";
+                      })()), Lib_React.cn(props.className), React_DOM_Props["_id"](props["_id"]), React_DOM_Props.value(vv), Lib_React.onChangeValue(function (v) {
+                          return function __do() {
+                              var d = Data_JSDate.parse(v)();
+                              React.modifyState($$this)(function (v1) {
+                                  var $7 = {};
+                                  for (var $8 in v1) {
+                                      if ({}.hasOwnProperty.call(v1, $8)) {
+                                          $7[$8] = v1[$8];
+                                      };
+                                  };
+                                  $7.date = d;
+                                  return $7;
+                              })();
+                              return props.onChange(d)();
+                          };
+                      }) ]);
+                  };
+                  var dclass = $foreign.datepickerExtClass();
+                  var locale = (function () {
+                      if (props.lang === "uk") {
+                          return $foreign.uk();
+                      };
+                      if (props.lang === "ru") {
+                          return $foreign.ru();
+                      };
+                      return $foreign.uk();
+                  })();
+                  return React.createLeafElement()(dclass)({
+                      selected: state.date,
+                      onChange: function (d) {
+                          return Effect_Unsafe.unsafePerformEffect(function __do() {
+                              React.modifyState($$this)(function (v) {
+                                  var $11 = {};
+                                  for (var $12 in v) {
+                                      if ({}.hasOwnProperty.call(v, $12)) {
+                                          $11[$12] = v[$12];
+                                      };
+                                  };
+                                  $11.date = d;
+                                  return $11;
+                              })();
+                              return props.onChange(d)();
+                          });
+                      },
+                      showTimeSelect: props.showTime,
+                      className: props.className,
+                      wrapperClassName: props.wrapperClassName,
+                      popperClassName: "react-datepicker-popper-fix",
+                      id: props["_id"],
+                      locale: locale,
+                      timeFormat: "p",
+                      dateFormat: "Pp",
+                      minDate: today
+                  });
+              }
+          };
+      };
+  });
+  exports["datepickerClass"] = datepickerClass;
+  exports["datepickerLoad"] = $foreign.datepickerLoad;
+  exports["toLocaleTimeString"] = $foreign.toLocaleTimeString;
+})(PS);
+(function(exports) {
+  "use strict";
+
+  exports.error = function (s) {
+    return function () {
+      console.error(s);
+      return {};
+    };
+  };
+})(PS["Effect.Console"] = PS["Effect.Console"] || {});
+(function($PS) {
+  "use strict";
+  $PS["Effect.Console"] = $PS["Effect.Console"] || {};
+  var exports = $PS["Effect.Console"];
+  var $foreign = $PS["Effect.Console"];
+  exports["error"] = $foreign.error;
+})(PS);
+(function($PS) {
+  "use strict";
+  $PS["Keys"] = $PS["Keys"] || {};
+  var exports = $PS["Keys"];
+  var Api = $PS["Api"];                
+  var keyPassengerType = function (v) {
+      if (v instanceof Api.Medical) {
+          return "key.medical";
+      };
+      if (v instanceof Api.Police) {
+          return "key.police";
+      };
+      if (v instanceof Api.Firefighter) {
+          return "key.firefighter";
+      };
+      if (v instanceof Api.Army) {
+          return "key.army";
+      };
+      if (v instanceof Api.Farmacy) {
+          return "key.farmacy";
+      };
+      if (v instanceof Api.Cashier) {
+          return "key.cashier";
+      };
+      if (v instanceof Api.Regular) {
+          return "key.regular";
+      };
+      throw new Error("Failed pattern match at Keys (line 7, column 1 - line 7, column 44): " + [ v.constructor.name ]);
+  };
+  exports["keyPassengerType"] = keyPassengerType;
 })(PS);
 (function(exports) {
   exports.uint8Array = (arrayBuffer) => new Uint8Array(arrayBuffer)
@@ -6800,22 +7186,6 @@ var PS = {};
     };
   };
 })(PS["Web.Socket.WebSocket"] = PS["Web.Socket.WebSocket"] || {});
-(function(exports) {
-  "use strict";
-
-  // module Unsafe.Coerce
-
-  exports.unsafeCoerce = function (x) {
-    return x;
-  };
-})(PS["Unsafe.Coerce"] = PS["Unsafe.Coerce"] || {});
-(function($PS) {
-  "use strict";
-  $PS["Unsafe.Coerce"] = $PS["Unsafe.Coerce"] || {};
-  var exports = $PS["Unsafe.Coerce"];
-  var $foreign = $PS["Unsafe.Coerce"];
-  exports["unsafeCoerce"] = $foreign.unsafeCoerce;
-})(PS);
 (function($PS) {
   "use strict";
   $PS["Web.Socket.WebSocket"] = $PS["Web.Socket.WebSocket"] || {};
@@ -6965,264 +7335,6 @@ var PS = {};
   exports["onMsg"] = onMsg;
   exports["send"] = send;
 })(PS);
-(function(exports) {
-  /* global exports */
-  "use strict";
-  var React =require("react"); 
-
-  function createClass(baseClass) {
-    function bindProperty(instance, prop, value) {
-      switch (prop) {
-        case 'state':
-        case 'render':
-        case 'componentDidMount':
-        case 'componentWillUnmount':
-          instance[prop] = value;
-          break;
-
-        case 'componentDidCatch':
-        case 'componentWillUpdate':
-        case 'shouldComponentUpdate':
-        case 'getSnapshotBeforeUpdate':
-          instance[prop] = function (a, b) { return value(a)(b)(); };
-          break;
-
-        case 'componentDidUpdate':
-          instance[prop] = function (a, b, c) { return value(a)(b)(c)(); };
-          break;
-
-        case 'unsafeComponentWillMount':
-          instance['UNSAFE_componentWillMount'] = value;
-          break;
-
-        case 'unsafeComponentWillReceiveProps':
-          instance['UNSAFE_componentWillReceiveProps'] = function (a) { return value(a)(); };
-          break;
-
-        case 'unsafeComponentWillUpdate':
-          instance['UNSAFE_componentWillUpdate'] = function (a, b) { return value(a)(b)(); };
-          break;
-
-        default:
-          throw new Error('[purescript-react] Not a component property: ' + prop);
-      }
-    }
-
-    return function (displayName) {
-      return function (ctrFn) {
-        var Constructor = function (props) {
-          baseClass.call(this, props);
-          var spec = ctrFn(this)();
-          for (var k in spec) {
-            bindProperty(this, k, spec[k]);
-          }
-        };
-
-        Constructor.displayName = displayName;
-        Constructor.prototype = Object.create(baseClass.prototype);
-        Constructor.prototype.constructor = Constructor;
-
-        return Constructor;
-      };
-    };
-  }
-
-  function createClassWithDerivedState(classCtr) {
-    return function(displayName) {
-      return function(getDerivedStateFromProps) {
-        return function(ctrFn) {
-          var Constructor = componentImpl(displayName)(ctrFn);
-          Constructor.getDerivedStateFromProps = function(a, b) { return getDerivedStateFromProps(a)(b); };
-          return Constructor;
-        };
-      };
-    };
-  }
-
-  var componentImpl = createClass(React.Component);
-  exports.componentImpl = componentImpl;                 
-
-  exports.fragment = React.Fragment;
-
-  function getProps(this_) {
-    return function(){
-      return this_.props;
-    };
-  }
-  exports.getProps = getProps;                 
-
-  function setStateImpl(this_) {
-    return function(state){
-      return function(){
-        this_.setState(state);
-      };
-    };
-  }
-  exports.setStateImpl = setStateImpl;
-
-  function setStateWithCallbackImpl(this_) {
-    return function(state){
-      return function(cb){
-        return function() {
-          this_.setState(state, cb);
-        };
-      };
-    };
-  }                                                           
-
-  function getState(this_) {
-    return function(){
-      if (!this_.state) {
-        throw new Error('[purescript-react] Cannot get state within constructor');
-      }
-      return this_.state;
-    };
-  }
-  exports.getState = getState;
-
-  function forceUpdateWithCallback(this_) {
-    return function(cb) {
-      return function() {
-        this_.forceUpdate(cb);
-      };
-    };
-  }                                                         
-
-  function createElement(class_) {
-    return function(props){
-      return function(children){
-        return React.createElement.apply(React, [class_, props].concat(children));
-      };
-    };
-  }
-  exports.createElementImpl = createElement;
-  exports.createElementTagName = createElement;
-
-  function createLeafElement(class_) {
-    return function(props) {
-      return React.createElement(class_, props);
-    };
-  }
-  exports.createLeafElementImpl = createLeafElement;
-
-  function createElementDynamic(class_) {
-    return function(props) {
-      return function(children){
-        return React.createElement(class_, props, children);
-      };
-    };
-  };                                                      
-  exports.createElementTagNameDynamic = createElementDynamic;
-
-  function createContext(defaultValue) {
-    var context = React.createContext(defaultValue);
-    return {
-      consumer: context.Consumer,
-      provider: context.Provider
-    };
-  }
-})(PS["React"] = PS["React"] || {});
-(function($PS) {
-  "use strict";
-  $PS["React"] = $PS["React"] || {};
-  var exports = $PS["React"];
-  var $foreign = $PS["React"];
-  var Data_Monoid = $PS["Data.Monoid"];
-  var Data_Semigroup = $PS["Data.Semigroup"];
-  var IsReactElement = function (toElement) {
-      this.toElement = toElement;
-  };                                                   
-  var toElement = function (dict) {
-      return dict.toElement;
-  };                                                              
-  var modifyState = $foreign.setStateImpl;
-  var createLeafElement = function (dictReactPropFields) {
-      return $foreign.createLeafElementImpl;
-  };
-  var createElement = function (dictReactPropFields) {
-      return $foreign.createElementImpl;
-  };   
-  var isReactElementArray = new IsReactElement(createElement()($foreign.fragment)({}));
-  var semigroupReactElement = new Data_Semigroup.Semigroup(function (a) {
-      return function (b) {
-          return toElement(isReactElementArray)([ a, b ]);
-      };
-  });
-  var monoidReactElement = new Data_Monoid.Monoid(function () {
-      return semigroupReactElement;
-  }, toElement(isReactElementArray)([  ]));
-  var component = function (dictReactComponentSpec) {
-      return $foreign.componentImpl;
-  };
-  exports["component"] = component;
-  exports["modifyState"] = modifyState;
-  exports["createLeafElement"] = createLeafElement;
-  exports["monoidReactElement"] = monoidReactElement;
-  exports["getProps"] = $foreign.getProps;
-  exports["getState"] = $foreign.getState;
-  exports["createElementTagName"] = $foreign.createElementTagName;
-  exports["createElementTagNameDynamic"] = $foreign.createElementTagNameDynamic;
-})(PS);
-(function($PS) {
-  "use strict";
-  $PS["React.DOM"] = $PS["React.DOM"] || {};
-  var exports = $PS["React.DOM"];
-  var React = $PS["React"];
-  var React_DOM_Props = $PS["React.DOM.Props"];
-  var Unsafe_Coerce = $PS["Unsafe.Coerce"];
-  var text = Unsafe_Coerce.unsafeCoerce;  
-  var mkDOM = function (dynamic) {
-      return function (tag) {
-          return function (props) {
-              var createElement = (function () {
-                  if (!dynamic) {
-                      return React.createElementTagName;
-                  };
-                  if (dynamic) {
-                      return React.createElementTagNameDynamic;
-                  };
-                  throw new Error("Failed pattern match at React.DOM (line 15, column 5 - line 17, column 55): " + [ dynamic.constructor.name ]);
-              })();
-              return createElement(tag)(React_DOM_Props.unsafeFromPropsArray(props));
-          };
-      };
-  };
-  var nav = mkDOM(false)("nav");      
-  var option = mkDOM(false)("option");
-  var select = mkDOM(false)("select");
-  var small = mkDOM(false)("small");
-  var span = mkDOM(false)("span");
-  var ul = mkDOM(false)("ul");
-  var li = mkDOM(false)("li");    
-  var label = mkDOM(false)("label");
-  var input = function (props) {
-      return mkDOM(false)("input")(props)([  ]);
-  };                            
-  var img = function (props) {
-      return mkDOM(false)("img")(props)([  ]);
-  };                        
-  var iframe = mkDOM(false)("iframe");
-  var h6 = mkDOM(false)("h6");
-  var div = mkDOM(false)("div");  
-  var button = mkDOM(false)("button");
-  var a = mkDOM(false)("a");
-  exports["text"] = text;
-  exports["a"] = a;
-  exports["button"] = button;
-  exports["div"] = div;
-  exports["h6"] = h6;
-  exports["iframe"] = iframe;
-  exports["img"] = img;
-  exports["input"] = input;
-  exports["label"] = label;
-  exports["li"] = li;
-  exports["nav"] = nav;
-  exports["option"] = option;
-  exports["select"] = select;
-  exports["small"] = small;
-  exports["span"] = span;
-  exports["ul"] = ul;
-})(PS);
 (function($PS) {
   "use strict";
   $PS["App.Driver"] = $PS["App.Driver"] || {};
@@ -7242,9 +7354,9 @@ var PS = {};
   var Data_Show = $PS["Data.Show"];
   var Data_Traversable = $PS["Data.Traversable"];
   var Data_Unit = $PS["Data.Unit"];
+  var Datepicker = $PS["Datepicker"];
   var Effect = $PS["Effect"];
   var Effect_Console = $PS["Effect.Console"];
-  var Format = $PS["Format"];
   var Global = $PS["Global"];
   var Keys = $PS["Keys"];
   var Lib_React = $PS["Lib.React"];
@@ -7283,7 +7395,6 @@ var PS = {};
           return function __do() {
               var s = React.getState($$this)();
               var p = React.getProps($$this)();
-              var d = Data_JSDate.parse(s.date)();
               React.modifyState($$this)(function (v) {
                   return {
                       mapQ: v.mapQ,
@@ -7306,7 +7417,7 @@ var PS = {};
                   lastName: s.lastName,
                   phone: s.phone,
                   carPlate: s.carPlate,
-                  date: Data_JSDate.getTime(d),
+                  date: Data_JSDate.getTime(s.date),
                   lap: s.lap,
                   seats: s.seats,
                   from: s.from,
@@ -7392,25 +7503,32 @@ var PS = {};
                           routeId: v1.routeId
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_plate.hint")) ]) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_data")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React_DOM.input([ React_DOM_Props["_type"]("datetime-local"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("date"), React_DOM_Props.required(true), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
-                  return React.modifyState($$this)(function (v1) {
-                      return {
-                          firstName: v1.firstName,
-                          lastName: v1.lastName,
-                          phone: v1.phone,
-                          carPlate: v1.carPlate,
-                          date: v,
-                          lap: v1.lap,
-                          seats: v1.seats,
-                          types: v1.types,
-                          from: v1.from,
-                          to: v1.to,
-                          "await": v1["await"],
-                          mapQ: v1.mapQ,
-                          routeId: v1.routeId
-                      };
-                  });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 col-lg-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lap") ])([ React_DOM.text(props.keyText("key.lap")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lap"), React_DOM_Props.min("2"), React_DOM_Props.max("10"), React_DOM_Props.value("3"), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.lap)), Lib_React.onChangeValueInt(function (v) {
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_plate.hint")) ]) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_data")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React.createLeafElement()(Datepicker.datepickerClass)({
+                  onChange: function (d) {
+                      return React.modifyState($$this)(function (v) {
+                          return {
+                              firstName: v.firstName,
+                              lastName: v.lastName,
+                              phone: v.phone,
+                              carPlate: v.carPlate,
+                              date: d,
+                              lap: v.lap,
+                              seats: v.seats,
+                              types: v.types,
+                              from: v.from,
+                              to: v.to,
+                              "await": v["await"],
+                              mapQ: v.mapQ,
+                              routeId: v.routeId
+                          };
+                      });
+                  },
+                  lang: props.lang,
+                  showTime: true,
+                  className: "form-control",
+                  wrapperClassName: "form-control",
+                  "_id": "date"
+              }) ]), React_DOM.div([ Lib_React.cn("col-md-2 col-lg-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lap") ])([ React_DOM.text(props.keyText("key.lap")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lap"), React_DOM_Props.min("2"), React_DOM_Props.max("10"), React_DOM_Props.value("3"), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.lap)), Lib_React.onChangeValueInt(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -7665,7 +7783,7 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 264, column 9 - line 272, column 28): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 268, column 9 - line 276, column 28): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), (function () {
                   if (state.routeId instanceof Data_Maybe.Just) {
                       return React_DOM.div([ Lib_React.cn("alert alert-success") ])([ React_DOM.text(props.keyText("key.add.success") + (" " + state.routeId.value0)) ]);
@@ -7680,13 +7798,13 @@ var PS = {};
                           return Data_Monoid.mempty(React.monoidReactElement);
                       })() ]);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 284, column 9 - line 294, column 14): " + [ state.routeId.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 288, column 9 - line 298, column 14): " + [ state.routeId.constructor.name ]);
               })() ]);
           };
       };
       return React.component()("Driver")(function ($$this) {
           return function __do() {
-              var date = Format.todayISO();
+              var date = Data_JSDate.now();
               var props = React.getProps($$this)();
               return {
                   state: {
@@ -7752,7 +7870,7 @@ var PS = {};
                           if (v instanceof Data_Either.Right) {
                               return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                           };
-                          throw new Error("Failed pattern match at App.Driver (line 78, column 28 - line 81, column 31): " + [ v.constructor.name ]);
+                          throw new Error("Failed pattern match at App.Driver (line 77, column 30 - line 80, column 31): " + [ v.constructor.name ]);
                       })((function () {
                           var $47 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
                           var $48 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
@@ -8220,9 +8338,9 @@ var PS = {};
   var Data_Traversable = $PS["Data.Traversable"];
   var Data_Tuple = $PS["Data.Tuple"];
   var Data_Unit = $PS["Data.Unit"];
+  var Datepicker = $PS["Datepicker"];
   var Effect = $PS["Effect"];
   var Effect_Console = $PS["Effect.Console"];
-  var Format = $PS["Format"];
   var Global = $PS["Global"];
   var Keys = $PS["Keys"];
   var Lib_React = $PS["Lib.React"];
@@ -8262,7 +8380,6 @@ var PS = {};
           return function __do() {
               var s = React.getState($$this)();
               var p = React.getProps($$this)();
-              var d = Data_JSDate.parse(s.date)();
               React.modifyState($$this)(function (v) {
                   return {
                       mapQ: v.mapQ,
@@ -8281,7 +8398,7 @@ var PS = {};
                   firstName: s.firstName,
                   lastName: s.lastName,
                   phone: s.phone,
-                  date: Data_JSDate.getTime(d),
+                  date: Data_JSDate.getTime(s.date),
                   tpe: s.tpe,
                   from: s.from,
                   to: s.to
@@ -8300,10 +8417,10 @@ var PS = {};
                           lastName: v1.lastName,
                           phone: v1.phone,
                           tpe: v1.tpe,
+                          date: v1.date,
                           from: v1.from,
                           to: v1.to,
                           "await": v1["await"],
-                          date: v1.date,
                           mapQ: v1.mapQ,
                           routeId: v1.routeId
                       };
@@ -8315,10 +8432,10 @@ var PS = {};
                           lastName: v,
                           phone: v1.phone,
                           tpe: v1.tpe,
+                          date: v1.date,
                           from: v1.from,
                           to: v1.to,
                           "await": v1["await"],
-                          date: v1.date,
                           mapQ: v1.mapQ,
                           routeId: v1.routeId
                       };
@@ -8330,10 +8447,10 @@ var PS = {};
                           lastName: v1.lastName,
                           phone: v,
                           tpe: v1.tpe,
+                          date: v1.date,
                           from: v1.from,
                           to: v1.to,
                           "await": v1["await"],
-                          date: v1.date,
                           mapQ: v1.mapQ,
                           routeId: v1.routeId
                       };
@@ -8345,23 +8462,46 @@ var PS = {};
                           lastName: v1.lastName,
                           phone: v1.phone,
                           tpe: Data_Maybe.fromMaybe(Api.Regular.value)(Data_Map_Internal.lookup(Data_Ord.ordString)(v)(typesMap)),
+                          date: v1.date,
                           from: v1.from,
                           to: v1.to,
                           "await": v1["await"],
-                          date: v1.date,
                           mapQ: v1.mapQ,
                           routeId: v1.routeId
                       };
                   });
               }) ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.option([ React_DOM_Props.value(Keys.keyPassengerType(v)) ])([ React_DOM.text(props.keyText(Keys.keyPassengerType(v))) ]);
-              })(types)) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_start")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("countryFrom") ])([ React_DOM.text(props.keyText("key.country")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("countryFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.country), Lib_React.onChangeValue(function (v) {
+              })(types)) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_data")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React.createLeafElement()(Datepicker.datepickerClass)({
+                  onChange: function (d) {
+                      return React.modifyState($$this)(function (v) {
+                          return {
+                              firstName: v.firstName,
+                              lastName: v.lastName,
+                              phone: v.phone,
+                              tpe: v.tpe,
+                              date: d,
+                              from: v.from,
+                              to: v.to,
+                              "await": v["await"],
+                              mapQ: v.mapQ,
+                              routeId: v.routeId
+                          };
+                      });
+                  },
+                  lang: props.lang,
+                  showTime: true,
+                  className: "form-control",
+                  wrapperClassName: "form-control",
+                  "_id": "date"
+              }) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_start")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("countryFrom") ])([ React_DOM.text(props.keyText("key.country")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("countryFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.country), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           firstName: s.firstName,
                           lastName: s.lastName,
                           phone: s.phone,
                           tpe: s.tpe,
+                          date: s.date,
                           from: {
                               country: v,
                               city: s.from.city,
@@ -8370,18 +8510,18 @@ var PS = {};
                           },
                           to: s.to,
                           "await": s["await"],
-                          date: s.date,
                           mapQ: s.mapQ,
                           routeId: s.routeId
                       };
                   });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityFrom") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.city), Lib_React.onChangeValue(function (v) {
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityFrom") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.city), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           firstName: s.firstName,
                           lastName: s.lastName,
                           phone: s.phone,
                           tpe: s.tpe,
+                          date: s.date,
                           from: {
                               country: s.from.country,
                               city: v,
@@ -8390,18 +8530,18 @@ var PS = {};
                           },
                           to: s.to,
                           "await": s["await"],
-                          date: s.date,
                           mapQ: s.mapQ,
                           routeId: s.routeId
                       };
                   });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetFrom") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.street), Lib_React.onChangeValue(function (v) {
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetFrom") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.street), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           firstName: s.firstName,
                           lastName: s.lastName,
                           phone: s.phone,
                           tpe: s.tpe,
+                          date: s.date,
                           from: {
                               country: s.from.country,
                               city: s.from.city,
@@ -8410,18 +8550,18 @@ var PS = {};
                           },
                           to: s.to,
                           "await": s["await"],
-                          date: s.date,
                           mapQ: s.mapQ,
                           routeId: s.routeId
                       };
                   });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("buildingFrom") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("buildingFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.building), Lib_React.onChangeValue(function (v) {
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("buildingFrom") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("buildingFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.building), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           firstName: s.firstName,
                           lastName: s.lastName,
                           phone: s.phone,
                           tpe: s.tpe,
+                          date: s.date,
                           from: {
                               country: s.from.country,
                               city: s.from.city,
@@ -8430,18 +8570,18 @@ var PS = {};
                           },
                           to: s.to,
                           "await": s["await"],
-                          date: s.date,
                           mapQ: s.mapQ,
                           routeId: s.routeId
                       };
                   });
-              }) ]) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_end")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("countryTo") ])([ React_DOM.text(props.keyText("key.country")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("countryTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.country), Lib_React.onChangeValue(function (v) {
+              }) ]) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_end")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("countryTo") ])([ React_DOM.text(props.keyText("key.country")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("countryTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.country), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           firstName: s.firstName,
                           lastName: s.lastName,
                           phone: s.phone,
                           tpe: s.tpe,
+                          date: s.date,
                           from: s.from,
                           to: {
                               country: v,
@@ -8450,18 +8590,18 @@ var PS = {};
                               building: s.to.building
                           },
                           "await": s["await"],
-                          date: s.date,
                           mapQ: s.mapQ,
                           routeId: s.routeId
                       };
                   });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityTo") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.city), Lib_React.onChangeValue(function (v) {
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("cityTo") ])([ React_DOM.text(props.keyText("key.city")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("cityTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.city), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           firstName: s.firstName,
                           lastName: s.lastName,
                           phone: s.phone,
                           tpe: s.tpe,
+                          date: s.date,
                           from: s.from,
                           to: {
                               country: s.to.country,
@@ -8470,18 +8610,18 @@ var PS = {};
                               building: s.to.building
                           },
                           "await": s["await"],
-                          date: s.date,
                           mapQ: s.mapQ,
                           routeId: s.routeId
                       };
                   });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetTo") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.street), Lib_React.onChangeValue(function (v) {
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetTo") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.street), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           firstName: s.firstName,
                           lastName: s.lastName,
                           phone: s.phone,
                           tpe: s.tpe,
+                          date: s.date,
                           from: s.from,
                           to: {
                               country: s.to.country,
@@ -8490,18 +8630,18 @@ var PS = {};
                               building: s.to.building
                           },
                           "await": s["await"],
-                          date: s.date,
                           mapQ: s.mapQ,
                           routeId: s.routeId
                       };
                   });
-              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("houseTo") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("houseTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.building), Lib_React.onChangeValue(function (v) {
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("houseTo") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("houseTo"), React_DOM_Props.required(true), React_DOM_Props.value(state.to.building), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           firstName: s.firstName,
                           lastName: s.lastName,
                           phone: s.phone,
                           tpe: s.tpe,
+                          date: s.date,
                           from: s.from,
                           to: {
                               country: s.to.country,
@@ -8510,7 +8650,6 @@ var PS = {};
                               building: v
                           },
                           "await": s["await"],
-                          date: s.date,
                           mapQ: s.mapQ,
                           routeId: s.routeId
                       };
@@ -8524,7 +8663,7 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Rider (line 221, column 9 - line 229, column 28): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Rider (line 235, column 9 - line 243, column 28): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), (function () {
                   if (state.routeId instanceof Data_Maybe.Just) {
                       return React_DOM.div([ Lib_React.cn("alert alert-success") ])([ React_DOM.text(props.keyText("key.add.success") + (" " + state.routeId.value0)) ]);
@@ -8539,13 +8678,13 @@ var PS = {};
                           return Data_Monoid.mempty(React.monoidReactElement);
                       })() ]);
                   };
-                  throw new Error("Failed pattern match at App.Rider (line 241, column 9 - line 251, column 14): " + [ state.routeId.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Rider (line 255, column 9 - line 265, column 14): " + [ state.routeId.constructor.name ]);
               })() ]);
           };
       };
       return React.component()("Rider")(function ($$this) {
           return function __do() {
-              var date = Format.todayISO();
+              var date = Data_JSDate.now();
               var props = React.getProps($$this)();
               return {
                   state: {
@@ -8593,10 +8732,10 @@ var PS = {};
                                       lastName: v1.lastName,
                                       phone: v1.phone,
                                       tpe: v1.tpe,
+                                      date: v1.date,
                                       from: v1.from,
                                       to: v1.to,
                                       "await": v1["await"],
-                                      date: v1.date,
                                       mapQ: v1.mapQ,
                                       routeId: new Data_Maybe.Just(v.value0.val.value0.id)
                                   };
@@ -8605,12 +8744,12 @@ var PS = {};
                           if (v instanceof Data_Either.Right) {
                               return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                           };
-                          throw new Error("Failed pattern match at App.Rider (line 73, column 28 - line 76, column 31): " + [ v.constructor.name ]);
+                          throw new Error("Failed pattern match at App.Rider (line 71, column 28 - line 74, column 31): " + [ v.constructor.name ]);
                       })((function () {
-                          var $41 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $42 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($43) {
-                              return $41($42($43));
+                          var $42 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $43 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($44) {
+                              return $42($43($44));
                           };
                       })())();
                   }
@@ -8955,7 +9094,7 @@ var PS = {};
               if (v instanceof Data_Either.Right) {
                   return Lib_WebSocket.send(props.ws)(Api_Pull.encodePull(v.value0))();
               };
-              throw new Error("Failed pattern match at App.Home (line 79, column 3 - line 81, column 51): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at App.Home (line 78, column 3 - line 80, column 51): " + [ v.constructor.name ]);
           };
       };
   };
@@ -8987,7 +9126,7 @@ var PS = {};
                       if (p.user instanceof Data_Maybe.Just) {
                           return Data_Unit.unit;
                       };
-                      throw new Error("Failed pattern match at App.Home (line 49, column 9 - line 51, column 30): " + [ p.user.constructor.name ]);
+                      throw new Error("Failed pattern match at App.Home (line 48, column 9 - line 50, column 30): " + [ p.user.constructor.name ]);
                   }
               };
           };
@@ -9011,9 +9150,9 @@ var PS = {};
   var Data_Show = $PS["Data.Show"];
   var Data_Traversable = $PS["Data.Traversable"];
   var Data_Unit = $PS["Data.Unit"];
+  var Datepicker = $PS["Datepicker"];
   var Effect = $PS["Effect"];
   var Effect_Console = $PS["Effect.Console"];
-  var Format = $PS["Format"];
   var Lib_React = $PS["Lib.React"];
   var Lib_WebSocket = $PS["Lib.WebSocket"];
   var Proto_Decode = $PS["Proto.Decode"];
@@ -9021,27 +9160,12 @@ var PS = {};
   var React_DOM = $PS["React.DOM"];
   var React_DOM_Props = $PS["React.DOM.Props"];                
   var driversClass = (function () {
-      var handleMsg = function ($$this) {
-          return function (v) {
-              if (v instanceof Api_Push.FreeDrivers) {
-                  return React.modifyState($$this)(function (v1) {
-                      return {
-                          date: v1.date,
-                          drivers: v.value0.freeDrivers,
-                          showItem: v1.showItem
-                      };
-                  });
-              };
-              return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
-          };
-      };
       var fetchDrivers = function ($$this) {
           return function __do() {
               var p = React.getProps($$this)();
               var s = React.getState($$this)();
-              var d = Data_JSDate.parse(s.date)();
               return Lib_WebSocket.send(p.ws)(Api_Pull.encodePull(new Api_Pull.GetFreeDrivers({
-                  date: Data_JSDate.getTime(d)
+                  date: Data_JSDate.getTime(s.date)
               })))();
           };
       };
@@ -9051,7 +9175,7 @@ var PS = {};
               var props = React.getProps($$this)();
               return Data_Functor.map(Effect.functorEffect)(React_DOM.div([ Lib_React.cn("list-group d-flex flex-column justify-content-center") ]))(Data_Functor.map(Effect.functorEffect)(Data_Array.catMaybes)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect)(Data_Functor.map(Data_Functor.functorArray)(function (di) {
                   return function __do() {
-                      var t = Format.formatTime(Data_JSDate.fromTime(di.date))();
+                      var t = Datepicker.toLocaleTimeString(Data_JSDate.fromTime(di.date))();
                       return Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(Data_Array.head(di.routes))(function (route) {
                           return React_DOM.div([ Lib_React.cn("list-group-item"), React_DOM_Props.key(di.id) ])([ React_DOM.div([ Lib_React.cn("d-flex flex-row") ])([ React_DOM.div([ Lib_React.cn("mr-3") ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(route.fromAddress) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(route.toAddress) ]) ]), React_DOM.div([  ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(t) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.a([ React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
                               return React.modifyState($$this)(function (v1) {
@@ -9062,8 +9186,8 @@ var PS = {};
                                   };
                               });
                           }) ])([ React_DOM.text(props.keyText("key.show_map")) ]) ]) ]) ]), (function () {
-                              var $10 = state.showItem === di.id;
-                              if ($10) {
+                              var $6 = state.showItem === di.id;
+                              if ($6) {
                                   var q = "https://www.google.com/maps/embed/v1/directions" + ("?origin=" + (route.fromAddress + ("&destination=" + (route.toAddress + ("&key=" + "AIzaSyAuq2lMfK8JPYK4-zYYw9Bl8SeTQrKJJeY")))));
                                   return React_DOM.iframe([ React_DOM_Props.width("100%"), React_DOM_Props.height("400"), React_DOM_Props.frameBorder("0"), React_DOM_Props.src(q) ])([  ]);
                               };
@@ -9079,22 +9203,29 @@ var PS = {};
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
               var dl = driversList($$this)();
-              return React_DOM.div([  ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center row mb-3") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
-                  return React.modifyState($$this)(function (v1) {
-                      return {
-                          date: v,
-                          drivers: v1.drivers,
-                          showItem: v1.showItem
-                      };
-                  });
-              }) ]), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+              return React_DOM.div([  ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center row mb-3") ])([ React.createLeafElement()(Datepicker.datepickerClass)({
+                  onChange: function (d) {
+                      return React.modifyState($$this)(function (v) {
+                          return {
+                              date: d,
+                              drivers: v.drivers,
+                              showItem: v.showItem
+                          };
+                      });
+                  },
+                  lang: props.lang,
+                  showTime: false,
+                  className: "form-control",
+                  wrapperClassName: "form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2",
+                  "_id": "date"
+              }), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return fetchDrivers($$this);
               }) ])([ React_DOM.text(props.keyText("key.search")) ]) ]), dl ]);
           };
       };
       return React.component()("View.Drivers")(function ($$this) {
           return function __do() {
-              var date = Format.todayDateISO();
+              var date = Data_JSDate.now();
               var props = React.getProps($$this)();
               return {
                   state: {
@@ -9111,15 +9242,24 @@ var PS = {};
                           if (v instanceof Data_Either.Left) {
                               return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
                           };
-                          if (v instanceof Data_Either.Right) {
-                              return handleMsg($$this)(v.value0.val);
+                          if (v instanceof Data_Either.Right && v.value0.val instanceof Api_Push.FreeDrivers) {
+                              return React.modifyState($$this)(function (v1) {
+                                  return {
+                                      date: v1.date,
+                                      drivers: v.value0.val.value0.freeDrivers,
+                                      showItem: v1.showItem
+                                  };
+                              });
                           };
-                          throw new Error("Failed pattern match at App.View.Drivers (line 59, column 30 - line 61, column 46): " + [ v.constructor.name ]);
+                          if (v instanceof Data_Either.Right) {
+                              return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
+                          };
+                          throw new Error("Failed pattern match at App.View.Drivers (line 55, column 30 - line 58, column 33): " + [ v.constructor.name ]);
                       })((function () {
-                          var $14 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $15 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($16) {
-                              return $14($15($16));
+                          var $13 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $14 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($15) {
+                              return $13($14($15));
                           };
                       })())();
                   }
@@ -9143,9 +9283,9 @@ var PS = {};
   var Data_Show = $PS["Data.Show"];
   var Data_Traversable = $PS["Data.Traversable"];
   var Data_Unit = $PS["Data.Unit"];
+  var Datepicker = $PS["Datepicker"];
   var Effect = $PS["Effect"];
   var Effect_Console = $PS["Effect.Console"];
-  var Format = $PS["Format"];
   var Lib_React = $PS["Lib.React"];
   var Lib_WebSocket = $PS["Lib.WebSocket"];
   var Proto_Decode = $PS["Proto.Decode"];
@@ -9159,7 +9299,7 @@ var PS = {};
               var props = React.getProps($$this)();
               return Data_Functor.map(Effect.functorEffect)(React_DOM.div([ Lib_React.cn("list-group d-flex flex-column justify-content-center") ]))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect)(Data_Functor.map(Data_Functor.functorArray)(function (pi) {
                   return function __do() {
-                      var t = Format.formatTime(Data_JSDate.fromTime(pi.date))();
+                      var t = Datepicker.toLocaleTimeString(Data_JSDate.fromTime(pi.date))();
                       return React_DOM.div([ Lib_React.cn("list-group-item"), React_DOM_Props.key(pi.id) ])([ React_DOM.div([ Lib_React.cn("d-flex flex-row") ])([ React_DOM.div([ Lib_React.cn("mr-3") ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(pi.fromAddress) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(pi.toAddress) ]) ]), React_DOM.div([  ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(t) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.a([ React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
                           return React.modifyState($$this)(function (v1) {
                               return {
@@ -9169,8 +9309,8 @@ var PS = {};
                               };
                           });
                       }) ])([ React_DOM.text(props.keyText("key.show_map")) ]) ]) ]) ]), (function () {
-                          var $7 = state.showItem === pi.id;
-                          if ($7) {
+                          var $6 = state.showItem === pi.id;
+                          if ($6) {
                               var q = "https://www.google.com/maps/embed/v1/directions" + ("?origin=" + (pi.fromAddress + ("&destination=" + (pi.toAddress + ("&key=" + "AIzaSyAuq2lMfK8JPYK4-zYYw9Bl8SeTQrKJJeY")))));
                               return React_DOM.iframe([ React_DOM_Props.width("100%"), React_DOM_Props.height("400"), React_DOM_Props.frameBorder("0"), React_DOM_Props.src(q) ])([  ]);
                           };
@@ -9180,27 +9320,12 @@ var PS = {};
               })(state.passengers)))();
           };
       };
-      var handleMsg = function ($$this) {
-          return function (v) {
-              if (v instanceof Api_Push.FreePassengers) {
-                  return React.modifyState($$this)(function (v1) {
-                      return {
-                          date: v1.date,
-                          passengers: v.value0.freePassengers,
-                          showItem: v1.showItem
-                      };
-                  });
-              };
-              return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
-          };
-      };
       var fetchPassengers = function ($$this) {
           return function __do() {
               var p = React.getProps($$this)();
               var s = React.getState($$this)();
-              var d = Data_JSDate.parse(s.date)();
               return Lib_WebSocket.send(p.ws)(Api_Pull.encodePull(new Api_Pull.GetFreePassengers({
-                  date: Data_JSDate.getTime(d)
+                  date: Data_JSDate.getTime(s.date)
               })))();
           };
       };
@@ -9209,22 +9334,29 @@ var PS = {};
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
               var dl = passengersList($$this)();
-              return React_DOM.div([  ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React_DOM.input([ React_DOM_Props["_type"]("date"), Lib_React.cn("form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2"), React_DOM_Props["_id"]("date"), React_DOM_Props.value(state.date), Lib_React.onChangeValue(function (v) {
-                  return React.modifyState($$this)(function (v1) {
-                      return {
-                          date: v,
-                          passengers: v1.passengers,
-                          showItem: v1.showItem
-                      };
-                  });
-              }) ]), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+              return React_DOM.div([  ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React.createLeafElement()(Datepicker.datepickerClass)({
+                  onChange: function (d) {
+                      return React.modifyState($$this)(function (v) {
+                          return {
+                              date: d,
+                              passengers: v.passengers,
+                              showItem: v.showItem
+                          };
+                      });
+                  },
+                  lang: props.lang,
+                  showTime: false,
+                  className: "form-control",
+                  wrapperClassName: "form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2",
+                  "_id": "date"
+              }), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return fetchPassengers($$this);
               }) ])([ React_DOM.text(props.keyText("key.search")) ]) ]), dl ]);
           };
       };
       return React.component()("View.Passengers")(function ($$this) {
           return function __do() {
-              var date = Format.todayDateISO();
+              var date = Data_JSDate.now();
               var props = React.getProps($$this)();
               return {
                   state: {
@@ -9241,15 +9373,24 @@ var PS = {};
                           if (v instanceof Data_Either.Left) {
                               return Effect_Console.error(Data_Show.show(Proto_Decode.showError)(v.value0));
                           };
-                          if (v instanceof Data_Either.Right) {
-                              return handleMsg($$this)(v.value0.val);
+                          if (v instanceof Data_Either.Right && v.value0.val instanceof Api_Push.FreePassengers) {
+                              return React.modifyState($$this)(function (v1) {
+                                  return {
+                                      date: v1.date,
+                                      passengers: v.value0.val.value0.freePassengers,
+                                      showItem: v1.showItem
+                                  };
+                              });
                           };
-                          throw new Error("Failed pattern match at App.View.Riders (line 59, column 30 - line 61, column 46): " + [ v.constructor.name ]);
+                          if (v instanceof Data_Either.Right) {
+                              return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
+                          };
+                          throw new Error("Failed pattern match at App.View.Riders (line 54, column 30 - line 57, column 33): " + [ v.constructor.name ]);
                       })((function () {
-                          var $14 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
-                          var $15 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
-                          return function ($16) {
-                              return $14($15($16));
+                          var $13 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
+                          var $14 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
+                          return function ($15) {
+                              return $13($14($15));
                           };
                       })())();
                   }
@@ -9265,9 +9406,10 @@ var PS = {};
   var exports = $PS["App.View"];
   var App_View_Drivers = $PS["App.View.Drivers"];
   var App_View_Riders = $PS["App.View.Riders"];
+  var Control_Applicative = $PS["Control.Applicative"];
   var Data_Eq = $PS["Data.Eq"];
   var Data_Functor = $PS["Data.Functor"];
-  var Format = $PS["Format"];
+  var Effect = $PS["Effect"];
   var Lib_React = $PS["Lib.React"];
   var React = $PS["React"];
   var React_DOM = $PS["React.DOM"];
@@ -9294,7 +9436,7 @@ var PS = {};
       if (v instanceof ViewP) {
           return "key.passengers";
       };
-      throw new Error("Failed pattern match at App.View (line 47, column 1 - line 47, column 24): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at App.View (line 35, column 1 - line 35, column 24): " + [ v.constructor.name ]);
   };
   var eqTab = new Data_Eq.Eq(function (x) {
       return function (y) {
@@ -9307,12 +9449,15 @@ var PS = {};
           return false;
       };
   });
-  var viewClass = (function () {
-      var render = function ($$this) {
-          return function __do() {
+  var viewClass = React.component()("View")(function ($$this) {
+      return Control_Applicative.pure(Effect.applicativeEffect)({
+          state: {
+              tab: ViewD.value
+          },
+          render: function __do() {
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
-              return React_DOM.div([  ])([ React_DOM.ul([ Lib_React.cn("nav nav-pills nav-pills-primary justify-content-center") ])(Data_Functor.map(Data_Functor.functorArray)(function (t) {
+              return React_DOM.div([  ])([ React_DOM.ul([ Lib_React.cn("nav nav-pills nav-pills-primary justify-content-center mb-3") ])(Data_Functor.map(Data_Functor.functorArray)(function (t) {
                   return React_DOM.li([  ])([ React_DOM.a([ Lib_React.cn("nav-link" + (function () {
                       var $8 = Data_Eq.eq(eqTab)(t)(state.tab);
                       if ($8) {
@@ -9323,9 +9468,14 @@ var PS = {};
                       return function __do() {
                           var v = React_SyntheticEvent.preventDefault(e)();
                           return React.modifyState($$this)(function (v1) {
-                              return {
-                                  tab: t
+                              var $9 = {};
+                              for (var $10 in v1) {
+                                  if ({}.hasOwnProperty.call(v1, $10)) {
+                                      $9[$10] = v1[$10];
+                                  };
                               };
+                              $9.tab = t;
+                              return $9;
                           })();
                       };
                   }) ])([ React_DOM.text(props.keyText(tabKey(t))) ]) ]);
@@ -9336,23 +9486,11 @@ var PS = {};
                   if (state.tab instanceof ViewP) {
                       return React.createLeafElement()(App_View_Riders.ridersClass)(props);
                   };
-                  throw new Error("Failed pattern match at App.View (line 77, column 9 - line 79, column 55): " + [ state.tab.constructor.name ]);
+                  throw new Error("Failed pattern match at App.View (line 57, column 13 - line 59, column 59): " + [ state.tab.constructor.name ]);
               })() ]);
-          };
-      };
-      return React.component()("View")(function ($$this) {
-          return function __do() {
-              var date = Format.todayDateISO();
-              var props = React.getProps($$this)();
-              return {
-                  state: {
-                      tab: ViewD.value
-                  },
-                  render: render($$this)
-              };
-          };
+          }
       });
-  })();
+  });
   exports["viewClass"] = viewClass;
 })(PS);
 (function(exports) {
@@ -9445,6 +9583,7 @@ var PS = {};
   var Data_Traversable = $PS["Data.Traversable"];
   var Data_Tuple = $PS["Data.Tuple"];
   var Data_Unit = $PS["Data.Unit"];
+  var Datepicker = $PS["Datepicker"];
   var Effect = $PS["Effect"];
   var Effect_Console = $PS["Effect.Console"];
   var Effect_Exception = $PS["Effect.Exception"];
@@ -9490,7 +9629,7 @@ var PS = {};
       if (v instanceof AddItem) {
           return "key.menu.add";
       };
-      throw new Error("Failed pattern match at App (line 56, column 1 - line 60, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at App (line 50, column 1 - line 54, column 33): " + [ v.constructor.name ]);
   });
   var eqMenuItem = new Data_Eq.Eq(function (x) {
       return function (y) {
@@ -9531,7 +9670,7 @@ var PS = {};
           if (x instanceof AddItem && y instanceof AddItem) {
               return Data_Ordering.EQ.value;
           };
-          throw new Error("Failed pattern match at App (line 62, column 1 - line 62, column 44): " + [ x.constructor.name, y.constructor.name ]);
+          throw new Error("Failed pattern match at App (line 56, column 1 - line 56, column 44): " + [ x.constructor.name, y.constructor.name ]);
       };
   });
   var appClass = (function () {
@@ -9558,7 +9697,7 @@ var PS = {};
                       });
                   }) ])([ React_DOM.text(state.keyText("key.login")) ]) ]);
               };
-              throw new Error("Failed pattern match at App (line 145, column 12 - line 162, column 10): " + [ state.user.constructor.name ]);
+              throw new Error("Failed pattern match at App (line 139, column 12 - line 156, column 10): " + [ state.user.constructor.name ]);
           };
       };
       var setLang = function ($$this) {
@@ -9646,7 +9785,7 @@ var PS = {};
                   return setLang($$this)(v);
               }) ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.option([ React_DOM_Props.value(v), React_DOM_Props.selected(v === state.lang) ])([ React_DOM.text(state.keyText("key." + v)) ]);
-              })([ "uk", "ru" ])) ]), React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto nav-flex-icons d-none d-lg-inline") ])([ u ]) ]), React_DOM.div([ Lib_React.cn("m-sm-3 m-2") ])((function () {
+              })([ "uk", "ru" ])) ]), React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto nav-flex-icons d-none d-lg-inline") ])([ u ]) ]), React_DOM.div([ Lib_React.cn("m-3") ])((function () {
                   if (state.menuItem instanceof HomeItem) {
                       return [ React.createLeafElement()(App_Home.homeClass)({
                           ws: props.ws,
@@ -9671,7 +9810,7 @@ var PS = {};
                           user: state.user
                       }) ];
                   };
-                  throw new Error("Failed pattern match at App (line 133, column 11 - line 139, column 26): " + [ state.menuItem.constructor.name ]);
+                  throw new Error("Failed pattern match at App (line 127, column 11 - line 133, column 26): " + [ state.menuItem.constructor.name ]);
               })()) ]);
           };
       };
@@ -9736,7 +9875,7 @@ var PS = {};
                       if (v instanceof Data_Either.Right) {
                           return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
                       };
-                      throw new Error("Failed pattern match at App (line 82, column 34 - line 85, column 31): " + [ v.constructor.name ]);
+                      throw new Error("Failed pattern match at App (line 76, column 34 - line 79, column 31): " + [ v.constructor.name ]);
                   })((function () {
                       var $39 = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect);
                       var $40 = Data_Functor.map(Data_Functor.functorArray)(Effect_Console.error);
@@ -9749,6 +9888,7 @@ var PS = {};
       });
   })();
   var view = function __do() {
+      Datepicker.datepickerLoad();
       var doc = Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.document)();
       var elem = Web_DOM_NonElementParentNode.getElementById("container")(Web_HTML_HTMLDocument.toNonElementParentNode(doc))();
       var container = Data_Maybe.maybe(Effect_Exception["throw"]("container not found"))(Control_Applicative.pure(Effect.applicativeEffect))(elem)();
