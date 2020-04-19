@@ -10,6 +10,7 @@ module Api.Push
   , Location
   , FreePassengers
   , PassengerInfo
+  , CitiesList
   , decodePush
   ) where
 
@@ -27,7 +28,7 @@ import Api
 decodeFieldLoop :: forall a b c. Int -> Decode.Result a -> (a -> b) -> Decode.Result' (Step { a :: Int, b :: b, c :: Int } { pos :: Int, val :: c })
 decodeFieldLoop end res f = map (\{ pos, val } -> Loop { a: end, b: f val, c: pos }) res
 
-data Push = Pong | LoginOk | LoginErr | SessionData SessionData | AddRouteOk AddRouteOk | AddRouteErr AddRouteErr | FreeDrivers FreeDrivers | FreePassengers FreePassengers
+data Push = Pong | LoginOk | LoginErr | SessionData SessionData | AddRouteOk AddRouteOk | AddRouteErr AddRouteErr | FreeDrivers FreeDrivers | FreePassengers FreePassengers | CitiesList CitiesList
 type SessionData = { user :: UserData }
 type SessionData' = { user :: Maybe UserData }
 type UserData = { id :: String, username :: String, firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, tpe :: Maybe PassengerType, created :: Number }
@@ -45,6 +46,7 @@ type Location' = { lat :: Maybe Number, lng :: Maybe Number }
 type FreePassengers = { freePassengers :: Array PassengerInfo }
 type PassengerInfo = { id :: String, date :: Number, fromAddress :: String, fromLocation :: Location, toAddress :: String, toLocation :: Location, tpe :: PassengerType }
 type PassengerInfo' = { id :: Maybe String, date :: Maybe Number, fromAddress :: Maybe String, fromLocation :: Maybe Location, toAddress :: Maybe String, toLocation :: Maybe Location, tpe :: Maybe PassengerType }
+type CitiesList = { cities :: Array String }
 
 decodePush :: Uint8Array -> Decode.Result Push
 decodePush _xs_ = do
@@ -58,6 +60,7 @@ decodePush _xs_ = do
     11 -> decode (decodeAddRouteErr _xs_ pos1) AddRouteErr
     30 -> decode (decodeFreeDrivers _xs_ pos1) FreeDrivers
     40 -> decode (decodeFreePassengers _xs_ pos1) FreePassengers
+    50 -> decode (decodeCitiesList _xs_ pos1) CitiesList
     i -> Left $ Decode.BadType i
   where
   decode :: forall a. Decode.Result a -> (a -> Push) -> Decode.Result Push
@@ -302,5 +305,18 @@ decodePassengerInfo _xs_ pos0 = do
         8 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { toAddress = Just val }
         9 -> decodeFieldLoop end (decodeLocation _xs_ pos2) \val -> acc { toLocation = Just val }
         10 -> decodeFieldLoop end (decodePassengerType _xs_ pos2) \val -> acc { tpe = Just val }
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
+
+decodeCitiesList :: Uint8Array -> Int -> Decode.Result CitiesList
+decodeCitiesList _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
+  tailRecM3 decode (pos + msglen) { cities: [] } pos
+    where
+    decode :: Int -> CitiesList -> Int -> Decode.Result' (Step { a :: Int, b :: CitiesList, c :: Int } { pos :: Int, val :: CitiesList })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { cities = snoc acc.cities val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
     decode end acc pos1 = pure $ Done { pos: pos1, val: acc }

@@ -9,6 +9,7 @@ module Api.Pull
   , AddPassenger
   , GetFreeDrivers
   , GetFreePassengers
+  , GetCitiesList
   , encodePull
   ) where
 
@@ -20,7 +21,7 @@ import Proto.Encode as Encode
 import Proto.Uint8ArrayExt (length, concatAll)
 import Api
 
-data Pull = Ping | TelegramLogin TelegramLogin | AddDriver AddDriver | AddPassenger AddPassenger | GetFreeDrivers GetFreeDrivers | GetFreePassengers GetFreePassengers
+data Pull = Ping | TelegramLogin TelegramLogin | AddDriver AddDriver | AddPassenger AddPassenger | GetFreeDrivers GetFreeDrivers | GetFreePassengers GetFreePassengers | GetCitiesList GetCitiesList
 type TelegramLogin = { d :: Array TelegramData }
 data TelegramData = TelegramString TelegramString | TelegramNum TelegramNum
 derive instance eqTelegramData :: Eq TelegramData
@@ -31,6 +32,7 @@ type Address = { country :: String, city :: String, street :: String, building :
 type AddPassenger = { firstName :: String, lastName :: String, phone :: String, date :: Number, tpe :: PassengerType, from :: Address, to :: Address }
 type GetFreeDrivers = { date :: Number }
 type GetFreePassengers = { date :: Number }
+type GetCitiesList = { country :: String, lang :: String }
 
 encodePull :: Pull -> Uint8Array
 encodePull Ping = concatAll [ Encode.uint32 10, encodePing ]
@@ -39,6 +41,7 @@ encodePull (AddDriver x) = concatAll [ Encode.uint32 82, encodeAddDriver x ]
 encodePull (AddPassenger x) = concatAll [ Encode.uint32 162, encodeAddPassenger x ]
 encodePull (GetFreeDrivers x) = concatAll [ Encode.uint32 242, encodeGetFreeDrivers x ]
 encodePull (GetFreePassengers x) = concatAll [ Encode.uint32 322, encodeGetFreePassengers x ]
+encodePull (GetCitiesList x) = concatAll [ Encode.uint32 402, encodeGetCitiesList x ]
 
 encodePing :: Uint8Array
 encodePing = Encode.uint32 0
@@ -194,5 +197,15 @@ encodeGetFreePassengers msg = do
   let xs = concatAll
         [ Encode.uint32 9
         , Encode.double msg.date
+        ]
+  concatAll [ Encode.uint32 $ length xs, xs ]
+
+encodeGetCitiesList :: GetCitiesList -> Uint8Array
+encodeGetCitiesList msg = do
+  let xs = concatAll
+        [ Encode.uint32 10
+        , Encode.string msg.country
+        , Encode.uint32 18
+        , Encode.string msg.lang
         ]
   concatAll [ Encode.uint32 $ length xs, xs ]
