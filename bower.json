@@ -9,6 +9,7 @@
     "purescript-web-dom": "*",
     "purescript-web-html": "*",
     "purescript-web-socket": "*",
-    "purescript-affjax": "*"
+    "purescript-affjax": "*",
+    "purescript-js-timers": "*"
   }
 }

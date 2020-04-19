@@ -1,8 +1,9 @@
 module Api.Push
   ( Push(..)
-  , LoginOk
+  , SessionData
   , UserData
   , AddRouteOk
+  , AddRouteErr
   , FreeDrivers
   , DriverInfo
   , RouteInfo
@@ -26,13 +27,14 @@ import Api
 decodeFieldLoop :: forall a b c. Int -> Decode.Result a -> (a -> b) -> Decode.Result' (Step { a :: Int, b :: b, c :: Int } { pos :: Int, val :: c })
 decodeFieldLoop end res f = map (\{ pos, val } -> Loop { a: end, b: f val, c: pos }) res
 
-data Push = Pong | LoginOk LoginOk | AddRouteOk AddRouteOk | FreeDrivers FreeDrivers | FreePassengers FreePassengers
-type LoginOk = { user :: UserData }
-type LoginOk' = { user :: Maybe UserData }
-type UserData = { id :: Number, username :: String, firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, tpe :: Maybe PassengerType, created :: Number }
-type UserData' = { id :: Maybe Number, username :: Maybe String, firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, tpe :: Maybe PassengerType, created :: Maybe Number }
+data Push = Pong | LoginOk | LoginErr | SessionData SessionData | AddRouteOk AddRouteOk | AddRouteErr AddRouteErr | FreeDrivers FreeDrivers | FreePassengers FreePassengers
+type SessionData = { user :: UserData }
+type SessionData' = { user :: Maybe UserData }
+type UserData = { id :: String, username :: String, firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, tpe :: Maybe PassengerType, created :: Number }
+type UserData' = { id :: Maybe String, username :: Maybe String, firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, tpe :: Maybe PassengerType, created :: Maybe Number }
 type AddRouteOk = { id :: String }
 type AddRouteOk' = { id :: Maybe String }
+type AddRouteErr = { err :: Maybe String }
 type FreeDrivers = { freeDrivers :: Array DriverInfo }
 type DriverInfo = { id :: String, date :: Number, routes :: Array RouteInfo, types :: Array PassengerType }
 type DriverInfo' = { id :: Maybe String, date :: Maybe Number, routes :: Array RouteInfo, types :: Array PassengerType }
@@ -49,8 +51,11 @@ decodePush _xs_ = do
   { pos: pos1, val: tag } <- Decode.uint32 _xs_ 0
   case tag `zshr` 3 of
     1 -> decode (decodePong _xs_ pos1) \_ -> Pong
-    2 -> decode (decodeLoginOk _xs_ pos1) LoginOk
+    2 -> decode (decodeLoginOk _xs_ pos1) \_ -> LoginOk
+    3 -> decode (decodeLoginErr _xs_ pos1) \_ -> LoginErr
+    4 -> decode (decodeSessionData _xs_ pos1) SessionData
     10 -> decode (decodeAddRouteOk _xs_ pos1) AddRouteOk
+    11 -> decode (decodeAddRouteErr _xs_ pos1) AddRouteErr
     30 -> decode (decodeFreeDrivers _xs_ pos1) FreeDrivers
     40 -> decode (decodeFreePassengers _xs_ pos1) FreePassengers
     i -> Left $ Decode.BadType i
@@ -63,15 +68,25 @@ decodePong _xs_ pos0 = do
   { pos, val: msglen } <- Decode.uint32 _xs_ pos0
   pure { pos: pos + msglen, val: unit }
 
-decodeLoginOk :: Uint8Array -> Int -> Decode.Result LoginOk
+decodeLoginOk :: Uint8Array -> Int -> Decode.Result Unit
 decodeLoginOk _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeLoginErr :: Uint8Array -> Int -> Decode.Result Unit
+decodeLoginErr _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeSessionData :: Uint8Array -> Int -> Decode.Result SessionData
+decodeSessionData _xs_ pos0 = do
   { pos, val: msglen } <- Decode.uint32 _xs_ pos0
   { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { user: Nothing } pos
   case val of
     { user: Just user } -> pure { pos: pos1, val: { user } }
-    _ -> Left $ Decode.MissingFields "LoginOk"
+    _ -> Left $ Decode.MissingFields "SessionData"
     where
-    decode :: Int -> LoginOk' -> Int -> Decode.Result' (Step { a :: Int, b :: LoginOk', c :: Int } { pos :: Int, val :: LoginOk' })
+    decode :: Int -> SessionData' -> Int -> Decode.Result' (Step { a :: Int, b :: SessionData', c :: Int } { pos :: Int, val :: SessionData' })
     decode end acc pos1 | pos1 < end = do
       { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
       case tag `zshr` 3 of
@@ -91,7 +106,7 @@ decodeUserData _xs_ pos0 = do
     decode end acc pos1 | pos1 < end = do
       { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
       case tag `zshr` 3 of
-        1 -> decodeFieldLoop end (Decode.double _xs_ pos2) \val -> acc { id = Just val }
+        1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { id = Just val }
         2 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { username = Just val }
         3 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { firstName = Just val }
         4 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { lastName = Just val }
@@ -171,6 +186,19 @@ decodeAddRouteOk _xs_ pos0 = do
       { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
       case tag `zshr` 3 of
         1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { id = Just val }
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
+
+decodeAddRouteErr :: Uint8Array -> Int -> Decode.Result AddRouteErr
+decodeAddRouteErr _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.uint32 _xs_ pos0
+  tailRecM3 decode (pos + msglen) { err: Nothing } pos
+    where
+    decode :: Int -> AddRouteErr -> Int -> Decode.Result' (Step { a :: Int, b :: AddRouteErr, c :: Int } { pos :: Int, val :: AddRouteErr })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.uint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { err = Just val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
     decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
 

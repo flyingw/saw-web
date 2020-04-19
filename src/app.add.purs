@@ -12,13 +12,13 @@ import React.DOM.Props (href, onClick)
 import React.SyntheticEvent (preventDefault) as R
 
 import Lib.React(cn)
-import Lib.WebSocket (WebSocket)
+import Lib.WebSocket (Ws)
 import App.Driver (driverClass)
 import App.Rider (riderClass)
 import Api.Push (UserData)
 
 type Props =
-  { ws :: WebSocket
+  { ws :: Ws
   , lang :: String
   , keyText :: String -> String
   , user :: Maybe UserData

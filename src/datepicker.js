@@ -22,7 +22,7 @@ var isMobileOrChromeF = function() {
 exports.isMobileOrChrome = isMobileOrChromeF
 
 exports.datepickerLoad = function() {
-  if (!isMobileOrChromeF() && !window.datepicker) {
+  if (!isMobileOrChromeF() && !window['ext']) {
     var el1 = document.createElement('script');
     el1.setAttribute('async', '');
     el1.setAttribute('src', 'ext.js');

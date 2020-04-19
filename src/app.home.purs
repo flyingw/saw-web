@@ -5,6 +5,7 @@ module App.Home
 
 import Prelude hiding (div)
 
+import Ajax (postEff)
 import Control.Monad.Except (runExcept)
 import Data.Array (mapMaybe)
 import Data.Either (Either(..))
@@ -12,28 +13,29 @@ import Data.Maybe (Maybe(..), isJust)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
-import Effect.Exception (throw)
+import Effect.Console (error)
 import Foreign (Foreign, F, readNumber, readString, typeOf)
 import Foreign.Index ((!)) as F
 import Foreign.Keys (keys) as F
-import React (ReactClass, getProps, getState, component, ReactThis)
+import React (ReactClass, getProps, getState, component, ReactThis, modifyState)
 import React.DOM (text, div, h6, span)
 import React.DOM.Props (_id)
 
 import Api.Pull (encodePull, Pull(TelegramLogin), TelegramData(TelegramString, TelegramNum))
-import Api.Push (UserData)
+import Api.Push (decodePush, Push(LoginOk, LoginErr), UserData)
 import Lib.React (cn)
-import Lib.WebSocket (WebSocket)
-import Lib.WebSocket as WS
 
 type Props =
-  { ws :: WebSocket
-  , lang :: String
+  { await :: Effect Unit
+  , ok :: Effect Unit
+  , err :: Effect Unit
   , keyText :: String -> String
   , user :: Maybe UserData
   }
 
-type State = {}
+type State = 
+  { err :: Boolean
+  }
 
 type This = ReactThis Props State
 
@@ -41,12 +43,16 @@ homeClass :: ReactClass Props
 homeClass = component "Home" \this -> do
   props <- getProps this
   pure
-    { state: {}
+    { state: { err: false }
     , render: render this
     , componentDidMount: do
         p <- getProps this
         case p.user of
-          Nothing -> telegramLoginWidget "login-widget" (login this)
+          Nothing  -> telegramLoginWidget "login-widget" (login 
+                        (modifyState this _{ err = false } >>= \_ -> p.await) 
+                        (modifyState this _{ err = true } >>= \_ -> p.err)
+                        (modifyState this _{ err = false } >>= \_ -> p.ok)
+                      )
           Just u -> pure unit
     }
   where  
@@ -61,7 +67,14 @@ homeClass = component "Home" \this -> do
         [ span [] [ text $ props.keyText "key.home.text" ]
         ]
       , div [ cn $ if (isJust props.user) then "d-none" else "" ] 
-        [ div [ cn $ "d-flex justify-content-center mb-3", _id "login-widget"] []
+        [ if state.err
+            then 
+              div [ cn "d-flex justify-content-center" ]
+              [ div [ cn "alert alert-danger d-inline-block" ] 
+                [ text $ props.keyText "key.err" ]
+              ]
+            else mempty
+        , div [ cn $ "d-flex justify-content-center mb-3", _id "login-widget"] []
         , div [ cn "d-flex justify-content-center mb-3" ] 
           [ div [ cn "alert alert-info" ] 
             [ text $ props.keyText "key.home.login.hint"
@@ -72,12 +85,21 @@ homeClass = component "Home" \this -> do
 
 foreign import telegramLoginWidget :: String -> (Foreign -> Effect Unit) -> Effect Unit
 
-login :: This -> Foreign -> Effect Unit
-login this user = do
-  props <- getProps this
+login :: Effect Unit -> Effect Unit -> Effect Unit -> Foreign -> Effect Unit
+login await err ok user = do
+  _ <- await
   case runExcept $ f user of
-    Left x -> throw $ show x
-    Right msg -> WS.send props.ws $ encodePull msg
+    Left e -> error (show e) >>= \_ -> err
+    Right msg ->
+      postEff "http://ridehub.city/login" (encodePull msg) (
+        \_ -> err
+      ) (
+        \x -> case decodePush x of
+          Left e -> error (show e) >>= \_ -> err
+          Right { val: LoginOk } -> ok
+          Right { val: LoginErr } -> err
+          Right _ -> err
+      )
   where
   f :: Foreign -> F Pull
   f x = do

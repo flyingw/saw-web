@@ -5,25 +5,23 @@ module App.View.Riders
 
 import Prelude hiding (div)
 
-import Data.Either (Either(..))
 import Data.JSDate (JSDate, now, getTime, fromTime)
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe(Just))
 import Data.Traversable (sequence)
 import Effect (Effect)
-import Effect.Console (error)
 import React (ReactClass, ReactElement, ReactThis, getProps, getState, modifyState, component, createLeafElement)
 import React.DOM (a, button, div, iframe, small, text)
 import React.DOM.Props (_type, frameBorder, height, href, key, onClick, src, width)
 
-import Api.Pull (encodePull, Pull(GetFreePassengers))
-import Api.Push (decodePush, Push(FreePassengers), UserData, PassengerInfo)
+import Api.Pull (Pull(GetFreePassengers))
+import Api.Push (Push(FreePassengers), UserData, PassengerInfo)
 import Datepicker (datepickerClass, toLocaleTimeString)
 import Lib.React(cn)
-import Lib.WebSocket (WebSocket)
+import Lib.WebSocket (Ws)
 import Lib.WebSocket as WS
 
 type Props =
-  { ws :: WebSocket
+  { ws :: Ws
   , lang :: String
   , keyText :: String -> String
   , user :: Maybe UserData
@@ -33,6 +31,7 @@ type State =
   { date :: JSDate
   , passengers :: Array PassengerInfo
   , showItem :: String
+  , unsub :: Effect Unit
   }
 
 type This = ReactThis Props State 
@@ -46,23 +45,25 @@ ridersClass = component "View.Passengers" \this -> do
       { date: date
       , passengers: []
       , showItem: ""
+      , unsub: pure unit
       }
     , render: render this
     , componentDidMount: do
-        p <- getProps this
-        _ <- fetchPassengers this
-        WS.onMsg p.ws (\x -> case decodePush x of
-          Left y -> error $ show y
-          Right { val: FreePassengers r } -> modifyState this _{ passengers = r.freePassengers }
-          Right msg -> pure unit
-        ) (sequence <<< map error)
+        _      <- fetchPassengers this
+        unsub  <- WS.sub props.ws $ onMsg this
+        modifyState this _{ unsub = unsub }
+    , componentWillUnmount: getState this >>= _.unsub
     }
   where
+  onMsg :: This -> Maybe Push -> Effect Unit
+  onMsg this (Just (FreePassengers r)) = modifyState this _{ passengers = r.freePassengers }
+  onMsg this _                  = pure unit
+
   fetchPassengers :: This -> Effect Unit
   fetchPassengers this = do
     p  <- getProps this
     s  <- getState this
-    WS.send p.ws $ encodePull $ GetFreePassengers { date: getTime s.date }
+    WS.snd p.ws $ GetFreePassengers { date: getTime s.date }
 
   render :: This -> Effect ReactElement
   render this = do

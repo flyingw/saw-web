@@ -40,9 +40,9 @@ datepickerClass = component "Datepicker" \this -> do
         state  <- getState this
         if native
           then do
-            vv <- formatISO state.date
+            vv <- if props.showTime then formatISO state.date else formatDateISO state.date
             pure $ input [ _type $ if props.showTime then "datetime-local" else "date"
-                         , cn props.className
+                         , cn $ props.className <> " " <> props.wrapperClassName
                          , _id props._id
                          , value vv
                          , onChangeValue \v -> do
@@ -66,8 +66,8 @@ datepickerClass = component "Datepicker" \this -> do
                                             , popperClassName: "react-datepicker-popper-fix"
                                             , id: props._id
                                             , locale: locale
-                                            , timeFormat: "p"
-                                            , dateFormat: "Pp"
+                                            , timeFormat: if props.showTime then "p" else ""
+                                            , dateFormat: if props.showTime then "Pp" else "P"
                                             , minDate: today
                                             }
     }

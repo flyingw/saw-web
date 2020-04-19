@@ -4,15 +4,12 @@ import Prelude hiding (div)
 
 import Control.Alt ((<|>))
 import Data.Array (take, drop)
-import Data.Either (Either(..))
 import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe, fromMaybe)
 import Data.String.Common (joinWith, split, toLower)
 import Data.String.Pattern (Pattern(Pattern))
-import Data.Traversable (sequence)
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
-import Effect.Console (error)
 import Effect.Exception (throw)
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
 import React.DOM (a, button, div, img, li, nav, option, select, span, text, ul)
@@ -24,17 +21,17 @@ import Web.HTML.HTMLDocument (toNonElementParentNode)
 import Web.HTML.Window (document)
 
 import Ajax (getEff)
-import Api.Push (decodePush, Push(LoginOk), UserData)
+import Api.Push (Push(SessionData), UserData)
 import App.Add (addClass)
 import App.Home (homeClass)
 import App.View (viewClass)
 import Datepicker (datepickerLoad)
 import Lib.React (cn, onChangeValue)
-import Lib.WebSocket (WebSocket)
+import Lib.WebSocket (Ws)
 import Lib.WebSocket as WS
 
 type Props =
-  { ws :: WebSocket
+  { ws :: Ws
   }
 
 type State =
@@ -42,9 +39,10 @@ type State =
   , lang :: String
   , keyText :: String -> String
   , menuItem :: MenuItem
-  , expand :: Boolean
-  , connectionLost :: Boolean
+  , expandMenu :: Boolean
   }
+
+type This = ReactThis Props State
 
 data MenuItem = HomeItem | ViewItem | AddItem
 instance showMenuItem :: Show MenuItem where
@@ -63,24 +61,20 @@ appClass = component "App" \this -> do
       , lang: "uk"
       , keyText: \key -> key
       , menuItem: HomeItem
-      , expand: false
-      , connectionLost: false
+      , expandMenu: false
       }:: State
     , render: render this
     , componentDidMount: do
-        props  <- getProps this
-        state  <- getState this
-        _      <- setLang this state.lang
-        _      <- WS.onError props.ws \x -> modifyState this _{ connectionLost = true }
-        _      <- WS.onClose props.ws \x -> modifyState this _{ connectionLost = true }
-        WS.onMsg props.ws (\x -> case decodePush x of
-          Left y -> error $ show y
-          Right { val: LoginOk r} -> modifyState this _{ user = Just r.user }
-          Right _ -> pure unit
-        ) (sequence <<< map error)
+        props <- getProps this
+        _     <- setLang this "uk"
+        void $ WS.sub props.ws $ onMsg this
     }
   where
-  setLang :: ReactThis Props State -> String -> Effect Unit
+  onMsg :: This -> Maybe Push -> Effect Unit
+  onMsg this (Just (SessionData r)) = modifyState this _{ user = Just r.user }
+  onMsg this _                      = pure unit
+
+  setLang :: This -> String -> Effect Unit
   setLang this lang = do
     getEff ("/langs/" <> lang <> ".js") (\err -> pure unit)(\v -> do
       let keys = Map.fromFoldable $ split (Pattern "\n") v <#> 
@@ -89,29 +83,26 @@ appClass = component "App" \this -> do
       modifyState this _ { lang = lang, keyText = \key -> fromMaybe key $ Map.lookup (toLower key) keys }
     )
 
-  render :: ReactThis Props State -> Effect ReactElement
+  render :: This -> Effect ReactElement
   render this = do
     props <- getProps this
     state <- getState this
     u     <- userIcon this
     pure $ div []
-      [ if state.connectionLost 
-          then div [ cn "bg-warning pl-2" ] [ a [ href "/" ] [ text $ state.keyText "key.connection_lost" ] ]
-          else mempty
-      , nav [ cn "navbar navbar-expand-lg navbar-dark bg-primary" ]
+      [ nav [ cn "navbar navbar-expand-lg navbar-dark bg-primary" ]
         [ a [ cn "navbar-brand", href "#", onClick \_ -> modifyState this _{ menuItem = HomeItem } ] [ text "Ridehub" ]
         , ul [ cn "navbar-nav ml-auto nav-flex-icons d-lg-none" ] [ u ]
         , button [ cn "navbar-toggler collapsed", _type "button" 
-                 , onClick \_ -> modifyState this \s -> s { expand = not s.expand }
+                 , onClick \_ -> modifyState this \s -> s { expandMenu = not s.expandMenu }
                  ] 
           [ span [ cn "navbar-toggler-icon" ] [] 
           ]
-        , div [ cn $ "navbar-collapse" <> if state.expand then "" else " collapse" ]
+        , div [ cn $ "navbar-collapse" <> if state.expandMenu then "" else " collapse" ]
           [ ul [ cn "navbar-nav mr-auto" ] $
             map (\v ->
               li [ cn $ "nav-item" <> if v == state.menuItem then " active" else "" ]
               [ a [ cn "nav-link", href "#"
-                  , onClick \_ -> modifyState this _{ menuItem = v, expand = false }
+                  , onClick \_ -> modifyState this _{ menuItem = v, expandMenu = false }
                   ] 
                 [ text $ state.keyText $ show v ]
               ]
@@ -123,17 +114,21 @@ appClass = component "App" \this -> do
           ]
         , ul [ cn "navbar-nav ml-auto nav-flex-icons d-none d-lg-inline" ] [ u ]
         ]
-      , div [ cn "m-3"] $
-          case state.menuItem of
-            HomeItem -> [ createLeafElement homeClass {ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user}
-                        ]
-            ViewItem -> [ createLeafElement viewClass {ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user}
-                        ]
-            AddItem  -> [ createLeafElement addClass {ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user}
-                        ]
+      , div [ cn "m-3"] $ case state.menuItem of
+          HomeItem -> [ createLeafElement homeClass { await: pure unit
+                                                    , ok: WS.reconnect props.ws
+                                                    , err: pure unit
+                                                    , keyText: state.keyText
+                                                    , user: state.user
+                                                    }
+                      ]
+          ViewItem -> [ createLeafElement viewClass { ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user }
+                      ]
+          AddItem  -> [ createLeafElement addClass { ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user }
+                      ]
       ]
 
-  userIcon :: ReactThis Props State -> Effect ReactElement
+  userIcon :: This -> Effect ReactElement
   userIcon this = do
     state <- getState this
     pure $ case state.user of
@@ -161,7 +156,6 @@ view = do
   doc       <- window >>= document
   elem      <- getElementById "container" $ toNonElementParentNode doc
   container <- maybe (throw "container not found") pure elem
-  ws        <- WS.create "ridehub.city/ws"
-  WS.onOpen ws \_ -> WS.setBinary ws
+  ws        <- WS.new "ridehub.city/ws"
   let element = createLeafElement appClass { ws }
   void $ render element container

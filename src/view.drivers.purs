@@ -6,25 +6,23 @@ module App.View.Drivers
 import Prelude hiding (div)
 
 import Data.Array (catMaybes, head)
-import Data.Either (Either(..))
 import Data.JSDate (JSDate, fromTime, getTime, now)
-import Data.Maybe (Maybe)
+import Data.Maybe (Maybe(Just))
 import Data.Traversable (sequence)
 import Effect (Effect)
-import Effect.Console (error)
 import React (ReactClass, ReactElement, ReactThis, getProps, getState, modifyState, component, createLeafElement)
 import React.DOM (a, button, div, iframe, small, text)
 import React.DOM.Props (_type, frameBorder, height, href, key, onClick, src, width)
 
-import Api.Pull (encodePull, Pull(GetFreeDrivers))
-import Api.Push (decodePush, Push(FreeDrivers), UserData, DriverInfo)
+import Api.Pull (Pull(GetFreeDrivers))
+import Api.Push (Push(FreeDrivers), UserData, DriverInfo)
 import Datepicker (datepickerClass, toLocaleTimeString)
 import Lib.React(cn)
-import Lib.WebSocket (WebSocket)
+import Lib.WebSocket (Ws)
 import Lib.WebSocket as WS
 
 type Props =
-  { ws :: WebSocket
+  { ws :: Ws
   , lang :: String
   , keyText :: String -> String
   , user :: Maybe UserData
@@ -34,6 +32,7 @@ type State =
   { date :: JSDate
   , drivers :: Array DriverInfo
   , showItem :: String
+  , unsub :: Effect Unit
   }
 
 type This = ReactThis Props State
@@ -47,23 +46,25 @@ driversClass = component "View.Drivers" \this -> do
       { date: date
       , drivers: []
       , showItem: ""
+      , unsub: pure unit
       }
     , render: render this
     , componentDidMount: do
-        p <- getProps this
-        _ <- fetchDrivers this
-        WS.onMsg p.ws (\x -> case decodePush x of
-          Left y -> error $ show y
-          Right { val: FreeDrivers r } -> modifyState this _{ drivers = r.freeDrivers }
-          Right msg -> pure unit
-        ) (sequence <<< map error)
+        _      <- fetchDrivers this
+        unsub  <- WS.sub props.ws $ onMsg this
+        modifyState this _{ unsub = unsub }
+    , componentWillUnmount: getState this >>= _.unsub
     }
   where
+  onMsg :: This -> Maybe Push -> Effect Unit
+  onMsg this (Just (FreeDrivers r)) = modifyState this _{ drivers = r.freeDrivers }
+  onMsg this _                      = pure unit
+
   fetchDrivers :: This -> Effect Unit
   fetchDrivers this = do
     p  <- getProps this
     s  <- getState this
-    WS.send p.ws $ encodePull $ GetFreeDrivers { date: getTime s.date }
+    WS.snd p.ws $ GetFreeDrivers { date: getTime s.date }
 
   render :: This -> Effect ReactElement
   render this = do

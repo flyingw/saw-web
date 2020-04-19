@@ -6,28 +6,25 @@ module App.Driver
 import Prelude hiding (div, min, max)
 
 import Data.Array (fromFoldable, elem, delete, (:))
-import Data.Either (Either(..))
 import Data.JSDate (JSDate, now, getTime)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Traversable (sequence)
 import Effect (Effect)
-import Effect.Console (error)
 import Global (encodeURI)
 import React (ReactClass, ReactThis, getProps, getState, modifyState, component, createLeafElement)
 import React.DOM (text, div, label, input, button, h6, small, iframe)
 import React.DOM.Props (htmlFor, _id, _type, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, disabled, checked)
 
 import Api (PassengerType(..))
-import Api.Pull (Pull(AddDriver), encodePull, Address)
-import Api.Push (decodePush, Push(AddRouteOk), UserData)
+import Api.Pull (Pull(AddDriver), Address)
+import Api.Push (Push(AddRouteOk), UserData)
 import Datepicker (datepickerClass)
 import Keys (keyPassengerType)
 import Lib.React(cn, onChangeValue, onChangeValueInt)
-import Lib.WebSocket (WebSocket)
+import Lib.WebSocket (Ws)
 import Lib.WebSocket as WS
 
 type Props =
-  { ws :: WebSocket
+  { ws :: Ws
   , lang :: String
   , keyText :: String -> String
   , user :: Maybe UserData
@@ -47,6 +44,7 @@ type State =
   , to :: Address
   , types :: Array PassengerType
   , await :: Boolean
+  , unsub :: Effect Unit
   }
 
 type This = ReactThis Props State
@@ -70,17 +68,18 @@ driverClass = component "Driver" \this -> do
       , to: { country: "Украина", city: "Киев", street: "Льва Толстого", building: "1" }
       , types: fromFoldable [ Medical, Police, Firefighter, Army, Farmacy, Cashier, Regular ]
       , await: false
+      , unsub: pure unit
       } :: State
     , render: render this
     , componentDidMount: do
-        p <- getProps this
-        WS.onMsg p.ws (\x -> case decodePush x of
-          Left y -> error $ show y
-          Right { val: AddRouteOk r } -> modifyState this _{ routeId = Just r.id }
-          Right _ -> pure unit
-        ) (sequence <<< map error)
+        unsub  <- WS.sub props.ws $ onMsg this
+        modifyState this _{ unsub = unsub }
+    , componentWillUnmount: getState this >>= _.unsub
     }
   where
+  onMsg :: This -> Maybe Push -> Effect Unit
+  onMsg this (Just (AddRouteOk r)) = modifyState this _{ routeId = Just r.id }
+  onMsg this _                     = pure unit
 
   sendDriver :: This -> Effect Unit
   sendDriver this = do
@@ -99,7 +98,7 @@ driverClass = component "Driver" \this -> do
       , to: s.to
       , types: s.types
       }
-    WS.send p.ws $ encodePull driver
+    WS.snd p.ws driver
 
   updateMap :: This -> Effect Unit
   updateMap this = do

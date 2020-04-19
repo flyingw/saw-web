@@ -15,10 +15,10 @@ import Api.Push (UserData)
 import App.View.Drivers (driversClass)
 import App.View.Riders (ridersClass)
 import Lib.React(cn)
-import Lib.WebSocket (WebSocket)
+import Lib.WebSocket (Ws)
 
 type Props =
-  { ws :: WebSocket
+  { ws :: Ws
   , lang :: String
   , keyText :: String -> String
   , user :: Maybe UserData

@@ -5,30 +5,27 @@ module App.Rider
 
 import Prelude hiding (div)
 
-import Data.Either (Either(Left, Right))
 import Data.JSDate (JSDate, now, getTime)
 import Data.Map (Map, fromFoldable, lookup)
 import Data.Maybe (Maybe(Just, Nothing), fromMaybe)
-import Data.Traversable (sequence)
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
-import Effect.Console (error)
 import Global (encodeURI)
 import React (ReactClass, ReactThis, getProps, getState, modifyState, component, createLeafElement)
 import React.DOM (text, div, label, input, button, h6, small, iframe, select, option)
 import React.DOM.Props (htmlFor, _id, _type, required, autoComplete, value, src, width, height, frameBorder, onClick, disabled)
 
 import Api (PassengerType(..))
-import Api.Pull (Pull(AddPassenger), encodePull, Address)
-import Api.Push (decodePush, UserData, Push(AddRouteOk))
+import Api.Pull (Pull(AddPassenger), Address)
+import Api.Push (UserData, Push(AddRouteOk))
 import Datepicker (datepickerClass)
 import Keys (keyPassengerType)
 import Lib.React(cn, onChangeValue)
-import Lib.WebSocket (WebSocket)
+import Lib.WebSocket (Ws)
 import Lib.WebSocket as WS
 
 type Props =
-  { ws :: WebSocket
+  { ws :: Ws
   , lang :: String
   , keyText :: String -> String
   , user :: Maybe UserData
@@ -45,7 +42,10 @@ type State =
   , from :: Address
   , to :: Address
   , await :: Boolean
+  , unsub :: Effect Unit
   }
+
+type This = ReactThis Props State
 
 riderClass :: ReactClass Props
 riderClass = component "Rider" \this -> do
@@ -63,18 +63,18 @@ riderClass = component "Rider" \this -> do
       , from: { country: "Украина", city: "Киев", street: "Спортивная", building: "1" }
       , to: { country: "Украина", city: "Киев", street: "Льва Толстого", building: "1" }
       , await: false
+      , unsub: pure unit
       }
     , render: render this
     , componentDidMount: do
-        p <- getProps this
-        let ws = p.ws
-        WS.onMsg ws (\x -> case decodePush x of
-          Left y -> error $ show y
-          Right { val: AddRouteOk r } -> modifyState this _{ routeId=Just r.id }
-          Right _ -> pure unit
-        ) (sequence <<< map error)
+        unsub  <- WS.sub props.ws $ onMsg this
+        modifyState this _{ unsub = unsub }
+    , componentWillUnmount: getState this >>= _.unsub
     }
   where
+  onMsg :: This -> Maybe Push -> Effect Unit
+  onMsg this (Just (AddRouteOk r)) = modifyState this _{ routeId = Just r.id }
+  onMsg this _                     = pure unit
 
   types :: Array PassengerType
   types = [ Medical, Police, Firefighter, Army, Farmacy, Cashier, Regular ]
@@ -82,7 +82,7 @@ riderClass = component "Rider" \this -> do
   typesMap :: Map String PassengerType
   typesMap = fromFoldable $ map (\v -> Tuple (keyPassengerType v) v) types
 
-  sendPassenger :: ReactThis Props State -> Effect Unit
+  sendPassenger :: This -> Effect Unit
   sendPassenger this = do
     s <- getState this
     p <- getProps this
@@ -96,9 +96,9 @@ riderClass = component "Rider" \this -> do
       , from: s.from
       , to: s.to
       }
-    WS.send p.ws $ encodePull driver
+    WS.snd p.ws driver
   
-  updateMap :: ReactThis Props State -> Effect Unit
+  updateMap :: This -> Effect Unit
   updateMap this = do
     s <- getState this
     let host = "https://www.google.com/maps/embed/v1/directions"
