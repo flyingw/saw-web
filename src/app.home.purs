@@ -91,7 +91,7 @@ login await err ok user = do
   case runExcept $ f user of
     Left e -> error (show e) >>= \_ -> err
     Right msg ->
-      postEff "http://ridehub.city/login" (encodePull msg) (
+      postEff "https://ridehub.city/login" (encodePull msg) (
         \_ -> err
       ) (
         \x -> case decodePush x of

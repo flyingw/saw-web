@@ -9660,7 +9660,7 @@ var PS = {};
                           return err();
                       };
                       if (v instanceof Data_Either.Right) {
-                          return Ajax.postEff("http://ridehub.city/login")(Api_Pull.encodePull(v.value0))(function (v1) {
+                          return Ajax.postEff("https://ridehub.city/login")(Api_Pull.encodePull(v.value0))(function (v1) {
                               return err;
                           })(function (x) {
                               var v1 = Api_Push.decodePush(x);
