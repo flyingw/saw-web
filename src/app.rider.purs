@@ -3,7 +3,7 @@ module App.Rider
   , Props
   ) where
 
-import Prelude hiding (div)
+import Prelude hiding (div, min, max)
 
 import Data.JSDate (JSDate, now, getTime)
 import Data.Map (Map, fromFoldable, lookup)
@@ -160,11 +160,8 @@ riderClass = component "Rider" \this -> do
                                               , className: "form-control"
                                               , wrapperClassName: "form-control"
                                               , _id: "date"
+                                              , keyText: props.keyText
                                               }
-          -- , input [ _type "datetime-local", cn "form-control", _id "date", required true
-          --         , value state.date
-          --         , onChangeValue \v -> modifyState this _{ date=v }
-          --         ]
           ]
         ]
       , h6 [ cn "d-flex justify-content-center" ] [ text $ props.keyText "key.route_start" ]

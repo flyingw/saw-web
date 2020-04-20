@@ -79,6 +79,7 @@ ridersClass = component "View.Passengers" \this -> do
                                             , className: "form-control"
                                             , wrapperClassName: "form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2"
                                             , _id: "date"
+                                            , keyText: props.keyText
                                             }
         , button [ cn "btn btn-outline-secondary", _type "button" 
                  , onClick \_ -> fetchPassengers this 

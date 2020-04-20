@@ -4591,6 +4591,15 @@ var PS = {};
       };
       return GetFreePassengers;
   })();
+  var GetCitiesList = (function () {
+      function GetCitiesList(value0) {
+          this.value0 = value0;
+      };
+      GetCitiesList.create = function (value0) {
+          return new GetCitiesList(value0);
+      };
+      return GetCitiesList;
+  })();
   var encodeTelegramString = function (msg) {
       var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.key), Proto_Encode.uint32(18), Proto_Encode.string(msg.value) ]);
       return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
@@ -4608,7 +4617,7 @@ var PS = {};
           var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(18), encodeTelegramNum(v.value0) ]);
           return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 53, column 1 - line 53, column 49): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Api.Pull (line 56, column 1 - line 56, column 49): " + [ v.constructor.name ]);
   };
   var encodeTelegramLogin = function (msg) {
       var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Uint8ArrayExt.concatAll(Data_Array.concatMap(function (x) {
@@ -4626,6 +4635,10 @@ var PS = {};
   };
   var encodeGetFreeDrivers = function (msg) {
       var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(9), Proto_Encode["double"](msg.date) ]);
+      return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
+  };
+  var encodeGetCitiesList = function (msg) {
+      var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.country), Proto_Encode.uint32(18), Proto_Encode.string(msg.lang) ]);
       return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
   };
   var encodeFirefighter = Proto_Encode.uint32(0);
@@ -4661,7 +4674,7 @@ var PS = {};
           var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(58), encodeRegular ]);
           return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 120, column 1 - line 120, column 51): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Api.Pull (line 127, column 1 - line 127, column 51): " + [ v.constructor.name ]);
   };
   var encodeAddress = function (msg) {
       var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.country), Proto_Encode.uint32(18), Proto_Encode.string(msg.city), Proto_Encode.uint32(26), Proto_Encode.string(msg.street), Proto_Encode.uint32(34), Proto_Encode.string(msg.building) ]);
@@ -4672,9 +4685,9 @@ var PS = {};
       return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
   };
   var encodeAddDriver = function (msg) {
-      var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.firstName), Proto_Encode.uint32(18), Proto_Encode.string(msg.lastName), Proto_Encode.uint32(26), Proto_Encode.string(msg.phone), Proto_Encode.uint32(34), Proto_Encode.string(msg.carPlate), Proto_Encode.uint32(41), Proto_Encode["double"](msg.date), Proto_Encode.uint32(48), Proto_Encode.uint32(msg.lap), Proto_Encode.uint32(56), Proto_Encode.uint32(msg.seats), Proto_Encode.uint32(66), encodeAddress(msg.from), Proto_Encode.uint32(74), encodeAddress(msg.to), Proto_Uint8ArrayExt.concatAll(Data_Array.concatMap(function (x) {
-          return [ Proto_Encode.uint32(82), encodePassengerType(x) ];
-      })(msg.types)) ]);
+      var xs = Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.firstName), Proto_Encode.uint32(18), Proto_Encode.string(msg.lastName), Proto_Encode.uint32(26), Proto_Encode.string(msg.phone), Proto_Encode.uint32(34), Proto_Encode.string(msg.carPlate), Proto_Encode.uint32(41), Proto_Encode["double"](msg.date), Proto_Encode.uint32(48), Proto_Encode.uint32(msg.deviationDistance), Proto_Encode.uint32(56), Proto_Encode.uint32(msg.deviationTime), Proto_Encode.uint32(64), Proto_Encode.uint32(msg.seats), Proto_Encode.uint32(74), encodeAddress(msg.from), Proto_Encode.uint32(82), encodeAddress(msg.to), Proto_Uint8ArrayExt.concatAll(Data_Array.concatMap(function (x) {
+          return [ Proto_Encode.uint32(90), encodePassengerType(x) ];
+      })(msg.types)), Proto_Encode.uint32(98), Proto_Encode.string(msg.lang) ]);
       return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(Proto_Uint8ArrayExt.length(xs)), xs ]);
   };
   var encodePull = function (v) {
@@ -4696,7 +4709,10 @@ var PS = {};
       if (v instanceof GetFreePassengers) {
           return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(322), encodeGetFreePassengers(v.value0) ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 35, column 1 - line 35, column 33): " + [ v.constructor.name ]);
+      if (v instanceof GetCitiesList) {
+          return Proto_Uint8ArrayExt.concatAll([ Proto_Encode.uint32(402), encodeGetCitiesList(v.value0) ]);
+      };
+      throw new Error("Failed pattern match at Api.Pull (line 37, column 1 - line 37, column 33): " + [ v.constructor.name ]);
   };
   exports["TelegramLogin"] = TelegramLogin;
   exports["AddDriver"] = AddDriver;
@@ -5261,6 +5277,15 @@ var PS = {};
       };
       return FreePassengers;
   })();
+  var CitiesList = (function () {
+      function CitiesList(value0) {
+          this.value0 = value0;
+      };
+      CitiesList.create = function (value0) {
+          return new CitiesList(value0);
+      };
+      return CitiesList;
+  })();
   var decodeRegular = function (_xs_) {
       return function (pos0) {
           return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
@@ -5492,6 +5517,40 @@ var PS = {};
           });
       };
   };
+  var decodeCitiesList = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (acc) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                              var v1 = v.val >>> 3;
+                              if (v1 === 1) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          cities: Data_Array.snoc(acc.cities)(val)
+                                      };
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v.pos)(v.val & 7))(function (v2) {
+                                  return acc;
+                              });
+                          });
+                      };
+                      return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                          pos: pos1,
+                          val: acc
+                      }));
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+              return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
+                  cities: [  ]
+              })(v.pos);
+          });
+      };
+  };
   var decodeCashier = function (_xs_) {
       return function (pos0) {
           return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
@@ -5569,7 +5628,7 @@ var PS = {};
                       if (v instanceof Data_Maybe.Nothing) {
                           return Data_Either.Left.create(new Proto_Decode.MissingFields("PassengerType"));
                       };
-                      throw new Error("Failed pattern match at Api.Push (line 126, column 5 - line 126, column 159): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
+                      throw new Error("Failed pattern match at Api.Push (line 129, column 5 - line 129, column 159): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
                   };
               };
           };
@@ -6222,6 +6281,9 @@ var PS = {};
           if (v1 === 40) {
               return decode(decodeFreePassengers(_xs_)(v.pos))(FreePassengers.create);
           };
+          if (v1 === 50) {
+              return decode(decodeCitiesList(_xs_)(v.pos))(CitiesList.create);
+          };
           return Data_Either.Left.create(new Proto_Decode.BadType(v1));
       });
   };
@@ -6229,6 +6291,7 @@ var PS = {};
   exports["LoginErr"] = LoginErr;
   exports["SessionData"] = SessionData;
   exports["AddRouteOk"] = AddRouteOk;
+  exports["AddRouteErr"] = AddRouteErr;
   exports["FreeDrivers"] = FreeDrivers;
   exports["FreePassengers"] = FreePassengers;
   exports["decodePush"] = decodePush;
@@ -7036,6 +7099,8 @@ var PS = {};
                           };
                           return formatDateISO(state.date)();
                       })();
+                      var t1 = formatISO(today)();
+                      var t2 = formatISO(Data_JSDate.fromTime(Data_JSDate.getTime(today) + 4.32e8))();
                       return React_DOM.input([ React_DOM_Props["_type"]((function () {
                           if (props.showTime) {
                               return "datetime-local";
@@ -7056,7 +7121,7 @@ var PS = {};
                               })();
                               return props.onChange(d)();
                           };
-                      }) ]);
+                      }), React_DOM_Props.min(t1), React_DOM_Props.max(t2) ]);
                   };
                   var dclass = $foreign.datepickerExtClass();
                   var locale = (function () {
@@ -7068,6 +7133,7 @@ var PS = {};
                       };
                       return $foreign.uk();
                   })();
+                  var maxD = Data_JSDate.fromTime(Data_JSDate.getTime(today) + 4.32e8);
                   return React.createLeafElement()(dclass)({
                       selected: state.date,
                       onChange: function (d) {
@@ -7103,7 +7169,9 @@ var PS = {};
                           };
                           return "P";
                       })(),
-                      minDate: today
+                      minDate: today,
+                      maxDate: maxD,
+                      timeCaption: props.keyText("key.time")
                   });
               }
           };
@@ -7910,12 +7978,14 @@ var PS = {};
                       phone: state.phone,
                       carPlate: state.carPlate,
                       date: state.date,
-                      lap: state.lap,
+                      deviationDistance: state.deviationDistance,
+                      deviationTime: state.deviationTime,
                       seats: state.seats,
                       from: state.from,
                       to: state.to,
                       types: state.types,
                       "await": state["await"],
+                      error: state.error,
                       unsub: state.unsub
                   };
               })();
@@ -7934,12 +8004,14 @@ var PS = {};
                       phone: v.phone,
                       carPlate: v.carPlate,
                       date: v.date,
-                      lap: v.lap,
+                      deviationDistance: v.deviationDistance,
+                      deviationTime: v.deviationTime,
                       seats: v.seats,
                       from: v.from,
                       to: v.to,
                       types: v.types,
                       "await": true,
+                      error: v.error,
                       unsub: v.unsub
                   };
               })();
@@ -7949,11 +8021,13 @@ var PS = {};
                   phone: s.phone,
                   carPlate: s.carPlate,
                   date: Data_JSDate.getTime(s.date),
-                  lap: s.lap,
+                  deviationDistance: s.deviationDistance,
+                  deviationTime: s.deviationTime,
                   seats: s.seats,
                   from: s.from,
                   to: s.to,
-                  types: s.types
+                  types: s.types,
+                  lang: p.lang
               });
               return Lib_WebSocket.snd(p.ws)(driver)();
           };
@@ -7970,12 +8044,14 @@ var PS = {};
                           phone: v1.phone,
                           carPlate: v1.carPlate,
                           date: v1.date,
-                          lap: v1.lap,
+                          deviationDistance: v1.deviationDistance,
+                          deviationTime: v1.deviationTime,
                           seats: v1.seats,
                           types: v1.types,
                           from: v1.from,
                           to: v1.to,
                           "await": v1["await"],
+                          error: v1.error,
                           mapQ: v1.mapQ,
                           routeId: v1.routeId,
                           unsub: v1.unsub
@@ -7989,12 +8065,14 @@ var PS = {};
                           phone: v1.phone,
                           carPlate: v1.carPlate,
                           date: v1.date,
-                          lap: v1.lap,
+                          deviationDistance: v1.deviationDistance,
+                          deviationTime: v1.deviationTime,
                           seats: v1.seats,
                           types: v1.types,
                           from: v1.from,
                           to: v1.to,
                           "await": v1["await"],
+                          error: v1.error,
                           mapQ: v1.mapQ,
                           routeId: v1.routeId,
                           unsub: v1.unsub
@@ -8008,12 +8086,14 @@ var PS = {};
                           phone: v,
                           carPlate: v1.carPlate,
                           date: v1.date,
-                          lap: v1.lap,
+                          deviationDistance: v1.deviationDistance,
+                          deviationTime: v1.deviationTime,
                           seats: v1.seats,
                           types: v1.types,
                           from: v1.from,
                           to: v1.to,
                           "await": v1["await"],
+                          error: v1.error,
                           mapQ: v1.mapQ,
                           routeId: v1.routeId,
                           unsub: v1.unsub
@@ -8027,18 +8107,20 @@ var PS = {};
                           phone: v1.phone,
                           carPlate: v,
                           date: v1.date,
-                          lap: v1.lap,
+                          deviationDistance: v1.deviationDistance,
+                          deviationTime: v1.deviationTime,
                           seats: v1.seats,
                           types: v1.types,
                           from: v1.from,
                           to: v1.to,
                           "await": v1["await"],
+                          error: v1.error,
                           mapQ: v1.mapQ,
                           routeId: v1.routeId,
                           unsub: v1.unsub
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_plate.hint")) ]) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_data")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React.createLeafElement()(Datepicker.datepickerClass)({
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_plate.hint")) ]) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_data")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-1 d-lg-none mb-md-3") ])([  ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React.createLeafElement()(Datepicker.datepickerClass)({
                   onChange: function (d) {
                       return React.modifyState($$this)(function (v) {
                           return {
@@ -8047,12 +8129,14 @@ var PS = {};
                               phone: v.phone,
                               carPlate: v.carPlate,
                               date: d,
-                              lap: v.lap,
+                              deviationDistance: v.deviationDistance,
+                              deviationTime: v.deviationTime,
                               seats: v.seats,
                               types: v.types,
                               from: v.from,
                               to: v.to,
                               "await": v["await"],
+                              error: v.error,
                               mapQ: v.mapQ,
                               routeId: v.routeId,
                               unsub: v.unsub
@@ -8063,8 +8147,9 @@ var PS = {};
                   showTime: true,
                   className: "form-control",
                   wrapperClassName: "form-control",
-                  "_id": "date"
-              }) ]), React_DOM.div([ Lib_React.cn("col-md-2 col-lg-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lap") ])([ React_DOM.text(props.keyText("key.lap")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lap"), React_DOM_Props.min("2"), React_DOM_Props.max("10"), React_DOM_Props.value("3"), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.lap)), Lib_React.onChangeValueInt(function (v) {
+                  "_id": "date",
+                  keyText: props.keyText
+              }) ]), React_DOM.div([ Lib_React.cn("col-md-2 col-lg-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("deviationDistance") ])([ React_DOM.text(props.keyText("key.deviation_distance")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("deviationDistance"), React_DOM_Props.min("2"), React_DOM_Props.max("20"), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.deviationDistance)), Lib_React.onChangeValueInt(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -8072,18 +8157,20 @@ var PS = {};
                           phone: v1.phone,
                           carPlate: v1.carPlate,
                           date: v1.date,
-                          lap: v,
+                          deviationDistance: v,
+                          deviationTime: v1.deviationTime,
                           seats: v1.seats,
                           types: v1.types,
                           from: v1.from,
                           to: v1.to,
                           "await": v1["await"],
+                          error: v1.error,
                           mapQ: v1.mapQ,
                           routeId: v1.routeId,
                           unsub: v1.unsub
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.lap.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 col-lg-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("seats") ])([ React_DOM.text(props.keyText("key.seats")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("seats"), React_DOM_Props.min("1"), React_DOM_Props.max("5"), React_DOM_Props.value("1"), React_DOM_Props.disabled(true), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.seats)), Lib_React.onChangeValueInt(function (v) {
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.deviation_distance.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-2 col-lg-2 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("deviationTime") ])([ React_DOM.text(props.keyText("key.deviation_time")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("deviationTime"), React_DOM_Props.min("10"), React_DOM_Props.max("120"), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.deviationTime)), Lib_React.onChangeValueInt(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -8091,18 +8178,41 @@ var PS = {};
                           phone: v1.phone,
                           carPlate: v1.carPlate,
                           date: v1.date,
-                          lap: v1.lap,
-                          seats: v,
+                          deviationDistance: v1.deviationDistance,
+                          deviationTime: v,
+                          seats: v1.seats,
                           types: v1.types,
                           from: v1.from,
                           to: v1.to,
                           "await": v1["await"],
+                          error: v1.error,
                           mapQ: v1.mapQ,
                           routeId: v1.routeId,
                           unsub: v1.unsub
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.seats.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 d-lg-none mb-md-3") ])([  ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-5 mb-3") ])([ React_DOM.div([  ])([ React_DOM.label([  ])([ React_DOM.text(props.keyText("key.passenger")) ]) ]), React_DOM.div([ Lib_React.cn("mb-2") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.deviation_time.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 d-lg-none mb-md-3") ])([  ]), React_DOM.div([ Lib_React.cn("col-md-4 col-lg-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("seats") ])([ React_DOM.text(props.keyText("key.seats")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("seats"), React_DOM_Props.min("1"), React_DOM_Props.max("5"), React_DOM_Props.value("1"), React_DOM_Props.disabled(true), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.seats)), Lib_React.onChangeValueInt(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          firstName: v1.firstName,
+                          lastName: v1.lastName,
+                          phone: v1.phone,
+                          carPlate: v1.carPlate,
+                          date: v1.date,
+                          deviationDistance: v1.deviationDistance,
+                          deviationTime: v1.deviationTime,
+                          seats: v,
+                          types: v1.types,
+                          from: v1.from,
+                          to: v1.to,
+                          "await": v1["await"],
+                          error: v1.error,
+                          mapQ: v1.mapQ,
+                          routeId: v1.routeId,
+                          unsub: v1.unsub
+                      };
+                  });
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.seats.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-4 col-lg-4 mb-3 pl-md-2") ])([ React_DOM.div([ Lib_React.cn("pl-md-2") ])([ React_DOM.label([  ])([ React_DOM.text(props.keyText("key.passenger")) ]) ]), React_DOM.div([ Lib_React.cn("pl-md-2") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ Lib_React.cn("form-check-input"), React_DOM_Props["_type"]("checkbox"), React_DOM_Props.value(""), React_DOM_Props["_id"](Keys.keyPassengerType(v)), React_DOM_Props.checked(Data_Foldable.elem(Data_Foldable.foldableArray)(Api.eqPassengerType)(v)(state.types)), React_DOM_Props.onChange(function (v1) {
                       return React.modifyState($$this)(function (v2) {
                           return {
@@ -8111,11 +8221,12 @@ var PS = {};
                               phone: v2.phone,
                               carPlate: v2.carPlate,
                               date: v2.date,
-                              lap: v2.lap,
+                              deviationDistance: v2.deviationDistance,
+                              deviationTime: v2.deviationTime,
                               seats: v2.seats,
                               types: (function () {
-                                  var $37 = Data_Foldable.elem(Data_Foldable.foldableArray)(Api.eqPassengerType)(v)(state.types);
-                                  if ($37) {
+                                  var $39 = Data_Foldable.elem(Data_Foldable.foldableArray)(Api.eqPassengerType)(v)(state.types);
+                                  if ($39) {
                                       return Data_Array["delete"](Api.eqPassengerType)(v)(state.types);
                                   };
                                   return Data_Array.cons(v)(state.types);
@@ -8123,13 +8234,14 @@ var PS = {};
                               from: v2.from,
                               to: v2.to,
                               "await": v2["await"],
+                              error: v2.error,
                               mapQ: v2.mapQ,
                               routeId: v2.routeId,
                               unsub: v2.unsub
                           };
                       });
                   }) ]), React_DOM.label([ Lib_React.cn("form-check-label"), React_DOM_Props.htmlFor(Keys.keyPassengerType(v)) ])([ React_DOM.text(props.keyText(Keys.keyPassengerType(v))) ]) ]);
-              })([ Api.Medical.value, Api.Police.value, Api.Firefighter.value, Api.Army.value, Api.Farmacy.value, Api.Cashier.value, Api.Regular.value ])) ]), React_DOM.div([ Lib_React.cn("col-md-5 d-lg-none mb-md-3") ])([  ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_start")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("countryFrom") ])([ React_DOM.text(props.keyText("key.country")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("countryFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.country), Lib_React.onChangeValue(function (v) {
+              })([ Api.Medical.value, Api.Police.value, Api.Firefighter.value, Api.Army.value, Api.Farmacy.value, Api.Cashier.value, Api.Regular.value ])) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_start")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("countryFrom") ])([ React_DOM.text(props.keyText("key.country")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("countryFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.country), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
                           firstName: s.firstName,
@@ -8137,7 +8249,8 @@ var PS = {};
                           phone: s.phone,
                           carPlate: s.carPlate,
                           date: s.date,
-                          lap: s.lap,
+                          deviationDistance: s.deviationDistance,
+                          deviationTime: s.deviationTime,
                           seats: s.seats,
                           types: s.types,
                           from: {
@@ -8148,6 +8261,7 @@ var PS = {};
                           },
                           to: s.to,
                           "await": s["await"],
+                          error: s.error,
                           mapQ: s.mapQ,
                           routeId: s.routeId,
                           unsub: s.unsub
@@ -8161,7 +8275,8 @@ var PS = {};
                           phone: s.phone,
                           carPlate: s.carPlate,
                           date: s.date,
-                          lap: s.lap,
+                          deviationDistance: s.deviationDistance,
+                          deviationTime: s.deviationTime,
                           seats: s.seats,
                           types: s.types,
                           from: {
@@ -8172,6 +8287,7 @@ var PS = {};
                           },
                           to: s.to,
                           "await": s["await"],
+                          error: s.error,
                           mapQ: s.mapQ,
                           routeId: s.routeId,
                           unsub: s.unsub
@@ -8185,7 +8301,8 @@ var PS = {};
                           phone: s.phone,
                           carPlate: s.carPlate,
                           date: s.date,
-                          lap: s.lap,
+                          deviationDistance: s.deviationDistance,
+                          deviationTime: s.deviationTime,
                           seats: s.seats,
                           types: s.types,
                           from: {
@@ -8196,6 +8313,7 @@ var PS = {};
                           },
                           to: s.to,
                           "await": s["await"],
+                          error: s.error,
                           mapQ: s.mapQ,
                           routeId: s.routeId,
                           unsub: s.unsub
@@ -8209,7 +8327,8 @@ var PS = {};
                           phone: s.phone,
                           carPlate: s.carPlate,
                           date: s.date,
-                          lap: s.lap,
+                          deviationDistance: s.deviationDistance,
+                          deviationTime: s.deviationTime,
                           seats: s.seats,
                           types: s.types,
                           from: {
@@ -8220,6 +8339,7 @@ var PS = {};
                           },
                           to: s.to,
                           "await": s["await"],
+                          error: s.error,
                           mapQ: s.mapQ,
                           routeId: s.routeId,
                           unsub: s.unsub
@@ -8233,7 +8353,8 @@ var PS = {};
                           phone: s.phone,
                           carPlate: s.carPlate,
                           date: s.date,
-                          lap: s.lap,
+                          deviationDistance: s.deviationDistance,
+                          deviationTime: s.deviationTime,
                           seats: s.seats,
                           types: s.types,
                           from: s.from,
@@ -8244,6 +8365,7 @@ var PS = {};
                               building: s.to.building
                           },
                           "await": s["await"],
+                          error: s.error,
                           mapQ: s.mapQ,
                           routeId: s.routeId,
                           unsub: s.unsub
@@ -8257,7 +8379,8 @@ var PS = {};
                           phone: s.phone,
                           carPlate: s.carPlate,
                           date: s.date,
-                          lap: s.lap,
+                          deviationDistance: s.deviationDistance,
+                          deviationTime: s.deviationTime,
                           seats: s.seats,
                           types: s.types,
                           from: s.from,
@@ -8268,6 +8391,7 @@ var PS = {};
                               building: s.to.building
                           },
                           "await": s["await"],
+                          error: s.error,
                           mapQ: s.mapQ,
                           routeId: s.routeId,
                           unsub: s.unsub
@@ -8281,7 +8405,8 @@ var PS = {};
                           phone: s.phone,
                           carPlate: s.carPlate,
                           date: s.date,
-                          lap: s.lap,
+                          deviationDistance: s.deviationDistance,
+                          deviationTime: s.deviationTime,
                           seats: s.seats,
                           types: s.types,
                           from: s.from,
@@ -8292,6 +8417,7 @@ var PS = {};
                               building: s.to.building
                           },
                           "await": s["await"],
+                          error: s.error,
                           mapQ: s.mapQ,
                           routeId: s.routeId,
                           unsub: s.unsub
@@ -8305,7 +8431,8 @@ var PS = {};
                           phone: s.phone,
                           carPlate: s.carPlate,
                           date: s.date,
-                          lap: s.lap,
+                          deviationDistance: s.deviationDistance,
+                          deviationTime: s.deviationTime,
                           seats: s.seats,
                           types: s.types,
                           from: s.from,
@@ -8316,6 +8443,7 @@ var PS = {};
                               building: v
                           },
                           "await": s["await"],
+                          error: s.error,
                           mapQ: s.mapQ,
                           routeId: s.routeId,
                           unsub: s.unsub
@@ -8330,8 +8458,16 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 267, column 9 - line 275, column 28): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 279, column 9 - line 287, column 28): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), (function () {
+                  if (state.error instanceof Data_Maybe.Just) {
+                      return React_DOM.div([ Lib_React.cn("alert alert-danger") ])([ React_DOM.text(props.keyText("key.err." + state.error.value0)) ]);
+                  };
+                  if (state.error instanceof Data_Maybe.Nothing) {
+                      return Data_Monoid.mempty(React.monoidReactElement);
+                  };
+                  throw new Error("Failed pattern match at App.Driver (line 299, column 9 - line 301, column 28): " + [ state.error.constructor.name ]);
+              })(), (function () {
                   if (state.routeId instanceof Data_Maybe.Just) {
                       return React_DOM.div([ Lib_React.cn("alert alert-success") ])([ React_DOM.text(props.keyText("key.add.success") + (" " + state.routeId.value0)) ]);
                   };
@@ -8345,7 +8481,7 @@ var PS = {};
                           return Data_Monoid.mempty(React.monoidReactElement);
                       })() ]);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 287, column 9 - line 297, column 14): " + [ state.routeId.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 302, column 9 - line 312, column 14): " + [ state.routeId.constructor.name ]);
               })() ]);
           };
       };
@@ -8361,12 +8497,36 @@ var PS = {};
                           phone: v1.phone,
                           carPlate: v1.carPlate,
                           date: v1.date,
-                          lap: v1.lap,
+                          deviationDistance: v1.deviationDistance,
+                          deviationTime: v1.deviationTime,
                           seats: v1.seats,
                           from: v1.from,
                           to: v1.to,
                           types: v1.types,
                           "await": v1["await"],
+                          error: Data_Maybe.Nothing.value,
+                          unsub: v1.unsub
+                      };
+                  });
+              };
+              if (v instanceof Data_Maybe.Just && v.value0 instanceof Api_Push.AddRouteErr) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          mapQ: v1.mapQ,
+                          routeId: v1.routeId,
+                          firstName: v1.firstName,
+                          lastName: v1.lastName,
+                          phone: v1.phone,
+                          carPlate: v1.carPlate,
+                          date: v1.date,
+                          deviationDistance: v1.deviationDistance,
+                          deviationTime: v1.deviationTime,
+                          seats: v1.seats,
+                          from: v1.from,
+                          to: v1.to,
+                          types: v1.types,
+                          "await": false,
+                          error: Data_Maybe.Just.create(Data_Maybe.fromMaybe("system")(v.value0.value0.err)),
                           unsub: v1.unsub
                       };
                   });
@@ -8395,7 +8555,8 @@ var PS = {};
                           return v.carPlate;
                       })),
                       date: date,
-                      lap: 3,
+                      deviationDistance: 2,
+                      deviationTime: 30,
                       seats: 1,
                       from: {
                           country: "\u0423\u043a\u0440\u0430\u0438\u043d\u0430",
@@ -8411,6 +8572,7 @@ var PS = {};
                       },
                       types: Data_Array.fromFoldable(Data_Foldable.foldableArray)([ Api.Medical.value, Api.Police.value, Api.Firefighter.value, Api.Army.value, Api.Farmacy.value, Api.Cashier.value, Api.Regular.value ]),
                       "await": false,
+                      error: Data_Maybe.Nothing.value,
                       unsub: Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit)
                   },
                   render: render($$this),
@@ -8423,12 +8585,14 @@ var PS = {};
                               phone: v.phone,
                               carPlate: v.carPlate,
                               date: v.date,
-                              lap: v.lap,
+                              deviationDistance: v.deviationDistance,
+                              deviationTime: v.deviationTime,
                               seats: v.seats,
                               types: v.types,
                               from: v.from,
                               to: v.to,
                               "await": v["await"],
+                              error: v.error,
                               mapQ: v.mapQ,
                               routeId: v.routeId,
                               unsub: unsub
@@ -9037,7 +9201,8 @@ var PS = {};
                   showTime: true,
                   className: "form-control",
                   wrapperClassName: "form-control",
-                  "_id": "date"
+                  "_id": "date",
+                  keyText: props.keyText
               }) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_start")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("countryFrom") ])([ React_DOM.text(props.keyText("key.country")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("countryFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.from.country), Lib_React.onChangeValue(function (v) {
                   return React.modifyState($$this)(function (s) {
                       return {
@@ -9215,7 +9380,7 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Rider (line 235, column 9 - line 243, column 28): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Rider (line 232, column 9 - line 240, column 28): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), (function () {
                   if (state.routeId instanceof Data_Maybe.Just) {
                       return React_DOM.div([ Lib_React.cn("alert alert-success") ])([ React_DOM.text(props.keyText("key.add.success") + (" " + state.routeId.value0)) ]);
@@ -9230,7 +9395,7 @@ var PS = {};
                           return Data_Monoid.mempty(React.monoidReactElement);
                       })() ]);
                   };
-                  throw new Error("Failed pattern match at App.Rider (line 255, column 9 - line 265, column 14): " + [ state.routeId.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Rider (line 252, column 9 - line 262, column 14): " + [ state.routeId.constructor.name ]);
               })() ]);
           };
       };
@@ -9660,7 +9825,7 @@ var PS = {};
                           return err();
                       };
                       if (v instanceof Data_Either.Right) {
-                          return Ajax.postEff("https://ridehub.city/login")(Api_Pull.encodePull(v.value0))(function (v1) {
+                          return Ajax.postEff("/login")(Api_Pull.encodePull(v.value0))(function (v1) {
                               return err;
                           })(function (x) {
                               var v1 = Api_Push.decodePush(x);
@@ -9863,7 +10028,8 @@ var PS = {};
                   showTime: false,
                   className: "form-control",
                   wrapperClassName: "form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2",
-                  "_id": "date"
+                  "_id": "date",
+                  keyText: props.keyText
               }), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return fetchDrivers($$this);
               }) ])([ React_DOM.text(props.keyText("key.search")) ]) ]), dl ]);
@@ -9996,7 +10162,8 @@ var PS = {};
                   showTime: false,
                   className: "form-control",
                   wrapperClassName: "form-control col-6 col-sm-5 col-md-4 col-lg-3 mr-2",
-                  "_id": "date"
+                  "_id": "date",
+                  keyText: props.keyText
               }), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return fetchPassengers($$this);
               }) ])([ React_DOM.text(props.keyText("key.search")) ]) ]), dl ]);

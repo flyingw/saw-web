@@ -27,7 +27,7 @@ data TelegramData = TelegramString TelegramString | TelegramNum TelegramNum
 derive instance eqTelegramData :: Eq TelegramData
 type TelegramString = { key :: String, value :: String }
 type TelegramNum = { key :: String, value :: Number }
-type AddDriver = { firstName :: String, lastName :: String, phone :: String, carPlate :: String, date :: Number, lap :: Int, seats :: Int, from :: Address, to :: Address, types :: Array PassengerType }
+type AddDriver = { firstName :: String, lastName :: String, phone :: String, carPlate :: String, date :: Number, deviationDistance :: Int, deviationTime :: Int, seats :: Int, from :: Address, to :: Address, types :: Array PassengerType, lang :: String }
 type Address = { country :: String, city :: String, street :: String, building :: String }
 type AddPassenger = { firstName :: String, lastName :: String, phone :: String, date :: Number, tpe :: PassengerType, from :: Address, to :: Address }
 type GetFreeDrivers = { date :: Number }
@@ -95,14 +95,18 @@ encodeAddDriver msg = do
         , Encode.uint32 41
         , Encode.double msg.date
         , Encode.uint32 48
-        , Encode.uint32 msg.lap
+        , Encode.uint32 msg.deviationDistance
         , Encode.uint32 56
+        , Encode.uint32 msg.deviationTime
+        , Encode.uint32 64
         , Encode.uint32 msg.seats
-        , Encode.uint32 66
-        , encodeAddress msg.from
         , Encode.uint32 74
+        , encodeAddress msg.from
+        , Encode.uint32 82
         , encodeAddress msg.to
-        , concatAll $ concatMap (\x -> [ Encode.uint32 82, encodePassengerType x ]) msg.types
+        , concatAll $ concatMap (\x -> [ Encode.uint32 90, encodePassengerType x ]) msg.types
+        , Encode.uint32 98
+        , Encode.string msg.lang
         ]
   concatAll [ Encode.uint32 $ length xs, xs ]
 

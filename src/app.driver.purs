@@ -16,7 +16,7 @@ import React.DOM.Props (htmlFor, _id, _type, required, autoComplete, min, max, v
 
 import Api (PassengerType(..))
 import Api.Pull (Pull(AddDriver), Address)
-import Api.Push (Push(AddRouteOk), UserData)
+import Api.Push (Push(AddRouteOk, AddRouteErr), UserData)
 import Datepicker (datepickerClass)
 import Keys (keyPassengerType)
 import Lib.React(cn, onChangeValue, onChangeValueInt)
@@ -38,12 +38,14 @@ type State =
   , phone :: String
   , carPlate :: String
   , date :: JSDate
-  , lap :: Int
+  , deviationDistance :: Int
+  , deviationTime :: Int
   , seats :: Int
   , from :: Address
   , to :: Address
   , types :: Array PassengerType
   , await :: Boolean
+  , error :: Maybe String
   , unsub :: Effect Unit
   }
 
@@ -62,12 +64,14 @@ driverClass = component "Driver" \this -> do
       , phone: fromMaybe "" $ props.user >>= _.phone
       , carPlate: fromMaybe "" $ props.user >>= _.carPlate
       , date: date
-      , lap: 3
+      , deviationDistance: 2
+      , deviationTime: 30
       , seats: 1  
       , from: { country: "Украина", city: "Киев", street: "Спортивная", building: "1" }
       , to: { country: "Украина", city: "Киев", street: "Льва Толстого", building: "1" }
       , types: fromFoldable [ Medical, Police, Firefighter, Army, Farmacy, Cashier, Regular ]
       , await: false
+      , error: Nothing
       , unsub: pure unit
       } :: State
     , render: render this
@@ -78,8 +82,9 @@ driverClass = component "Driver" \this -> do
     }
   where
   onMsg :: This -> Maybe Push -> Effect Unit
-  onMsg this (Just (AddRouteOk r)) = modifyState this _{ routeId = Just r.id }
-  onMsg this _                     = pure unit
+  onMsg this (Just (AddRouteOk r))  = modifyState this _{ routeId = Just r.id, error = Nothing }
+  onMsg this (Just (AddRouteErr r)) = modifyState this _{ error = Just $ fromMaybe "system" $ r.err, await = false }
+  onMsg this _ = pure unit
 
   sendDriver :: This -> Effect Unit
   sendDriver this = do
@@ -92,11 +97,13 @@ driverClass = component "Driver" \this -> do
       , phone: s.phone
       , carPlate: s.carPlate
       , date: getTime s.date
-      , lap: s.lap
+      , deviationDistance: s.deviationDistance
+      , deviationTime: s.deviationTime
       , seats: s.seats
       , from: s.from
       , to: s.to
       , types: s.types
+      , lang: p.lang
       }
     WS.snd p.ws driver
 
@@ -154,7 +161,8 @@ driverClass = component "Driver" \this -> do
         ]
       , h6 [ cn "d-flex justify-content-center" ] [ text $ props.keyText "key.route_data" ]
       , div [ cn "d-flex justify-content-center form-row" ] 
-        [ div [ cn "col-md-5 col-lg-3 mb-3" ]
+        [ div [ cn "col-md-1 d-lg-none mb-md-3" ] []
+        , div [ cn "col-md-5 col-lg-3 mb-3" ]
           [ label [ htmlFor "date" ] [ text $ props.keyText "key.date" ]
           , createLeafElement datepickerClass { onChange: \d -> modifyState this _{ date = d }
                                               , lang: props.lang
@@ -162,21 +170,27 @@ driverClass = component "Driver" \this -> do
                                               , className: "form-control"
                                               , wrapperClassName: "form-control"
                                               , _id: "date"
+                                              , keyText: props.keyText
                                               }
-          -- , input [ _type "datetime-local", cn "form-control", _id "date", required true
-          --         , value state.date
-          --         , onChangeValue \v -> modifyState this _{ date=v }
-          --         ]
           ]
         , div [ cn "col-md-2 col-lg-2 mb-3" ]
-          [ label [ htmlFor "lap" ] [ text $ props.keyText "key.lap" ]
-          , input [ _type "number", cn "form-control", _id "lap", min "2", max "10", value "3", required true 
-                  , value $ show state.lap
-                  , onChangeValueInt \v -> modifyState this _{ lap=v }
+          [ label [ htmlFor "deviationDistance" ] [ text $ props.keyText "key.deviation_distance" ]
+          , input [ _type "number", cn "form-control", _id "deviationDistance", min "2", max "20", required true 
+                  , value $ show state.deviationDistance
+                  , onChangeValueInt \v -> modifyState this _{ deviationDistance=v }
                   ]
-          , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.lap.hint" ]
+          , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.deviation_distance.hint" ]
           ]
         , div [ cn "col-md-2 col-lg-2 mb-3" ]
+          [ label [ htmlFor "deviationTime" ] [ text $ props.keyText "key.deviation_time" ]
+          , input [ _type "number", cn "form-control", _id "deviationTime", min "10", max "120", required true 
+                  , value $ show state.deviationTime
+                  , onChangeValueInt \v -> modifyState this _{ deviationTime=v }
+                  ]
+          , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.deviation_time.hint" ]
+          ]
+        , div [ cn "col-md-1 d-lg-none mb-md-3" ] []  
+        , div [ cn "col-md-4 col-lg-1 mb-3" ]
           [ label [ htmlFor "seats" ] [ text $ props.keyText "key.seats" ]
           , input [ _type "number", cn "form-control", _id "seats", min "1", max "5", value "1", disabled true, required true
                   , value $ show state.seats
@@ -184,10 +198,9 @@ driverClass = component "Driver" \this -> do
                   ]
           , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.seats.hint" ]
           ]
-        , div [ cn "col-md-1 d-lg-none mb-md-3" ] []
-        , div [ cn "col-md-5 col-lg-5 mb-3" ]
-          [ div [] [ label [] [ text $ props.keyText "key.passenger" ] ]
-          , div [ cn "mb-2" ] $
+        , div [ cn "col-md-4 col-lg-4 mb-3 pl-md-2" ]
+          [ div [ cn "pl-md-2" ] [ label [] [ text $ props.keyText "key.passenger" ] ]
+          , div [ cn "pl-md-2" ] $
               map (\v ->
                 div [ cn "form-check" ]
                 [ input [ cn "form-check-input", _type "checkbox",  value "", _id $ keyPassengerType v, checked $ elem v state.types 
@@ -197,7 +210,6 @@ driverClass = component "Driver" \this -> do
                 ]
               ) [ Medical, Police, Firefighter, Army, Farmacy, Cashier, Regular ]
           ]
-        , div [ cn "col-md-5 d-lg-none mb-md-3" ] []
         ]
       , h6 [ cn "d-flex justify-content-center" ] [ text $ props.keyText "key.route_start" ]
       , div [ cn "d-flex justify-content-center form-row" ]
@@ -284,6 +296,9 @@ driverClass = component "Driver" \this -> do
           ]
         ]
       , div [ cn "alert alert-info col-md-12" ] [ text $ props.keyText "key.add.hint" ]
+      , case state.error of
+          Just err -> div [ cn "alert alert-danger" ] [ text $ props.keyText $ "key.err." <> err ]
+          Nothing -> mempty
       , case state.routeId of
           Just id -> div [ cn "alert alert-success" ] [ text $ props.keyText "key.add.success" <> " " <> id ]
           Nothing ->
