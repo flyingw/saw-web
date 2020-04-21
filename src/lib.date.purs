@@ -1,11 +1,11 @@
-module Datepicker
+module Lib.Datepicker
   ( datepickerClass
   , datepickerLoad
   , toLocaleTimeString
   , Props
   ) where
 
-import Prelude hiding (div)
+import Prelude hiding (div, min, max)
 
 import Data.Int (floor)
 import Data.JSDate (JSDate, getFullYear, getMonth, getDate, getHours, getMinutes, now, parse, fromTime, getTime)

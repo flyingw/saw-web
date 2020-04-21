@@ -6,6 +6,6 @@ brew install bower purescript sass
 bin/dep
 bin/com
 bin/css
-open docs/index.html
+open public/index.html
 purs repl 'bower_components/purescript-*/src/**/*.purs'
 ```

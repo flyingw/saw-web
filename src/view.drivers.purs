@@ -16,7 +16,8 @@ import React.DOM.Props (_type, frameBorder, height, href, key, onClick, src, wid
 
 import Api.Pull (Pull(GetFreeDrivers))
 import Api.Push (Push(FreeDrivers), UserData, DriverInfo)
-import Datepicker (datepickerClass, toLocaleTimeString)
+
+import Lib.Datepicker (datepickerClass, toLocaleTimeString)
 import Lib.React(cn)
 import Lib.WebSocket (Ws)
 import Lib.WebSocket as WS

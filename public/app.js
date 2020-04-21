@@ -6357,6 +6357,37 @@ var PS = {};
   exports["parse"] = $foreign.parse;
   exports["fromTime"] = $foreign.fromTime;
 })(PS);
+(function($PS) {
+  "use strict";
+  $PS["Keys"] = $PS["Keys"] || {};
+  var exports = $PS["Keys"];
+  var Api = $PS["Api"];                
+  var keyPassengerType = function (v) {
+      if (v instanceof Api.Medical) {
+          return "key.medical";
+      };
+      if (v instanceof Api.Police) {
+          return "key.police";
+      };
+      if (v instanceof Api.Firefighter) {
+          return "key.firefighter";
+      };
+      if (v instanceof Api.Army) {
+          return "key.army";
+      };
+      if (v instanceof Api.Farmacy) {
+          return "key.farmacy";
+      };
+      if (v instanceof Api.Cashier) {
+          return "key.cashier";
+      };
+      if (v instanceof Api.Regular) {
+          return "key.regular";
+      };
+      throw new Error("Failed pattern match at Keys (line 7, column 1 - line 7, column 44): " + [ v.constructor.name ]);
+  };
+  exports["keyPassengerType"] = keyPassengerType;
+})(PS);
 (function(exports) {
   "use strict";
 
@@ -6401,7 +6432,7 @@ var PS = {};
   exports.ru = function() {
     return window['ext']['ru']
   };
-})(PS["Datepicker"] = PS["Datepicker"] || {});
+})(PS["Lib.Datepicker"] = PS["Lib.Datepicker"] || {});
 (function(exports) {
   "use strict";
 
@@ -7038,9 +7069,9 @@ var PS = {};
 })(PS);
 (function($PS) {
   "use strict";
-  $PS["Datepicker"] = $PS["Datepicker"] || {};
-  var exports = $PS["Datepicker"];
-  var $foreign = $PS["Datepicker"];
+  $PS["Lib.Datepicker"] = $PS["Lib.Datepicker"] || {};
+  var exports = $PS["Lib.Datepicker"];
+  var $foreign = $PS["Lib.Datepicker"];
   var Data_Functor = $PS["Data.Functor"];
   var Data_Int = $PS["Data.Int"];
   var Data_JSDate = $PS["Data.JSDate"];
@@ -7180,37 +7211,6 @@ var PS = {};
   exports["datepickerClass"] = datepickerClass;
   exports["datepickerLoad"] = $foreign.datepickerLoad;
   exports["toLocaleTimeString"] = $foreign.toLocaleTimeString;
-})(PS);
-(function($PS) {
-  "use strict";
-  $PS["Keys"] = $PS["Keys"] || {};
-  var exports = $PS["Keys"];
-  var Api = $PS["Api"];                
-  var keyPassengerType = function (v) {
-      if (v instanceof Api.Medical) {
-          return "key.medical";
-      };
-      if (v instanceof Api.Police) {
-          return "key.police";
-      };
-      if (v instanceof Api.Firefighter) {
-          return "key.firefighter";
-      };
-      if (v instanceof Api.Army) {
-          return "key.army";
-      };
-      if (v instanceof Api.Farmacy) {
-          return "key.farmacy";
-      };
-      if (v instanceof Api.Cashier) {
-          return "key.cashier";
-      };
-      if (v instanceof Api.Regular) {
-          return "key.regular";
-      };
-      throw new Error("Failed pattern match at Keys (line 7, column 1 - line 7, column 44): " + [ v.constructor.name ]);
-  };
-  exports["keyPassengerType"] = keyPassengerType;
 })(PS);
 (function(exports) {
   exports.uint8Array = (arrayBuffer) => new Uint8Array(arrayBuffer)
@@ -7953,10 +7953,10 @@ var PS = {};
   var Data_Monoid = $PS["Data.Monoid"];
   var Data_Show = $PS["Data.Show"];
   var Data_Unit = $PS["Data.Unit"];
-  var Datepicker = $PS["Datepicker"];
   var Effect = $PS["Effect"];
   var Global = $PS["Global"];
   var Keys = $PS["Keys"];
+  var Lib_Datepicker = $PS["Lib.Datepicker"];
   var Lib_React = $PS["Lib.React"];
   var Lib_WebSocket = $PS["Lib.WebSocket"];
   var React = $PS["React"];
@@ -8120,7 +8120,7 @@ var PS = {};
                           unsub: v1.unsub
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_plate.hint")) ]) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_data")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-1 d-lg-none mb-md-3") ])([  ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React.createLeafElement()(Datepicker.datepickerClass)({
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_plate.hint")) ]) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_data")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-1 d-lg-none mb-md-3") ])([  ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React.createLeafElement()(Lib_Datepicker.datepickerClass)({
                   onChange: function (d) {
                       return React.modifyState($$this)(function (v) {
                           return {
@@ -8458,7 +8458,7 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 279, column 9 - line 287, column 28): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 281, column 9 - line 289, column 28): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), (function () {
                   if (state.error instanceof Data_Maybe.Just) {
                       return React_DOM.div([ Lib_React.cn("alert alert-danger") ])([ React_DOM.text(props.keyText("key.err." + state.error.value0)) ]);
@@ -8466,7 +8466,7 @@ var PS = {};
                   if (state.error instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 299, column 9 - line 301, column 28): " + [ state.error.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 301, column 9 - line 303, column 28): " + [ state.error.constructor.name ]);
               })(), (function () {
                   if (state.routeId instanceof Data_Maybe.Just) {
                       return React_DOM.div([ Lib_React.cn("alert alert-success") ])([ React_DOM.text(props.keyText("key.add.success") + (" " + state.routeId.value0)) ]);
@@ -8481,7 +8481,7 @@ var PS = {};
                           return Data_Monoid.mempty(React.monoidReactElement);
                       })() ]);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 302, column 9 - line 312, column 14): " + [ state.routeId.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 304, column 9 - line 314, column 14): " + [ state.routeId.constructor.name ]);
               })() ]);
           };
       };
@@ -9041,10 +9041,10 @@ var PS = {};
   var Data_Ord = $PS["Data.Ord"];
   var Data_Tuple = $PS["Data.Tuple"];
   var Data_Unit = $PS["Data.Unit"];
-  var Datepicker = $PS["Datepicker"];
   var Effect = $PS["Effect"];
   var Global = $PS["Global"];
   var Keys = $PS["Keys"];
+  var Lib_Datepicker = $PS["Lib.Datepicker"];
   var Lib_React = $PS["Lib.React"];
   var Lib_WebSocket = $PS["Lib.WebSocket"];
   var React = $PS["React"];
@@ -9179,7 +9179,7 @@ var PS = {};
                   });
               }) ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.option([ React_DOM_Props.value(Keys.keyPassengerType(v)) ])([ React_DOM.text(props.keyText(Keys.keyPassengerType(v))) ]);
-              })(types)) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_data")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React.createLeafElement()(Datepicker.datepickerClass)({
+              })(types)) ]) ]), React_DOM.h6([ Lib_React.cn("d-flex justify-content-center") ])([ React_DOM.text(props.keyText("key.route_data")) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("date") ])([ React_DOM.text(props.keyText("key.date")) ]), React.createLeafElement()(Lib_Datepicker.datepickerClass)({
                   onChange: function (d) {
                       return React.modifyState($$this)(function (v) {
                           return {
@@ -9380,7 +9380,7 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Rider (line 232, column 9 - line 240, column 28): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Rider (line 234, column 9 - line 242, column 28): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), (function () {
                   if (state.routeId instanceof Data_Maybe.Just) {
                       return React_DOM.div([ Lib_React.cn("alert alert-success") ])([ React_DOM.text(props.keyText("key.add.success") + (" " + state.routeId.value0)) ]);
@@ -9395,7 +9395,7 @@ var PS = {};
                           return Data_Monoid.mempty(React.monoidReactElement);
                       })() ]);
                   };
-                  throw new Error("Failed pattern match at App.Rider (line 252, column 9 - line 262, column 14): " + [ state.routeId.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Rider (line 254, column 9 - line 264, column 14): " + [ state.routeId.constructor.name ]);
               })() ]);
           };
       };
@@ -9946,8 +9946,8 @@ var PS = {};
   var Data_Monoid = $PS["Data.Monoid"];
   var Data_Traversable = $PS["Data.Traversable"];
   var Data_Unit = $PS["Data.Unit"];
-  var Datepicker = $PS["Datepicker"];
   var Effect = $PS["Effect"];
+  var Lib_Datepicker = $PS["Lib.Datepicker"];
   var Lib_React = $PS["Lib.React"];
   var Lib_WebSocket = $PS["Lib.WebSocket"];
   var React = $PS["React"];
@@ -9984,7 +9984,7 @@ var PS = {};
               var props = React.getProps($$this)();
               return Data_Functor.map(Effect.functorEffect)(React_DOM.div([ Lib_React.cn("list-group d-flex flex-column justify-content-center") ]))(Data_Functor.map(Effect.functorEffect)(Data_Array.catMaybes)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect)(Data_Functor.map(Data_Functor.functorArray)(function (di) {
                   return function __do() {
-                      var t = Datepicker.toLocaleTimeString(Data_JSDate.fromTime(di.date))();
+                      var t = Lib_Datepicker.toLocaleTimeString(Data_JSDate.fromTime(di.date))();
                       return Data_Functor.mapFlipped(Data_Maybe.functorMaybe)(Data_Array.head(di.routes))(function (route) {
                           return React_DOM.div([ Lib_React.cn("list-group-item"), React_DOM_Props.key(di.id) ])([ React_DOM.div([ Lib_React.cn("d-flex flex-row") ])([ React_DOM.div([ Lib_React.cn("mr-3") ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(route.fromAddress) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(route.toAddress) ]) ]), React_DOM.div([  ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(t) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.a([ React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
                               return React.modifyState($$this)(function (v1) {
@@ -10013,7 +10013,7 @@ var PS = {};
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
               var dl = driversList($$this)();
-              return React_DOM.div([  ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center row mb-3") ])([ React.createLeafElement()(Datepicker.datepickerClass)({
+              return React_DOM.div([  ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center row mb-3") ])([ React.createLeafElement()(Lib_Datepicker.datepickerClass)({
                   onChange: function (d) {
                       return React.modifyState($$this)(function (v) {
                           return {
@@ -10082,8 +10082,8 @@ var PS = {};
   var Data_Monoid = $PS["Data.Monoid"];
   var Data_Traversable = $PS["Data.Traversable"];
   var Data_Unit = $PS["Data.Unit"];
-  var Datepicker = $PS["Datepicker"];
   var Effect = $PS["Effect"];
+  var Lib_Datepicker = $PS["Lib.Datepicker"];
   var Lib_React = $PS["Lib.React"];
   var Lib_WebSocket = $PS["Lib.WebSocket"];
   var React = $PS["React"];
@@ -10096,7 +10096,7 @@ var PS = {};
               var props = React.getProps($$this)();
               return Data_Functor.map(Effect.functorEffect)(React_DOM.div([ Lib_React.cn("list-group d-flex flex-column justify-content-center") ]))(Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect)(Data_Functor.map(Data_Functor.functorArray)(function (pi) {
                   return function __do() {
-                      var t = Datepicker.toLocaleTimeString(Data_JSDate.fromTime(pi.date))();
+                      var t = Lib_Datepicker.toLocaleTimeString(Data_JSDate.fromTime(pi.date))();
                       return React_DOM.div([ Lib_React.cn("list-group-item"), React_DOM_Props.key(pi.id) ])([ React_DOM.div([ Lib_React.cn("d-flex flex-row") ])([ React_DOM.div([ Lib_React.cn("mr-3") ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(pi.fromAddress) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(pi.toAddress) ]) ]), React_DOM.div([  ])([ React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.text(t) ]), React_DOM.small([ Lib_React.cn("d-block") ])([ React_DOM.a([ React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
                           return React.modifyState($$this)(function (v1) {
                               return {
@@ -10147,7 +10147,7 @@ var PS = {};
               var props = React.getProps($$this)();
               var state = React.getState($$this)();
               var dl = passengersList($$this)();
-              return React_DOM.div([  ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React.createLeafElement()(Datepicker.datepickerClass)({
+              return React_DOM.div([  ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center mb-3") ])([ React.createLeafElement()(Lib_Datepicker.datepickerClass)({
                   onChange: function (d) {
                       return React.modifyState($$this)(function (v) {
                           return {
@@ -10383,9 +10383,9 @@ var PS = {};
   var Data_String_Common = $PS["Data.String.Common"];
   var Data_Tuple = $PS["Data.Tuple"];
   var Data_Unit = $PS["Data.Unit"];
-  var Datepicker = $PS["Datepicker"];
   var Effect = $PS["Effect"];
   var Effect_Exception = $PS["Effect.Exception"];
+  var Lib_Datepicker = $PS["Lib.Datepicker"];
   var Lib_React = $PS["Lib.React"];
   var Lib_WebSocket = $PS["Lib.WebSocket"];
   var React = $PS["React"];
@@ -10427,7 +10427,7 @@ var PS = {};
       if (v instanceof AddItem) {
           return "key.menu.add";
       };
-      throw new Error("Failed pattern match at App (line 48, column 1 - line 52, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at App (line 51, column 1 - line 55, column 33): " + [ v.constructor.name ]);
   });
   var eqMenuItem = new Data_Eq.Eq(function (x) {
       return function (y) {
@@ -10468,7 +10468,7 @@ var PS = {};
           if (x instanceof AddItem && y instanceof AddItem) {
               return Data_Ordering.EQ.value;
           };
-          throw new Error("Failed pattern match at App (line 54, column 1 - line 54, column 44): " + [ x.constructor.name, y.constructor.name ]);
+          throw new Error("Failed pattern match at App (line 57, column 1 - line 57, column 44): " + [ x.constructor.name, y.constructor.name ]);
       };
   });
   var appClass = (function () {
@@ -10494,7 +10494,7 @@ var PS = {};
                       });
                   }) ])([ React_DOM.text(state.keyText("key.login")) ]) ]);
               };
-              throw new Error("Failed pattern match at App (line 134, column 12 - line 151, column 10): " + [ state.user.constructor.name ]);
+              throw new Error("Failed pattern match at App (line 137, column 12 - line 154, column 10): " + [ state.user.constructor.name ]);
           };
       };
       var setLang = function ($$this) {
@@ -10599,7 +10599,7 @@ var PS = {};
                           user: state.user
                       }) ];
                   };
-                  throw new Error("Failed pattern match at App (line 117, column 27 - line 128, column 24): " + [ state.menuItem.constructor.name ]);
+                  throw new Error("Failed pattern match at App (line 120, column 27 - line 131, column 24): " + [ state.menuItem.constructor.name ]);
               })()) ]);
           };
       };
@@ -10640,7 +10640,7 @@ var PS = {};
       });
   })();
   var view = function __do() {
-      Datepicker.datepickerLoad();
+      Lib_Datepicker.datepickerLoad();
       var doc = Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.document)();
       var elem = Web_DOM_NonElementParentNode.getElementById("container")(Web_HTML_HTMLDocument.toNonElementParentNode(doc))();
       var container = Data_Maybe.maybe(Effect_Exception["throw"]("container not found"))(Control_Applicative.pure(Effect.applicativeEffect))(elem)();

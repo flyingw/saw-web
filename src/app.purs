@@ -21,14 +21,17 @@ import Web.HTML.HTMLDocument (toNonElementParentNode)
 import Web.HTML.Window (document)
 
 import Ajax (getEff)
+
 import Api.Push (Push(SessionData), UserData)
-import App.Add (addClass)
-import App.Home (homeClass)
-import App.View (viewClass)
-import Datepicker (datepickerLoad)
+
+import Lib.Datepicker (datepickerLoad)
 import Lib.React (cn, onChangeValue)
 import Lib.WebSocket (Ws)
 import Lib.WebSocket as WS
+
+import App.Add (addClass)
+import App.Home (homeClass)
+import App.View (viewClass)
 
 type Props =
   { ws :: Ws
