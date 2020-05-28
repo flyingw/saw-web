@@ -14,7 +14,7 @@ module Lib.WebSocket
 
 import Control.Monad.Except (runExcept)
 import Data.Array (singleton, fromFoldable, cons, filter, head)
-import Data.ArrayBuffer.Types (Uint8Array, ArrayBuffer)
+import Data.ArrayBuffer.Types (ArrayBuffer)
 import Data.Bifunctor (lmap)
 import Data.Either (Either(Left, Right), either)
 import Data.List.NonEmpty (toList)
@@ -39,6 +39,7 @@ import Web.Socket.Event.MessageEvent (MessageEvent, fromEvent, data_)
 import Web.Socket.ReadyState (ReadyState(Connecting, Open))
 import Web.Socket.WebSocket (create, sendArrayBufferView, toEventTarget, setBinaryType, close) as WS
 import Web.Socket.WebSocket (WebSocket, readyState)
+import Proto.Uint8Array (Uint8Array, unwrap)
 
 import Api.Pull (Pull, encodePull)
 import Api.Push (Push, decodePush)
@@ -152,7 +153,7 @@ close :: WebSocket -> Effect Unit
 close = WS.close
 
 send :: WebSocket -> Uint8Array -> Effect Unit
-send = WS.sendArrayBufferView
+send ws = WS.sendArrayBufferView ws <<< unwrap
 
 onMsg :: forall e. WebSocket -> (Uint8Array -> Effect Unit) -> (Array String -> Effect e) -> Effect Unit
 onMsg ws success failure = onMsg' readArrayBuffer ws (success <<< uint8Array) failure

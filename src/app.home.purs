@@ -20,10 +20,11 @@ import Foreign.Keys (keys) as F
 import React (ReactClass, getProps, getState, component, ReactThis, modifyState)
 import React.DOM (text, div, h6, span)
 import React.DOM.Props (_id)
+import Proto.Uint8Array (wrap, unwrap)
+import Lib.React (cn)
 
 import Api.Pull (encodePull, Pull(TelegramLogin), TelegramData(TelegramString, TelegramNum))
 import Api.Push (decodePush, Push(LoginOk, LoginErr), UserData)
-import Lib.React (cn)
 
 type Props =
   { await :: Effect Unit
@@ -91,10 +92,10 @@ login await err ok user = do
   case runExcept $ f user of
     Left e -> error (show e) >>= \_ -> err
     Right msg ->
-      postEff "/login" (encodePull msg) (
+      postEff "/login" (unwrap $ encodePull msg) (
         \_ -> err
       ) (
-        \x -> case decodePush x of
+        \x -> case decodePush $ wrap x of
           Left e -> error (show e) >>= \_ -> err
           Right { val: LoginOk } -> ok
           Right { val: LoginErr } -> err

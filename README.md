@@ -2,10 +2,10 @@
 web frontend for saw
 
 ```bash
-brew install bower purescript sass
-bin/dep
+brew install node
+npm i
 bin/com
 bin/css
 open public/index.html
-purs repl 'bower_components/purescript-*/src/**/*.purs'
+npx spago repl
 ```

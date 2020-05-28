@@ -14,11 +14,10 @@ module Api.Pull
   ) where
 
 import Data.Array (concatMap)
-import Data.ArrayBuffer.Types (Uint8Array)
 import Data.Eq (class Eq)
 import Prelude (($))
 import Proto.Encode as Encode
-import Proto.Uint8ArrayExt (length, concatAll)
+import Proto.Uint8Array (Uint8Array, length, concatAll)
 import Api
 
 data Pull = Ping | TelegramLogin TelegramLogin | AddDriver AddDriver | AddPassenger AddPassenger | GetFreeDrivers GetFreeDrivers | GetFreePassengers GetFreePassengers | GetCitiesList GetCitiesList
