@@ -79,12 +79,9 @@ appClass = component "App" \this -> do
 
   setLang :: This -> String -> Effect Unit
   setLang this lang = do
-    getEff ("/langs/" <> lang <> ".js") (\err -> pure unit)(\v -> do
-      let keys = Map.fromFoldable $ split (Pattern "\n") v <#> 
-                                    split (Pattern "=") <#> 
-                                    \kv -> Tuple (joinWith "" $ take 1 kv) (joinWith "" $ drop 1 kv)
+    getEff ("langs/" <> lang <> ".js") (\err -> pure unit) \v -> do
+      let keys = Map.fromFoldable $ split (Pattern "\n") v <#> split (Pattern "=") <#> \kv -> Tuple (joinWith "" $ take 1 kv) (joinWith "" $ drop 1 kv)
       modifyState this _ { lang = lang, keyText = \key -> fromMaybe key $ Map.lookup (toLower key) keys }
-    )
 
   render :: This -> Effect ReactElement
   render this = do

@@ -1,6 +1,5 @@
 module Ajax
-  ( get
-  , getEff
+  ( getEff
   , postEff
   ) where
 

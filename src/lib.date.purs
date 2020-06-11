@@ -6,15 +6,18 @@ module Lib.Datepicker
   ) where
 
 import Prelude hiding (div, min, max)
-
-import Data.Int (floor)
-import Data.JSDate (JSDate, getFullYear, getMonth, getDate, getHours, getMinutes, now, parse, fromTime, getTime)
 import Effect (Effect)
+import Effect.Uncurried (EffectFn1, runEffectFn1)
 import Effect.Unsafe (unsafePerformEffect)
+import Foreign (Foreign)
+
+import Data.JSDate (JSDate, fromTime, getTime, now, parse)
+import Data.Maybe (fromMaybe)
+import Data.Foldable (fold, find)
+
 import React (ReactClass, component, createLeafElement, getProps, getState, modifyState)
 import React.DOM (input)
 import React.DOM.Props (_id, _type, value, min, max)
-import Foreign (Foreign)
 
 import Lib.React (cn, onChangeValue)
 
@@ -33,7 +36,7 @@ type State = { date :: JSDate }
 datepickerClass :: ReactClass Props
 datepickerClass = component "Datepicker" \this -> do
   today  <- now
-  native <- isMobileOrChrome
+  native <- nativeDate
   pure
     { state: { date: today }
     , render: do
@@ -41,9 +44,9 @@ datepickerClass = component "Datepicker" \this -> do
         state  <- getState this
         if native
           then do
-            vv  <- if props.showTime then formatISO state.date else formatDateISO state.date
-            t1 <- formatISO today
-            t2 <- formatISO $ fromTime $ getTime today + 432000000.0
+            vv  <- if props.showTime then isoDateTime state.date else isoDate state.date
+            t1 <- isoDateTime today
+            t2 <- isoDateTime $ fromTime $ getTime today + 432000000.0
             pure $ input [ _type $ if props.showTime then "datetime-local" else "date"
                          , cn $ props.className <> " " <> props.wrapperClassName
                          , _id props._id
@@ -62,47 +65,50 @@ datepickerClass = component "Datepicker" \this -> do
                         "ru" -> ru
                         _    -> uk
             maxD   <- pure $ fromTime $ getTime today + 432000000.0
-            pure $ createLeafElement dclass { selected: state.date
-                                            , onChange: \d -> unsafePerformEffect $ do
-                                                _ <- modifyState this _{ date=d }
-                                                props.onChange d
-                                            , showTimeSelect: props.showTime
-                                            , className: props.className
-                                            , wrapperClassName: props.wrapperClassName
-                                            , popperClassName: "react-datepicker-popper-fix"
-                                            , id: props._id
-                                            , locale: locale
-                                            , timeFormat: if props.showTime then "p" else ""
-                                            , dateFormat: if props.showTime then "Pp" else "P"
-                                            , minDate: today
-                                            , maxDate: maxD
-                                            , timeCaption: props.keyText $ "key.time"
-                                            }
+            pure $ createLeafElement dclass
+              { selected: state.date
+              , onChange: \d -> unsafePerformEffect $ do
+                  _ <- modifyState this _{ date=d }
+                  props.onChange d
+              , showTimeSelect: props.showTime
+              , className: props.className
+              , wrapperClassName: props.wrapperClassName
+              , popperClassName: "react-datepicker-popper-fix"
+              , id: props._id
+              , locale: locale
+              , timeFormat: if props.showTime then "p" else ""
+              , dateFormat: if props.showTime then "Pp" else "P"
+              , minDate: today
+              , maxDate: maxD
+              , timeCaption: props.keyText $ "key.time"
+              }
     }
 
-formatNum :: Number -> String
-formatNum n = do
-  let v = floor n
-  if v < 10 then "0" <> (show v) else (show v)
+foreign import formatISO_ :: EffectFn1 JSDate (Array { type :: String, value :: String })
 
-formatISO :: JSDate -> Effect String
-formatISO date = do
-  yyyy <- formatNum <$> getFullYear date
-  mM   <- formatNum <$> (_ + 1.0) <$> (getMonth date)
-  dd   <- formatNum <$> getDate date
-  hh   <- formatNum <$> getHours date
-  mm   <- formatNum <$> getMinutes date
-  pure $ yyyy <> "-" <> mM <> "-" <> dd <> "T" <> hh <> ":" <> mm <> ":00"
+extract :: Array { type :: String, value :: String } -> String -> String
+extract xs _type = fromMaybe "" $ map _.value $ find (\x -> x.type == _type) xs
 
-formatDateISO :: JSDate -> Effect String
-formatDateISO date = do
-  yyyy <- formatNum <$> getFullYear date
-  mM   <- formatNum <$> (_ + 1.0) <$> (getMonth date)
-  dd   <- formatNum <$> getDate date
-  pure $ yyyy <> "-" <> mM <> "-" <> dd
-  
-foreign import toLocaleDateString :: JSDate -> Effect String
-foreign import toLocaleTimeString :: JSDate -> Effect String
+isoDate :: JSDate -> Effect String
+isoDate date = do
+  xs <- runEffectFn1 formatISO_ date
+  let  y = extract xs "year"
+  let _M = extract xs "month"
+  let  d = extract xs "day"
+  pure $ fold [ y, "-", _M, "-", d ]
+
+isoDateTime :: JSDate -> Effect String
+isoDateTime date = do
+  ymd <- isoDate date
+  xs <- runEffectFn1 formatISO_ date
+  let  h = extract xs "hour"
+  let  m = extract xs "minute"
+  pure $ fold [ ymd, "T", h, ":", m ]
+
+foreign import toLocaleTimeString_ :: EffectFn1 JSDate String
+
+toLocaleTimeString :: JSDate -> Effect String
+toLocaleTimeString d = runEffectFn1 toLocaleTimeString_ d
 
 type ExternalProps =
   { selected :: JSDate
@@ -120,7 +126,7 @@ type ExternalProps =
   , timeCaption :: String
   }
 
-foreign import isMobileOrChrome :: Effect Boolean
+foreign import nativeDate :: Effect Boolean
 foreign import datepickerLoad :: Effect Unit
 foreign import datepickerExtClass :: Effect (ReactClass ExternalProps)
 foreign import uk :: Effect Foreign
