@@ -144,7 +144,7 @@ riderClass = component "Rider" \this -> do
           ]
         , div [ cn "col-md-5 col-lg-3 mb-3" ]
           [ label [ htmlFor "specialization" ] [ text $ props.keyText "key.specialization" ]
-          , select [ cn "custom-select"
+          , select  [ cn "custom-select"
                     , _id "type"
                     , value $ keyPassengerType state.tpe
                     , onChangeValue \v -> modifyState this _{ tpe = fromMaybe Regular $ lookup v typesMap }

@@ -13,7 +13,7 @@ import Effect (Effect)
 import Effect.Exception (throw)
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
 import React.DOM (a, button, div, img, li, nav, option, select, span, text, ul)
-import React.DOM.Props (_type, height, href, onClick, selected, src, style, value)
+import React.DOM.Props (_type, height, href, onClick, src, style, value)
 import ReactDOM (render)
 import Web.DOM.NonElementParentNode (getElementById)
 import Web.HTML (window)
@@ -107,10 +107,11 @@ appClass = component "App" \this -> do
                 [ text $ state.keyText $ show v ]
               ]
             ) [ HomeItem, AddItem, ViewItem ]
-          , select [ cn "custom-select bg-primary text-white-50", style { width: "9.5rem" }
-                   , onChangeValue \v -> setLang this v
-                   ] $
-            map (\v -> option [ value v, selected $ v == state.lang ] [ text $ state.keyText $ "key." <> v ]) [ "uk", "ru" ]
+          , select  [ cn "custom-select bg-primary text-white-50", style { width: "9.5rem" }
+                    , onChangeValue \v -> setLang this v
+                    , value state.lang
+                    ] $
+            map (\v -> option [ value v ] [ text $ state.keyText $ "key." <> v ]) [ "uk", "ru" ]
           ]
         , ul [ cn "navbar-nav ml-auto nav-flex-icons d-none d-lg-inline" ] [ u ]
         ]
@@ -156,6 +157,8 @@ view = do
   doc       <- window >>= document
   elem      <- getElementById "container" $ toNonElementParentNode doc
   container <- maybe (throw "container not found") pure elem
-  ws        <- WS.new "ridehub.city/ws"
+  ws        <- endpoint >>= WS.new
   let element = createLeafElement appClass { ws }
   void $ render element container
+
+foreign import endpoint :: Effect String

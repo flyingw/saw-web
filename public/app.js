@@ -6453,6 +6453,11 @@ var PS = {};
   exports["decodePush"] = decodePush;
 })(PS);
 (function(exports) {
+  'use strict'
+
+  exports.endpoint = () => window.endpoint
+})(PS["App"] = PS["App"] || {});
+(function(exports) {
   /* global exports */
   "use strict";
 
@@ -6536,28 +6541,28 @@ var PS = {};
   exports.datepickerLoad = function() {
     if (!exports.nativeDate() && !window['ext']) {
       var el1 = document.createElement('script')
-      el1.setAttribute('async', '')
-      el1.setAttribute('src', 'ext.js')
+      el1.async = true
+      el1.src = 'ext.js'
       document.head.appendChild(el1)
       var el2 = document.createElement('link')
-      el2.setAttribute('async', '')
-      el2.setAttribute('href', 'ext.css')
-      el2.setAttribute('rel', 'stylesheet')
+      el2.async = true
+      el2.href = 'ext.css'
+      el2.rel = 'stylesheet'
       document.head.appendChild(el2)
     }
     return {}
   }
 
   exports.datepickerExtClass = function() {
-    return window['ext']['DatePicker']
+    return window.ext.DatePicker
   }
 
   exports.uk = function() {
-    return window['ext']['uk']
+    return window.ext.uk
   }
 
   exports.ru = function() {
-    return window['ext']['ru']
+    return window.ext.ru
   }
 })(PS["Lib.Datepicker"] = PS["Lib.Datepicker"] || {});
 (function(exports) {
@@ -6704,8 +6709,7 @@ var PS = {};
   var width = $foreign.unsafeMkProps("width");     
   var value = $foreign.unsafeMkProps("value");    
   var style = $foreign.unsafeUnfoldProps("style");
-  var src = $foreign.unsafeMkProps("src");    
-  var selected = $foreign.unsafeMkProps("selected");
+  var src = $foreign.unsafeMkProps("src");          
   var required = $foreign.unsafeMkProps("required");
   var onClick = function (f) {
       return $foreign.unsafeMkProps("onClick")(Effect_Uncurried.mkEffectFn1(f));
@@ -6740,7 +6744,6 @@ var PS = {};
   exports["max"] = max;
   exports["min"] = min;
   exports["required"] = required;
-  exports["selected"] = selected;
   exports["src"] = src;
   exports["_type"] = _type;
   exports["value"] = value;
@@ -10418,6 +10421,7 @@ var PS = {};
   "use strict";
   $PS["App"] = $PS["App"] || {};
   var exports = $PS["App"];
+  var $foreign = $PS["App"];
   var Ajax = $PS["Ajax"];
   var Api_Push = $PS["Api.Push"];
   var App_Add = $PS["App.Add"];
@@ -10549,7 +10553,7 @@ var PS = {};
                       });
                   }) ])([ React_DOM.text(state.keyText("key.login")) ]) ]);
               };
-              throw new Error("Failed pattern match at App (line 134, column 12 - line 151, column 10): " + [ state.user.constructor.name ]);
+              throw new Error("Failed pattern match at App (line 135, column 12 - line 152, column 10): " + [ state.user.constructor.name ]);
           };
       };
       var setLang = function ($$this) {
@@ -10624,8 +10628,8 @@ var PS = {};
                   width: "9.5rem"
               }), Lib_React.onChangeValue(function (v) {
                   return setLang($$this)(v);
-              }) ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
-                  return React_DOM.option([ React_DOM_Props.value(v), React_DOM_Props.selected(v === state.lang) ])([ React_DOM.text(state.keyText("key." + v)) ]);
+              }), React_DOM_Props.value(state.lang) ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
+                  return React_DOM.option([ React_DOM_Props.value(v) ])([ React_DOM.text(state.keyText("key." + v)) ]);
               })([ "uk", "ru" ])) ]), React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto nav-flex-icons d-none d-lg-inline") ])([ u ]) ]), React_DOM.div([ Lib_React.cn("m-3") ])((function () {
                   if (state.menuItem instanceof HomeItem) {
                       return [ React.createLeafElement()(App_Home.homeClass)({
@@ -10652,7 +10656,7 @@ var PS = {};
                           user: state.user
                       }) ];
                   };
-                  throw new Error("Failed pattern match at App (line 117, column 27 - line 128, column 24): " + [ state.menuItem.constructor.name ]);
+                  throw new Error("Failed pattern match at App (line 118, column 27 - line 129, column 24): " + [ state.menuItem.constructor.name ]);
               })()) ]);
           };
       };
@@ -10697,7 +10701,7 @@ var PS = {};
       var doc = Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.document)();
       var elem = Web_DOM_NonElementParentNode.getElementById("container")(Web_HTML_HTMLDocument.toNonElementParentNode(doc))();
       var container = Data_Maybe.maybe(Effect_Exception["throw"]("container not found"))(Control_Applicative.pure(Effect.applicativeEffect))(elem)();
-      var ws = Lib_WebSocket["new"]("ridehub.city/ws")();
+      var ws = Control_Bind.bind(Effect.bindEffect)($foreign.endpoint)(Lib_WebSocket["new"])();
       var element = React.createLeafElement()(appClass)({
           ws: ws
       });
@@ -10711,4 +10715,5 @@ var PS = {};
   exports["showMenuItem"] = showMenuItem;
   exports["eqMenuItem"] = eqMenuItem;
   exports["ordMenuItem"] = ordMenuItem;
+  exports["endpoint"] = $foreign.endpoint;
 })(PS);
