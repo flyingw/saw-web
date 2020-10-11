@@ -4403,7 +4403,7 @@ var PS = {};
   var TWO_TO_32 = 4294967296
   var TWO_TO_52 = 4503599627370496
 
-  exports.splitFloat64 = function(value) {
+  exports.splitFloat64 = value => {
     var sign = (value < 0) ? 1 : 0
     value = sign ? -value : value
 
@@ -4444,6 +4444,45 @@ var PS = {};
     var mantLow = (mant * TWO_TO_52) >>> 0
 
     return { low: mantLow, high: ((sign << 31) | ((exp + 1023) << 20) | mantHigh) >>> 0 }
+  }
+
+  exports.writeSplitVarint64 = lowBits => highBits => {
+    var buffer_ = []
+    // Break the binary representation into chunks of 7 bits, set the 8th bit
+    // in each chunk if it's not the final chunk, and append to the result.
+    while (highBits > 0 || lowBits > 127) {
+      buffer_.push((lowBits & 0x7f) | 0x80)
+      lowBits = ((lowBits >>> 7) | (highBits << 25)) >>> 0
+      highBits = highBits >>> 7
+    }
+    buffer_.push(lowBits)
+    return buffer_
+  }
+
+  exports.splitInt64 = value => {
+    // Convert to sign-magnitude representation.
+    var sign = (value < 0)
+    value = Math.abs(value)
+
+    // Extract low 32 bits and high 32 bits as unsigned integers.
+    var lowBits = value >>> 0
+    var highBits = Math.floor((value - lowBits) /
+                              TWO_TO_32)
+    highBits = highBits >>> 0
+
+    // Perform two's complement conversion if the sign bit was set.
+    if (sign) {
+      highBits = ~highBits >>> 0
+      lowBits = ~lowBits >>> 0
+      lowBits += 1
+      if (lowBits > 0xFFFFFFFF) {
+        lowBits = 0
+        highBits++
+        if (highBits > 0xFFFFFFFF) highBits = 0
+      }
+    }
+
+    return { low: lowBits, high: highBits }
   }
 })(PS["Proto.Encode"] = PS["Proto.Encode"] || {});
 (function(exports) {
@@ -4619,7 +4658,7 @@ var PS = {};
   var Data_Array = $PS["Data.Array"];
   var Proto_Uint8Array = $PS["Proto.Uint8Array"];
   var Proto_Utf8 = $PS["Proto.Utf8"];                
-  var uint32 = (function () {
+  var unsignedVarint32 = (function () {
       var loop = function ($copy_acc) {
           return function ($copy_val) {
               var $tco_var_acc = $copy_acc;
@@ -4650,9 +4689,43 @@ var PS = {};
       var len = Proto_Utf8.numOfBytes(x);
       var $2 = len === 0;
       if ($2) {
-          return uint32(0);
+          return unsignedVarint32(0);
       };
-      return Proto_Uint8Array.concatAll([ uint32(len), Proto_Utf8.toUint8Array(x)(len) ]);
+      return Proto_Uint8Array.concatAll([ unsignedVarint32(len), Proto_Utf8.toUint8Array(x)(len) ]);
+  };
+  var signedVarint64 = function (y) {
+      var x = $foreign.splitInt64(y);
+      return $foreign.writeSplitVarint64(x.low)(x.high);
+  };
+  var signedVarint32 = function (x) {
+      if (x >= 0) {
+          return unsignedVarint32(x);
+      };
+      var loop = function ($copy_acc) {
+          return function ($copy_val) {
+              return function ($copy_i) {
+                  var $tco_var_acc = $copy_acc;
+                  var $tco_var_val = $copy_val;
+                  var $tco_done = false;
+                  var $tco_result;
+                  function $tco_loop(acc, val, i) {
+                      if (i < 9) {
+                          $tco_var_acc = Data_Array.snoc(acc)(val & 127 | 128);
+                          $tco_var_val = val >> 7;
+                          $copy_i = i + 1 | 0;
+                          return;
+                      };
+                      $tco_done = true;
+                      return Data_Array.snoc(acc)(1);
+                  };
+                  while (!$tco_done) {
+                      $tco_result = $tco_loop($tco_var_acc, $tco_var_val, $copy_i);
+                  };
+                  return $tco_result;
+              };
+          };
+      };
+      return Proto_Uint8Array.fromArray(loop([  ])(x)(0));
   };
   var $$double = function (y) {
       var fixedUint32 = function (x) {
@@ -4661,7 +4734,9 @@ var PS = {};
       var x = $foreign.splitFloat64(y);
       return Proto_Uint8Array.concatAll([ fixedUint32(x.low), fixedUint32(x.high) ]);
   };
-  exports["uint32"] = uint32;
+  exports["signedVarint32"] = signedVarint32;
+  exports["unsignedVarint32"] = unsignedVarint32;
+  exports["signedVarint64"] = signedVarint64;
   exports["double"] = $$double;
   exports["string"] = string;
 })(PS);
@@ -4754,118 +4829,118 @@ var PS = {};
       return GetCitiesList;
   })();
   var encodeTelegramString = function (msg) {
-      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.key), Proto_Encode.uint32(18), Proto_Encode.string(msg.value) ]);
-      return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), Proto_Encode.string(msg.key), Proto_Encode.unsignedVarint32(18), Proto_Encode.string(msg.value) ]);
+      return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
   };
   var encodeTelegramNum = function (msg) {
-      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.key), Proto_Encode.uint32(17), Proto_Encode["double"](msg.value) ]);
-      return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), Proto_Encode.string(msg.key), Proto_Encode.unsignedVarint32(17), Proto_Encode["double"](msg.value) ]);
+      return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
   };
   var encodeTelegramData = function (v) {
       if (v instanceof TelegramString) {
-          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(10), encodeTelegramString(v.value0) ]);
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), encodeTelegramString(v.value0) ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
       };
       if (v instanceof TelegramNum) {
-          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(18), encodeTelegramNum(v.value0) ]);
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(18), encodeTelegramNum(v.value0) ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 55, column 1 - line 55, column 49): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Api.Pull (line 62, column 1 - line 62, column 49): " + [ v.constructor.name ]);
   };
   var encodeTelegramLogin = function (msg) {
       var xs = Proto_Uint8Array.concatAll([ Proto_Uint8Array.concatAll(Data_Array.concatMap(function (x) {
-          return [ Proto_Encode.uint32(10), encodeTelegramData(x) ];
+          return [ Proto_Encode.unsignedVarint32(10), encodeTelegramData(x) ];
       })(msg.d)) ]);
-      return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+      return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
   };
-  var encodeRegular = Proto_Encode.uint32(0);
-  var encodePolice = Proto_Encode.uint32(0);
-  var encodePing = Proto_Encode.uint32(0);
-  var encodeMedical = Proto_Encode.uint32(0);
+  var encodeRegular = Proto_Encode.unsignedVarint32(0);
+  var encodePolice = Proto_Encode.unsignedVarint32(0);
+  var encodePing = Proto_Encode.unsignedVarint32(0);
+  var encodeMedical = Proto_Encode.unsignedVarint32(0);
   var encodeGetFreePassengers = function (msg) {
-      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(9), Proto_Encode["double"](msg.date) ]);
-      return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(8), Proto_Encode.signedVarint64(msg.date) ]);
+      return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
   };
   var encodeGetFreeDrivers = function (msg) {
-      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(9), Proto_Encode["double"](msg.date) ]);
-      return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(8), Proto_Encode.signedVarint64(msg.date) ]);
+      return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
   };
   var encodeGetCitiesList = function (msg) {
-      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.country), Proto_Encode.uint32(18), Proto_Encode.string(msg.lang) ]);
-      return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), Proto_Encode.string(msg.country), Proto_Encode.unsignedVarint32(18), Proto_Encode.string(msg.lang) ]);
+      return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
   };
-  var encodeFirefighter = Proto_Encode.uint32(0);
-  var encodeFarmacy = Proto_Encode.uint32(0);
-  var encodeCashier = Proto_Encode.uint32(0);
-  var encodeArmy = Proto_Encode.uint32(0);
+  var encodeFirefighter = Proto_Encode.unsignedVarint32(0);
+  var encodeFarmacy = Proto_Encode.unsignedVarint32(0);
+  var encodeCashier = Proto_Encode.unsignedVarint32(0);
+  var encodeArmy = Proto_Encode.unsignedVarint32(0);
   var encodePassengerType = function (v) {
       if (v instanceof Api.Medical) {
-          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(10), encodeMedical ]);
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), encodeMedical ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
       };
       if (v instanceof Api.Police) {
-          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(18), encodePolice ]);
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(18), encodePolice ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
       };
       if (v instanceof Api.Firefighter) {
-          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(26), encodeFirefighter ]);
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(26), encodeFirefighter ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
       };
       if (v instanceof Api.Army) {
-          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(34), encodeArmy ]);
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(34), encodeArmy ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
       };
       if (v instanceof Api.Farmacy) {
-          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(42), encodeFarmacy ]);
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(42), encodeFarmacy ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
       };
       if (v instanceof Api.Cashier) {
-          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(50), encodeCashier ]);
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(50), encodeCashier ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
       };
       if (v instanceof Api.Regular) {
-          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(58), encodeRegular ]);
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+          var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(58), encodeRegular ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 126, column 1 - line 126, column 51): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Api.Pull (line 133, column 1 - line 133, column 51): " + [ v.constructor.name ]);
   };
   var encodeAddress = function (msg) {
-      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.country), Proto_Encode.uint32(18), Proto_Encode.string(msg.city), Proto_Encode.uint32(26), Proto_Encode.string(msg.street), Proto_Encode.uint32(34), Proto_Encode.string(msg.building) ]);
-      return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), Proto_Encode.string(msg.country), Proto_Encode.unsignedVarint32(18), Proto_Encode.string(msg.city), Proto_Encode.unsignedVarint32(26), Proto_Encode.string(msg.street), Proto_Encode.unsignedVarint32(34), Proto_Encode.string(msg.building) ]);
+      return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
   };
   var encodeAddPassenger = function (msg) {
-      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.firstName), Proto_Encode.uint32(18), Proto_Encode.string(msg.lastName), Proto_Encode.uint32(26), Proto_Encode.string(msg.phone), Proto_Encode.uint32(33), Proto_Encode["double"](msg.date), Proto_Encode.uint32(42), encodePassengerType(msg.tpe), Proto_Encode.uint32(50), encodeAddress(msg.from), Proto_Encode.uint32(58), encodeAddress(msg.to) ]);
-      return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), Proto_Encode.string(msg.firstName), Proto_Encode.unsignedVarint32(18), Proto_Encode.string(msg.lastName), Proto_Encode.unsignedVarint32(26), Proto_Encode.string(msg.phone), Proto_Encode.unsignedVarint32(32), Proto_Encode.signedVarint64(msg.date), Proto_Encode.unsignedVarint32(42), encodePassengerType(msg.tpe), Proto_Encode.unsignedVarint32(50), encodeAddress(msg.from), Proto_Encode.unsignedVarint32(58), encodeAddress(msg.to) ]);
+      return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
   };
   var encodeAddDriver = function (msg) {
-      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.uint32(10), Proto_Encode.string(msg.firstName), Proto_Encode.uint32(18), Proto_Encode.string(msg.lastName), Proto_Encode.uint32(26), Proto_Encode.string(msg.phone), Proto_Encode.uint32(34), Proto_Encode.string(msg.carPlate), Proto_Encode.uint32(41), Proto_Encode["double"](msg.date), Proto_Encode.uint32(48), Proto_Encode.uint32(msg.deviationDistance), Proto_Encode.uint32(56), Proto_Encode.uint32(msg.deviationTime), Proto_Encode.uint32(64), Proto_Encode.uint32(msg.seats), Proto_Encode.uint32(74), encodeAddress(msg.from), Proto_Encode.uint32(82), encodeAddress(msg.to), Proto_Uint8Array.concatAll(Data_Array.concatMap(function (x) {
-          return [ Proto_Encode.uint32(90), encodePassengerType(x) ];
-      })(msg.types)), Proto_Encode.uint32(98), Proto_Encode.string(msg.lang) ]);
-      return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(Proto_Uint8Array.length(xs)), xs ]);
+      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), Proto_Encode.string(msg.firstName), Proto_Encode.unsignedVarint32(18), Proto_Encode.string(msg.lastName), Proto_Encode.unsignedVarint32(26), Proto_Encode.string(msg.phone), Proto_Encode.unsignedVarint32(34), Proto_Encode.string(msg.carPlate), Proto_Encode.unsignedVarint32(40), Proto_Encode.signedVarint64(msg.date), Proto_Encode.unsignedVarint32(48), Proto_Encode.signedVarint32(msg.deviationDistance), Proto_Encode.unsignedVarint32(56), Proto_Encode.signedVarint32(msg.deviationTime), Proto_Encode.unsignedVarint32(64), Proto_Encode.signedVarint32(msg.seats), Proto_Encode.unsignedVarint32(74), encodeAddress(msg.from), Proto_Encode.unsignedVarint32(82), encodeAddress(msg.to), Proto_Uint8Array.concatAll(Data_Array.concatMap(function (x) {
+          return [ Proto_Encode.unsignedVarint32(90), encodePassengerType(x) ];
+      })(msg.types)), Proto_Encode.unsignedVarint32(98), Proto_Encode.string(msg.lang) ]);
+      return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
   };
   var encodePull = function (v) {
       if (v instanceof Ping) {
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(10), encodePing ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), encodePing ]);
       };
       if (v instanceof TelegramLogin) {
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(26), encodeTelegramLogin(v.value0) ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(26), encodeTelegramLogin(v.value0) ]);
       };
       if (v instanceof AddDriver) {
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(82), encodeAddDriver(v.value0) ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(82), encodeAddDriver(v.value0) ]);
       };
       if (v instanceof AddPassenger) {
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(162), encodeAddPassenger(v.value0) ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(162), encodeAddPassenger(v.value0) ]);
       };
       if (v instanceof GetFreeDrivers) {
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(242), encodeGetFreeDrivers(v.value0) ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(242), encodeGetFreeDrivers(v.value0) ]);
       };
       if (v instanceof GetFreePassengers) {
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(322), encodeGetFreePassengers(v.value0) ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(322), encodeGetFreePassengers(v.value0) ]);
       };
       if (v instanceof GetCitiesList) {
-          return Proto_Uint8Array.concatAll([ Proto_Encode.uint32(402), encodeGetCitiesList(v.value0) ]);
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(402), encodeGetCitiesList(v.value0) ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 36, column 1 - line 36, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Api.Pull (line 43, column 1 - line 43, column 33): " + [ v.constructor.name ]);
   };
   exports["TelegramLogin"] = TelegramLogin;
   exports["AddDriver"] = AddDriver;
@@ -4978,27 +5053,78 @@ var PS = {};
   var TWO_TO_32 = 4294967296
   var TWO_TO_52 = 4503599627370496
 
-  exports.joinFloat64 = function(bitsLow) {
-    return function(bitsHigh) {
-      var sign = ((bitsHigh >> 31) * 2 + 1)
-      var exp = (bitsHigh >>> 20) & 0x7FF
-      var mant = TWO_TO_32 * (bitsHigh & 0xFFFFF) + bitsLow
+  exports.joinFloat64 = bitsLow => bitsHigh => {
+    var sign = ((bitsHigh >> 31) * 2 + 1)
+    var exp = (bitsHigh >>> 20) & 0x7FF
+    var mant = TWO_TO_32 * (bitsHigh & 0xFFFFF) + bitsLow
 
-      if (exp == 0x7FF) {
-        if (mant) {
-          return NaN
-        } else {
-          return sign * Infinity
-        }
-      }
-
-      if (exp == 0) {
-        // Denormal.
-        return sign * Math.pow(2, -1074) * mant
+    if (exp == 0x7FF) {
+      if (mant) {
+        return NaN
       } else {
-        return sign * Math.pow(2, exp - 1075) *
-               (mant + TWO_TO_52)
+        return sign * Infinity
       }
+    }
+
+    if (exp == 0) {
+      // Denormal.
+      return sign * Math.pow(2, -1074) * mant
+    } else {
+      return sign * Math.pow(2, exp - 1075) *
+              (mant + TWO_TO_52)
+    }
+  }
+
+  const joinUint64 = (bitsLow, bitsHigh) => {
+    return bitsHigh * TWO_TO_32 + (bitsLow >>> 0);
+  }
+
+  exports.joinInt64 = bitsLow => bitsHigh => {
+    // If the high bit is set, do a manual two's complement conversion.
+    var sign = (bitsHigh & 0x80000000)
+    if (sign) {
+      bitsLow = (~bitsLow + 1) >>> 0
+      bitsHigh = ~bitsHigh >>> 0
+      if (bitsLow == 0) {
+        bitsHigh = (bitsHigh + 1) >>> 0
+      }
+    }
+
+    var result = joinUint64(bitsLow, bitsHigh)
+    return sign ? -result : result
+  }
+
+  exports.readSplitVarint64 = bytes => pos => success => failure => {
+    var temp = 128
+    var lowBits = 0
+    var highBits = 0
+
+    // Read the first four bytes of the varint, stopping at the terminator if we
+    // see it.
+    for (var i = 0; i < 4 && temp >= 128; i++) {
+      temp = bytes[pos++];
+      lowBits |= (temp & 0x7F) << (i * 7);
+    }
+
+    if (temp >= 128) {
+      // Read the fifth byte, which straddles the low and high dwords.
+      temp = bytes[pos++];
+      lowBits |= (temp & 0x7F) << 28;
+      highBits |= (temp & 0x7F) >> 4;
+    }
+
+    if (temp >= 128) {
+      // Read the sixth through tenth byte.
+      for (var i = 0; i < 5 && temp >= 128; i++) {
+        temp = bytes[pos++];
+        highBits |= (temp & 0x7F) << (i * 7 + 3);
+      }
+    }
+
+    if (temp < 128) {
+      return success({ pos: pos, val: { low: lowBits >>> 0, high: highBits >>> 0 }})
+    } else {
+      return failure('Failed to read varint, encoding is invalid.')
     }
   }
 })(PS["Proto.Decode"] = PS["Proto.Decode"] || {});
@@ -5074,12 +5200,21 @@ var PS = {};
       IntTooLong.value = new IntTooLong();
       return IntTooLong;
   })();
+  var ErrMsg = (function () {
+      function ErrMsg(value0) {
+          this.value0 = value0;
+      };
+      ErrMsg.create = function (value0) {
+          return new ErrMsg(value0);
+      };
+      return ErrMsg;
+  })();
   var skip = function (n) {
       return function (xs) {
           return function (pos0) {
               var len = Proto_Uint8Array.length(xs);
-              var $12 = (pos0 + n | 0) > len;
-              if ($12) {
+              var $13 = (pos0 + n | 0) > len;
+              if ($13) {
                   return new Data_Either.Left(new OutOfBound(pos0 + n | 0, len));
               };
               return Control_Applicative.pure(Data_Either.applicativeEither)({
@@ -5087,6 +5222,20 @@ var PS = {};
                   val: Data_Unit.unit
               });
           };
+      };
+  };
+  var signedVarint64 = function (xs) {
+      return function (pos) {
+          return Control_Bind.bind(Data_Either.bindEither)($foreign.readSplitVarint64(xs)(pos)(function (x) {
+              return new Data_Either.Right(x);
+          })(function (x) {
+              return Data_Either.Left.create(new ErrMsg(x));
+          }))(function (v) {
+              return Control_Applicative.pure(Data_Either.applicativeEither)({
+                  pos: v.pos,
+                  val: $foreign.joinInt64(v.val.low)(v.val.high)
+              });
+          });
       };
   };
   var showError = new Data_Show.Show(function (v) {
@@ -5108,7 +5257,10 @@ var PS = {};
       if (v instanceof IntTooLong) {
           return "varint32 too long";
       };
-      throw new Error("Failed pattern match at Proto.Decode (line 24, column 1 - line 30, column 42): " + [ v.constructor.name ]);
+      if (v instanceof ErrMsg) {
+          return v.value0;
+      };
+      throw new Error("Failed pattern match at Proto.Decode (line 44, column 1 - line 51, column 22): " + [ v.constructor.name ]);
   });
   var index = function (xs) {
       return function (pos) {
@@ -5140,7 +5292,7 @@ var PS = {};
                   $copy_pos = pos + 1 | 0;
                   return;
               };
-              throw new Error("Failed pattern match at Proto.Decode (line 112, column 3 - line 115, column 32): " + [ v.constructor.name ]);
+              throw new Error("Failed pattern match at Proto.Decode (line 156, column 3 - line 159, column 32): " + [ v.constructor.name ]);
           };
           while (!$tco_done) {
               $tco_result = $tco_loop($tco_var_xs, $copy_pos);
@@ -5148,12 +5300,12 @@ var PS = {};
           return $tco_result;
       };
   };
-  var uint32 = function (xs) {
+  var unsignedVarint32 = function (xs) {
       return function (pos) {
           return Control_Bind.bind(Data_Either.bindEither)(index(xs)(pos))(function (x) {
               var val = x & 127;
-              var $25 = x < 128;
-              if ($25) {
+              var $32 = x < 128;
+              if ($32) {
                   return Control_Applicative.pure(Data_Either.applicativeEither)({
                       pos: pos + 1 | 0,
                       val: val
@@ -5161,8 +5313,8 @@ var PS = {};
               };
               return Control_Bind.bind(Data_Either.bindEither)(index(xs)(pos + 1 | 0))(function (x1) {
                   var val1 = val | (x1 & 127) << 7;
-                  var $26 = x1 < 128;
-                  if ($26) {
+                  var $33 = x1 < 128;
+                  if ($33) {
                       return Control_Applicative.pure(Data_Either.applicativeEither)({
                           pos: pos + 2 | 0,
                           val: val1
@@ -5170,8 +5322,8 @@ var PS = {};
                   };
                   return Control_Bind.bind(Data_Either.bindEither)(index(xs)(pos + 2 | 0))(function (x2) {
                       var val2 = val1 | (x2 & 127) << 14;
-                      var $27 = x2 < 128;
-                      if ($27) {
+                      var $34 = x2 < 128;
+                      if ($34) {
                           return Control_Applicative.pure(Data_Either.applicativeEither)({
                               pos: pos + 3 | 0,
                               val: val2
@@ -5179,8 +5331,8 @@ var PS = {};
                       };
                       return Control_Bind.bind(Data_Either.bindEither)(index(xs)(pos + 3 | 0))(function (x3) {
                           var val3 = val2 | (x3 & 127) << 21;
-                          var $28 = x3 < 128;
-                          if ($28) {
+                          var $35 = x3 < 128;
+                          if ($35) {
                               return Control_Applicative.pure(Data_Either.applicativeEither)({
                                   pos: pos + 4 | 0,
                                   val: val3
@@ -5188,48 +5340,48 @@ var PS = {};
                           };
                           return Control_Bind.bind(Data_Either.bindEither)(index(xs)(pos + 4 | 0))(function (x4) {
                               var val4 = val3 | (x4 & 15) << 28;
-                              var $29 = x4 < 128;
-                              if ($29) {
+                              var $36 = x4 < 128;
+                              if ($36) {
                                   return Control_Applicative.pure(Data_Either.applicativeEither)({
                                       pos: pos + 5 | 0,
                                       val: val4 >>> 0
                                   });
                               };
                               return Control_Bind.bind(Data_Either.bindEither)(index(xs)(pos + 5 | 0))(function (x5) {
-                                  var $30 = x5 < 128;
-                                  if ($30) {
+                                  var $37 = x5 < 128;
+                                  if ($37) {
                                       return Control_Applicative.pure(Data_Either.applicativeEither)({
                                           pos: pos + 6 | 0,
                                           val: val4
                                       });
                                   };
                                   return Control_Bind.bind(Data_Either.bindEither)(index(xs)(pos + 6 | 0))(function (x6) {
-                                      var $31 = x6 < 128;
-                                      if ($31) {
+                                      var $38 = x6 < 128;
+                                      if ($38) {
                                           return Control_Applicative.pure(Data_Either.applicativeEither)({
                                               pos: pos + 7 | 0,
                                               val: val4
                                           });
                                       };
                                       return Control_Bind.bind(Data_Either.bindEither)(index(xs)(pos + 7 | 0))(function (x7) {
-                                          var $32 = x7 < 128;
-                                          if ($32) {
+                                          var $39 = x7 < 128;
+                                          if ($39) {
                                               return Control_Applicative.pure(Data_Either.applicativeEither)({
                                                   pos: pos + 8 | 0,
                                                   val: val4
                                               });
                                           };
                                           return Control_Bind.bind(Data_Either.bindEither)(index(xs)(pos + 8 | 0))(function (x8) {
-                                              var $33 = x8 < 128;
-                                              if ($33) {
+                                              var $40 = x8 < 128;
+                                              if ($40) {
                                                   return Control_Applicative.pure(Data_Either.applicativeEither)({
                                                       pos: pos + 9 | 0,
                                                       val: val4
                                                   });
                                               };
                                               return Control_Bind.bind(Data_Either.bindEither)(index(xs)(pos + 9 | 0))(function (x9) {
-                                                  var $34 = x9 < 128;
-                                                  if ($34) {
+                                                  var $41 = x9 < 128;
+                                                  if ($41) {
                                                       return Control_Applicative.pure(Data_Either.applicativeEither)({
                                                           pos: pos + 10 | 0,
                                                           val: val4
@@ -5247,7 +5399,7 @@ var PS = {};
               });
           });
       };
-  };                 
+  };                                    
   var skipType = function (v) {
       return function (v1) {
           return function (v2) {
@@ -5261,17 +5413,17 @@ var PS = {};
               };
               var xs = v;
               if (v2 === 2) {
-                  return Control_Bind.bind(Data_Either.bindEither)(uint32(xs)(v1))(function (v3) {
+                  return Control_Bind.bind(Data_Either.bindEither)(unsignedVarint32(xs)(v1))(function (v3) {
                       return skip(v3.val)(xs)(v3.pos);
                   });
               };
               if (v2 === 3) {
                   var loop = function (xs) {
                       return function (pos) {
-                          return Control_Bind.bind(Data_Either.bindEither)(uint32(xs)(pos))(function (v3) {
+                          return Control_Bind.bind(Data_Either.bindEither)(unsignedVarint32(xs)(pos))(function (v3) {
                               var wireType = v3.val & 7;
-                              var $42 = wireType !== 4;
-                              if ($42) {
+                              var $49 = wireType !== 4;
+                              if ($49) {
                                   return Control_Bind.bind(Data_Either.bindEither)(skipType(xs)(v3.pos)(wireType))(function (v4) {
                                       return loop(xs)(v4.pos);
                                   });
@@ -5320,11 +5472,11 @@ var PS = {};
   };
   var bytes = function (xs) {
       return function (pos0) {
-          return Control_Bind.bind(Data_Either.bindEither)(uint32(xs)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(unsignedVarint32(xs)(pos0))(function (v) {
               var end = v.pos + v.val | 0;
               var len = Proto_Uint8Array.length(xs);
-              var $54 = end > len;
-              if ($54) {
+              var $61 = end > len;
+              if ($61) {
                   return new Data_Either.Left(new OutOfBound(end, len));
               };
               return Control_Applicative.pure(Data_Either.applicativeEither)({
@@ -5346,7 +5498,8 @@ var PS = {};
   };
   exports["BadType"] = BadType;
   exports["MissingFields"] = MissingFields;
-  exports["uint32"] = uint32;
+  exports["unsignedVarint32"] = unsignedVarint32;
+  exports["signedVarint64"] = signedVarint64;
   exports["double"] = $$double;
   exports["string"] = string;
   exports["skipType"] = skipType;
@@ -5444,7 +5597,7 @@ var PS = {};
   })();
   var decodeRegular = function (_xs_) {
       return function (pos0) {
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Applicative.pure(Data_Either.applicativeEither)({
                   pos: v.pos + v.val | 0,
                   val: Data_Unit.unit
@@ -5454,7 +5607,7 @@ var PS = {};
   };
   var decodePong = function (_xs_) {
       return function (pos0) {
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Applicative.pure(Data_Either.applicativeEither)({
                   pos: v.pos + v.val | 0,
                   val: Data_Unit.unit
@@ -5464,7 +5617,7 @@ var PS = {};
   };
   var decodePolice = function (_xs_) {
       return function (pos0) {
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Applicative.pure(Data_Either.applicativeEither)({
                   pos: v.pos + v.val | 0,
                   val: Data_Unit.unit
@@ -5474,7 +5627,7 @@ var PS = {};
   };
   var decodeMedical = function (_xs_) {
       return function (pos0) {
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Applicative.pure(Data_Either.applicativeEither)({
                   pos: v.pos + v.val | 0,
                   val: Data_Unit.unit
@@ -5484,7 +5637,7 @@ var PS = {};
   };
   var decodeLoginOk = function (_xs_) {
       return function (pos0) {
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Applicative.pure(Data_Either.applicativeEither)({
                   pos: v.pos + v.val | 0,
                   val: Data_Unit.unit
@@ -5494,7 +5647,7 @@ var PS = {};
   };
   var decodeLoginErr = function (_xs_) {
       return function (pos0) {
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Applicative.pure(Data_Either.applicativeEither)({
                   pos: v.pos + v.val | 0,
                   val: Data_Unit.unit
@@ -5504,7 +5657,7 @@ var PS = {};
   };
   var decodeFirefighter = function (_xs_) {
       return function (pos0) {
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Applicative.pure(Data_Either.applicativeEither)({
                   pos: v.pos + v.val | 0,
                   val: Data_Unit.unit
@@ -5531,7 +5684,7 @@ var PS = {};
               return function (acc) {
                   return function (pos1) {
                       if (pos1 < end) {
-                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
                               var v1 = v.val >>> 3;
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(Proto_Decode["double"](_xs_)(v.pos))(function (val) {
@@ -5561,7 +5714,7 @@ var PS = {};
                   };
               };
           };
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
                   lat: Data_Maybe.Nothing.value,
                   lng: Data_Maybe.Nothing.value
@@ -5586,7 +5739,7 @@ var PS = {};
               return function (acc) {
                   return function (pos1) {
                       if (pos1 < end) {
-                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
                               var v1 = v.val >>> 3;
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
@@ -5640,7 +5793,7 @@ var PS = {};
                   };
               };
           };
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
                   fromAddress: Data_Maybe.Nothing.value,
                   fromLocation: Data_Maybe.Nothing.value,
@@ -5665,7 +5818,7 @@ var PS = {};
   };
   var decodeFarmacy = function (_xs_) {
       return function (pos0) {
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Applicative.pure(Data_Either.applicativeEither)({
                   pos: v.pos + v.val | 0,
                   val: Data_Unit.unit
@@ -5679,7 +5832,7 @@ var PS = {};
               return function (acc) {
                   return function (pos1) {
                       if (pos1 < end) {
-                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
                               var v1 = v.val >>> 3;
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
@@ -5700,7 +5853,7 @@ var PS = {};
                   };
               };
           };
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
                   cities: [  ]
               })(v.pos);
@@ -5709,7 +5862,7 @@ var PS = {};
   };
   var decodeCashier = function (_xs_) {
       return function (pos0) {
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Applicative.pure(Data_Either.applicativeEither)({
                   pos: v.pos + v.val | 0,
                   val: Data_Unit.unit
@@ -5719,7 +5872,7 @@ var PS = {};
   };
   var decodeArmy = function (_xs_) {
       return function (pos0) {
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Applicative.pure(Data_Either.applicativeEither)({
                   pos: v.pos + v.val | 0,
                   val: Data_Unit.unit
@@ -5733,7 +5886,7 @@ var PS = {};
               return function (v) {
                   return function (pos1) {
                       if (pos1 < end) {
-                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v1) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v1) {
                               var v2 = v1.val >>> 3;
                               if (v2 === 1) {
                                   return decodeFieldLoop(end)(decodeMedical(_xs_)(v1.pos))(function (v3) {
@@ -5784,11 +5937,11 @@ var PS = {};
                       if (v instanceof Data_Maybe.Nothing) {
                           return Data_Either.Left.create(new Proto_Decode.MissingFields("PassengerType"));
                       };
-                      throw new Error("Failed pattern match at Api.Push (line 129, column 5 - line 129, column 159): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
+                      throw new Error("Failed pattern match at Api.Push (line 148, column 5 - line 148, column 159): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
                   };
               };
           };
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)(Data_Maybe.Nothing.value)(v.pos);
           });
       };
@@ -5799,7 +5952,7 @@ var PS = {};
               return function (acc) {
                   return function (pos1) {
                       if (pos1 < end) {
-                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
                               var v1 = v.val >>> 3;
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
@@ -5812,7 +5965,7 @@ var PS = {};
                                   });
                               };
                               if (v1 === 6) {
-                                  return decodeFieldLoop(end)(Proto_Decode["double"](_xs_)(v.pos))(function (val) {
+                                  return decodeFieldLoop(end)(Proto_Decode.signedVarint64(_xs_)(v.pos))(function (val) {
                                       return {
                                           date: new Data_Maybe.Just(val),
                                           id: acc.id,
@@ -5853,7 +6006,7 @@ var PS = {};
                   };
               };
           };
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
                   id: Data_Maybe.Nothing.value,
                   date: Data_Maybe.Nothing.value,
@@ -5882,7 +6035,7 @@ var PS = {};
               return function (acc) {
                   return function (pos1) {
                       if (pos1 < end) {
-                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
                               var v1 = v.val >>> 3;
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(decodeDriverInfo(_xs_)(v.pos))(function (val) {
@@ -5903,7 +6056,7 @@ var PS = {};
                   };
               };
           };
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
                   freeDrivers: [  ]
               })(v.pos);
@@ -5916,7 +6069,7 @@ var PS = {};
               return function (acc) {
                   return function (pos1) {
                       if (pos1 < end) {
-                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
                               var v1 = v.val >>> 3;
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
@@ -5932,7 +6085,7 @@ var PS = {};
                                   });
                               };
                               if (v1 === 5) {
-                                  return decodeFieldLoop(end)(Proto_Decode["double"](_xs_)(v.pos))(function (val) {
+                                  return decodeFieldLoop(end)(Proto_Decode.signedVarint64(_xs_)(v.pos))(function (val) {
                                       return {
                                           date: new Data_Maybe.Just(val),
                                           fromAddress: acc.fromAddress,
@@ -6021,7 +6174,7 @@ var PS = {};
                   };
               };
           };
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
                   id: Data_Maybe.Nothing.value,
                   date: Data_Maybe.Nothing.value,
@@ -6056,7 +6209,7 @@ var PS = {};
               return function (acc) {
                   return function (pos1) {
                       if (pos1 < end) {
-                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
                               var v1 = v.val >>> 3;
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(decodePassengerInfo(_xs_)(v.pos))(function (val) {
@@ -6077,7 +6230,7 @@ var PS = {};
                   };
               };
           };
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
                   freePassengers: [  ]
               })(v.pos);
@@ -6090,14 +6243,13 @@ var PS = {};
               return function (acc) {
                   return function (pos1) {
                       if (pos1 < end) {
-                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
                               var v1 = v.val >>> 3;
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
                                       return {
                                           id: new Data_Maybe.Just(val),
                                           carPlate: acc.carPlate,
-                                          created: acc.created,
                                           firstName: acc.firstName,
                                           lastName: acc.lastName,
                                           phone: acc.phone,
@@ -6112,7 +6264,6 @@ var PS = {};
                                       return {
                                           username: new Data_Maybe.Just(val),
                                           carPlate: acc.carPlate,
-                                          created: acc.created,
                                           firstName: acc.firstName,
                                           id: acc.id,
                                           lastName: acc.lastName,
@@ -6127,7 +6278,6 @@ var PS = {};
                                       return {
                                           firstName: new Data_Maybe.Just(val),
                                           carPlate: acc.carPlate,
-                                          created: acc.created,
                                           id: acc.id,
                                           lastName: acc.lastName,
                                           phone: acc.phone,
@@ -6142,7 +6292,6 @@ var PS = {};
                                       return {
                                           lastName: new Data_Maybe.Just(val),
                                           carPlate: acc.carPlate,
-                                          created: acc.created,
                                           firstName: acc.firstName,
                                           id: acc.id,
                                           phone: acc.phone,
@@ -6157,7 +6306,6 @@ var PS = {};
                                       return {
                                           photo: new Data_Maybe.Just(val),
                                           carPlate: acc.carPlate,
-                                          created: acc.created,
                                           firstName: acc.firstName,
                                           id: acc.id,
                                           lastName: acc.lastName,
@@ -6172,7 +6320,6 @@ var PS = {};
                                       return {
                                           phone: new Data_Maybe.Just(val),
                                           carPlate: acc.carPlate,
-                                          created: acc.created,
                                           firstName: acc.firstName,
                                           id: acc.id,
                                           lastName: acc.lastName,
@@ -6186,7 +6333,6 @@ var PS = {};
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
                                       return {
                                           carPlate: new Data_Maybe.Just(val),
-                                          created: acc.created,
                                           firstName: acc.firstName,
                                           id: acc.id,
                                           lastName: acc.lastName,
@@ -6202,27 +6348,11 @@ var PS = {};
                                       return {
                                           tpe: new Data_Maybe.Just(val),
                                           carPlate: acc.carPlate,
-                                          created: acc.created,
                                           firstName: acc.firstName,
                                           id: acc.id,
                                           lastName: acc.lastName,
                                           phone: acc.phone,
                                           photo: acc.photo,
-                                          username: acc.username
-                                      };
-                                  });
-                              };
-                              if (v1 === 9) {
-                                  return decodeFieldLoop(end)(Proto_Decode["double"](_xs_)(v.pos))(function (val) {
-                                      return {
-                                          created: new Data_Maybe.Just(val),
-                                          carPlate: acc.carPlate,
-                                          firstName: acc.firstName,
-                                          id: acc.id,
-                                          lastName: acc.lastName,
-                                          phone: acc.phone,
-                                          photo: acc.photo,
-                                          tpe: acc.tpe,
                                           username: acc.username
                                       };
                                   });
@@ -6239,7 +6369,7 @@ var PS = {};
                   };
               };
           };
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
                   id: Data_Maybe.Nothing.value,
                   username: Data_Maybe.Nothing.value,
@@ -6248,10 +6378,9 @@ var PS = {};
                   photo: Data_Maybe.Nothing.value,
                   phone: Data_Maybe.Nothing.value,
                   carPlate: Data_Maybe.Nothing.value,
-                  tpe: Data_Maybe.Nothing.value,
-                  created: Data_Maybe.Nothing.value
+                  tpe: Data_Maybe.Nothing.value
               })(v.pos))(function (v1) {
-                  if (v1.val.id instanceof Data_Maybe.Just && (v1.val.username instanceof Data_Maybe.Just && v1.val.created instanceof Data_Maybe.Just)) {
+                  if (v1.val.id instanceof Data_Maybe.Just && v1.val.username instanceof Data_Maybe.Just) {
                       return Control_Applicative.pure(Data_Either.applicativeEither)({
                           pos: v1.pos,
                           val: {
@@ -6262,8 +6391,7 @@ var PS = {};
                               photo: v1.val.photo,
                               phone: v1.val.phone,
                               carPlate: v1.val.carPlate,
-                              tpe: v1.val.tpe,
-                              created: v1.val.created.value0
+                              tpe: v1.val.tpe
                           }
                       });
                   };
@@ -6278,7 +6406,7 @@ var PS = {};
               return function (acc) {
                   return function (pos1) {
                       if (pos1 < end) {
-                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
                               var v1 = v.val >>> 3;
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(decodeUserData(_xs_)(v.pos))(function (val) {
@@ -6299,7 +6427,7 @@ var PS = {};
                   };
               };
           };
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
                   user: Data_Maybe.Nothing.value
               })(v.pos))(function (v1) {
@@ -6322,7 +6450,7 @@ var PS = {};
               return function (acc) {
                   return function (pos1) {
                       if (pos1 < end) {
-                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
                               var v1 = v.val >>> 3;
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
@@ -6343,7 +6471,7 @@ var PS = {};
                   };
               };
           };
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
                   id: Data_Maybe.Nothing.value
               })(v.pos))(function (v1) {
@@ -6366,7 +6494,7 @@ var PS = {};
               return function (acc) {
                   return function (pos1) {
                       if (pos1 < end) {
-                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos1))(function (v) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
                               var v1 = v.val >>> 3;
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
@@ -6387,7 +6515,7 @@ var PS = {};
                   };
               };
           };
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(pos0))(function (v) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
                   err: Data_Maybe.Nothing.value
               })(v.pos);
@@ -6405,7 +6533,7 @@ var PS = {};
               })(res);
           };
       };
-      return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.uint32(_xs_)(0))(function (v) {
+      return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(0))(function (v) {
           var v1 = v.val >>> 3;
           if (v1 === 1) {
               return decode(decodePong(_xs_)(v.pos))(function (v2) {
