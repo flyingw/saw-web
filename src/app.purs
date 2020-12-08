@@ -137,13 +137,13 @@ appClass = component "App" \this -> do
         li [ cn "avatar" ]
         [ span [ cn "nav-link p-0" ]
           [ img [ src photo, cn "rounded-circle z-depth-0 mr-1", height "35" ]
-          , text $ fromMaybe user.username $ user.firstName <|> user.lastName 
+          , text $ fromMaybe "" $ user.firstName <|> user.lastName 
           ]
         ]
       Just user ->
         li [ cn "nav-item" ]
         [ span [ cn "nav-link" ]
-          [ text $ fromMaybe user.username $ user.firstName <|> user.lastName ]
+          [ text $ fromMaybe "" $ user.firstName <|> user.lastName ]
         ]
       Nothing ->
         li [ cn "nav-item" ]

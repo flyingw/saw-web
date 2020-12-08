@@ -1,5 +1,6 @@
 *.DS_Store
 *.swp
 /node_modules/
+/ext/node_modules/
 /output/
 /.spago/

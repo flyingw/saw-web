@@ -1,7 +1,7 @@
 npx spago build && \
 npx purs bundle 'output/**/*.js' -o 'public/app.js' -m App &&
 
-files=("bootstrap.min.css" "fontawesome.min.css" "app.css" "react.production.min.js" "react-dom.production.min.js" "require.js" "app.js")
+files=("bootstrap.min.css" "fontawesome.min.css" "app.css" "require.js" "app.js")
 for file in ${files[@]}; do
   cmd="date -r public/$file +'%s'"
   v=$(eval "$cmd")

@@ -5937,7 +5937,7 @@ var PS = {};
                       if (v instanceof Data_Maybe.Nothing) {
                           return Data_Either.Left.create(new Proto_Decode.MissingFields("PassengerType"));
                       };
-                      throw new Error("Failed pattern match at Api.Push (line 148, column 5 - line 148, column 159): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
+                      throw new Error("Failed pattern match at Api.Push (line 142, column 5 - line 142, column 159): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
                   };
               };
           };
@@ -6248,25 +6248,21 @@ var PS = {};
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
                                       return {
-                                          id: new Data_Maybe.Just(val),
+                                          firstName: new Data_Maybe.Just(val),
                                           carPlate: acc.carPlate,
-                                          firstName: acc.firstName,
                                           lastName: acc.lastName,
                                           phone: acc.phone,
                                           photo: acc.photo,
-                                          tpe: acc.tpe,
-                                          username: acc.username
+                                          tpe: acc.tpe
                                       };
                                   });
                               };
                               if (v1 === 2) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
                                       return {
-                                          username: new Data_Maybe.Just(val),
+                                          lastName: new Data_Maybe.Just(val),
                                           carPlate: acc.carPlate,
                                           firstName: acc.firstName,
-                                          id: acc.id,
-                                          lastName: acc.lastName,
                                           phone: acc.phone,
                                           photo: acc.photo,
                                           tpe: acc.tpe
@@ -6276,84 +6272,48 @@ var PS = {};
                               if (v1 === 3) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
                                       return {
-                                          firstName: new Data_Maybe.Just(val),
+                                          photo: new Data_Maybe.Just(val),
                                           carPlate: acc.carPlate,
-                                          id: acc.id,
+                                          firstName: acc.firstName,
                                           lastName: acc.lastName,
                                           phone: acc.phone,
-                                          photo: acc.photo,
-                                          tpe: acc.tpe,
-                                          username: acc.username
+                                          tpe: acc.tpe
                                       };
                                   });
                               };
                               if (v1 === 4) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
                                       return {
-                                          lastName: new Data_Maybe.Just(val),
+                                          phone: new Data_Maybe.Just(val),
                                           carPlate: acc.carPlate,
                                           firstName: acc.firstName,
-                                          id: acc.id,
-                                          phone: acc.phone,
+                                          lastName: acc.lastName,
                                           photo: acc.photo,
-                                          tpe: acc.tpe,
-                                          username: acc.username
+                                          tpe: acc.tpe
                                       };
                                   });
                               };
                               if (v1 === 5) {
                                   return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
                                       return {
-                                          photo: new Data_Maybe.Just(val),
-                                          carPlate: acc.carPlate,
+                                          carPlate: new Data_Maybe.Just(val),
                                           firstName: acc.firstName,
-                                          id: acc.id,
                                           lastName: acc.lastName,
                                           phone: acc.phone,
-                                          tpe: acc.tpe,
-                                          username: acc.username
+                                          photo: acc.photo,
+                                          tpe: acc.tpe
                                       };
                                   });
                               };
                               if (v1 === 6) {
-                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
-                                      return {
-                                          phone: new Data_Maybe.Just(val),
-                                          carPlate: acc.carPlate,
-                                          firstName: acc.firstName,
-                                          id: acc.id,
-                                          lastName: acc.lastName,
-                                          photo: acc.photo,
-                                          tpe: acc.tpe,
-                                          username: acc.username
-                                      };
-                                  });
-                              };
-                              if (v1 === 7) {
-                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
-                                      return {
-                                          carPlate: new Data_Maybe.Just(val),
-                                          firstName: acc.firstName,
-                                          id: acc.id,
-                                          lastName: acc.lastName,
-                                          phone: acc.phone,
-                                          photo: acc.photo,
-                                          tpe: acc.tpe,
-                                          username: acc.username
-                                      };
-                                  });
-                              };
-                              if (v1 === 8) {
                                   return decodeFieldLoop(end)(decodePassengerType(_xs_)(v.pos))(function (val) {
                                       return {
                                           tpe: new Data_Maybe.Just(val),
                                           carPlate: acc.carPlate,
                                           firstName: acc.firstName,
-                                          id: acc.id,
                                           lastName: acc.lastName,
                                           phone: acc.phone,
-                                          photo: acc.photo,
-                                          username: acc.username
+                                          photo: acc.photo
                                       };
                                   });
                               };
@@ -6370,33 +6330,14 @@ var PS = {};
               };
           };
           return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
-              return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
-                  id: Data_Maybe.Nothing.value,
-                  username: Data_Maybe.Nothing.value,
+              return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
                   firstName: Data_Maybe.Nothing.value,
                   lastName: Data_Maybe.Nothing.value,
                   photo: Data_Maybe.Nothing.value,
                   phone: Data_Maybe.Nothing.value,
                   carPlate: Data_Maybe.Nothing.value,
                   tpe: Data_Maybe.Nothing.value
-              })(v.pos))(function (v1) {
-                  if (v1.val.id instanceof Data_Maybe.Just && v1.val.username instanceof Data_Maybe.Just) {
-                      return Control_Applicative.pure(Data_Either.applicativeEither)({
-                          pos: v1.pos,
-                          val: {
-                              id: v1.val.id.value0,
-                              username: v1.val.username.value0,
-                              firstName: v1.val.firstName,
-                              lastName: v1.val.lastName,
-                              photo: v1.val.photo,
-                              phone: v1.val.phone,
-                              carPlate: v1.val.carPlate,
-                              tpe: v1.val.tpe
-                          }
-                      });
-                  };
-                  return Data_Either.Left.create(new Proto_Decode.MissingFields("UserData"));
-              });
+              })(v.pos);
           });
       };
   };
@@ -10663,10 +10604,10 @@ var PS = {};
           return function __do() {
               var state = React.getState($$this)();
               if (state.user instanceof Data_Maybe.Just && state.user.value0.photo instanceof Data_Maybe.Just) {
-                  return React_DOM.li([ Lib_React.cn("avatar") ])([ React_DOM.span([ Lib_React.cn("nav-link p-0") ])([ React_DOM.img([ React_DOM_Props.src(state.user.value0.photo.value0), Lib_React.cn("rounded-circle z-depth-0 mr-1"), React_DOM_Props.height("35") ]), React_DOM.text(Data_Maybe.fromMaybe(state.user.value0.username)(Control_Alt.alt(Data_Maybe.altMaybe)(state.user.value0.firstName)(state.user.value0.lastName))) ]) ]);
+                  return React_DOM.li([ Lib_React.cn("avatar") ])([ React_DOM.span([ Lib_React.cn("nav-link p-0") ])([ React_DOM.img([ React_DOM_Props.src(state.user.value0.photo.value0), Lib_React.cn("rounded-circle z-depth-0 mr-1"), React_DOM_Props.height("35") ]), React_DOM.text(Data_Maybe.fromMaybe("")(Control_Alt.alt(Data_Maybe.altMaybe)(state.user.value0.firstName)(state.user.value0.lastName))) ]) ]);
               };
               if (state.user instanceof Data_Maybe.Just) {
-                  return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.span([ Lib_React.cn("nav-link") ])([ React_DOM.text(Data_Maybe.fromMaybe(state.user.value0.username)(Control_Alt.alt(Data_Maybe.altMaybe)(state.user.value0.firstName)(state.user.value0.lastName))) ]) ]);
+                  return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.span([ Lib_React.cn("nav-link") ])([ React_DOM.text(Data_Maybe.fromMaybe("")(Control_Alt.alt(Data_Maybe.altMaybe)(state.user.value0.firstName)(state.user.value0.lastName))) ]) ]);
               };
               if (state.user instanceof Data_Maybe.Nothing) {
                   return React_DOM.li([ Lib_React.cn("nav-item") ])([ React_DOM.a([ Lib_React.cn("nav-link"), React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {

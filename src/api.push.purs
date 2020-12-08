@@ -125,12 +125,12 @@ decodeUserData _xs_ pos0 = do
     decode end acc pos1 | pos1 < end = do
       { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
       case tag `zshr` 3 of
-        3 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { firstName = Just val }
-        4 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { lastName = Just val }
-        5 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { photo = Just val }
-        6 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { phone = Just val }
-        7 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { carPlate = Just val }
-        8 -> decodeFieldLoop end (decodePassengerType _xs_ pos2) \val -> acc { tpe = Just val }
+        1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { firstName = Just val }
+        2 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { lastName = Just val }
+        3 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { photo = Just val }
+        4 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { phone = Just val }
+        5 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { carPlate = Just val }
+        6 -> decodeFieldLoop end (decodePassengerType _xs_ pos2) \val -> acc { tpe = Just val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
     decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
 
