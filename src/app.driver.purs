@@ -9,7 +9,6 @@ import Data.Array (fromFoldable, elem, delete, (:))
 import Data.JSDate (JSDate, now, getTime)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Effect (Effect)
-import Global (encodeURI)
 import React (ReactClass, ReactThis, getProps, getState, modifyState, component, createLeafElement)
 import React.DOM (text, div, label, input, button, h6, small, iframe)
 import React.DOM.Props (htmlFor, _id, _type, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, disabled, checked)
@@ -24,6 +23,7 @@ import Lib.Datepicker (datepickerClass)
 import Lib.React(cn, onChangeValue, onChangeValueInt)
 import Lib.WebSocket (Ws)
 import Lib.WebSocket as WS
+import Lib.JS (encodeURI)
 
 type Props =
   { ws :: Ws

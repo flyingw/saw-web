@@ -1,5 +1,5 @@
-{ name = "web"
-, dependencies =
+{ name = "saw"
+, dependencies = 
   [ "affjax"
   , "console"
   , "effect"
@@ -13,5 +13,5 @@
   , "web-socket"
   ]
 , packages = ./packages.dhall
-, sources = [ "src/**/*.purs", "test/**/*.purs" ]
+, sources = [ "src/**/*.purs" ]
 }

@@ -18,7 +18,8 @@ import ReactDOM (render)
 import Web.DOM.NonElementParentNode (getElementById)
 import Web.HTML (window)
 import Web.HTML.HTMLDocument (toNonElementParentNode)
-import Web.HTML.Window (document)
+import Web.HTML.Window (document, location)
+import Web.HTML.Location (hostname)
 
 import Ajax (getEff)
 
@@ -157,8 +158,11 @@ view = do
   doc       <- window >>= document
   elem      <- getElementById "container" $ toNonElementParentNode doc
   container <- maybe (throw "container not found") pure elem
-  ws        <- endpoint >>= WS.new
+  hostname' <- window >>= location >>= hostname
+  ws <- WS.new $
+    if hostname' == "localhost"
+      then "localhost:8001/ws"
+      else "ridehub.city/ws"
   let element = createLeafElement appClass { ws }
   void $ render element container
 
-foreign import endpoint :: Effect String

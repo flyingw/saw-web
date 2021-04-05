@@ -2,7 +2,7 @@
   "private": true,
   "devDependencies": {
     "pscid": "*",
-    "purescript": "0.13.8",
+    "purescript": "*",
     "purescript-psa": "*",
     "sass": "*",
     "spago": "*"

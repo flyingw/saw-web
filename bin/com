@@ -6,5 +6,4 @@ for file in ${files[@]}; do
   cmd="date -r public/$file +'%s'"
   v=$(eval "$cmd")
   sed -i '' "s/\($file?\)\([0-9]*\)/\1$v/" public/index.html;
-  sed -i '' "s/\($file?\)\([0-9]*\)/\1$v/" public/dev.html;
 done
