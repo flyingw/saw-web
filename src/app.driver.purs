@@ -16,6 +16,7 @@ import React.DOM.Props (htmlFor, _id, _type, required, autoComplete, min, max, v
 import Api (PassengerType(..))
 import Api.Pull (Pull(AddDriver), Address)
 import Api.Push (Push(AddRouteOk, AddRouteErr), UserData)
+import Proto.BigInt (fromNumber)
 
 import Keys (keyPassengerType)
 
@@ -98,7 +99,7 @@ driverClass = component "Driver" \this -> do
       , lastName: s.lastName
       , phone: s.phone
       , carPlate: s.carPlate
-      , date: getTime s.date
+      , date: fromNumber $ getTime s.date
       , deviationDistance: s.deviationDistance
       , deviationTime: s.deviationTime
       , seats: s.seats

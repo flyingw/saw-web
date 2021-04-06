@@ -17,6 +17,7 @@ import React.DOM.Props (htmlFor, _id, _type, required, autoComplete, value, src,
 import Api (PassengerType(..))
 import Api.Pull (Pull(AddPassenger), Address)
 import Api.Push (UserData, Push(AddRouteOk))
+import Proto.BigInt (fromNumber)
 
 import Keys (keyPassengerType)
 
@@ -93,7 +94,7 @@ riderClass = component "Rider" \this -> do
         firstName: s.firstName
       , lastName: s.lastName
       , phone: s.phone
-      , date: getTime s.date
+      , date: fromNumber $ getTime s.date
       , tpe: s.tpe
       , from: s.from
       , to: s.to

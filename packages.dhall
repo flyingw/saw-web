@@ -117,5 +117,5 @@ in  upstream
       , repo =
           "https://github.com/zero-deps/purescript-protobuf.git"
       , version =
-          "1.2.0"
+          "1.2.2"
       }

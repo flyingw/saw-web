@@ -18,6 +18,7 @@ module Api.Pull
 import Data.Array (concatMap)
 import Data.Eq (class Eq)
 import Prelude (($))
+import Proto.BigInt (BigInt)
 import Proto.Encode as Encode
 import Proto.Uint8Array (Uint8Array, length, concatAll)
 import Api
@@ -31,13 +32,13 @@ data TelegramData = TelegramString TelegramString | TelegramNum TelegramNum
 derive instance eqTelegramData :: Eq TelegramData
 type TelegramString = { key :: String, value :: String }
 type TelegramNum = { key :: String, value :: Number }
-type AddDriver = { firstName :: String, lastName :: String, phone :: String, carPlate :: String, date :: Number, deviationDistance :: Int, deviationTime :: Int, seats :: Int, from :: Address, to :: Address, types :: Array PassengerType, lang :: String }
+type AddDriver = { firstName :: String, lastName :: String, phone :: String, carPlate :: String, date :: BigInt, deviationDistance :: Int, deviationTime :: Int, seats :: Int, from :: Address, to :: Address, types :: Array PassengerType, lang :: String }
 defaultAddDriver :: { types :: Array PassengerType }
 defaultAddDriver = { types: [] }
 type Address = { country :: String, city :: String, street :: String, building :: String }
-type AddPassenger = { firstName :: String, lastName :: String, phone :: String, date :: Number, tpe :: PassengerType, from :: Address, to :: Address }
-type GetFreeDrivers = { date :: Number }
-type GetFreePassengers = { date :: Number }
+type AddPassenger = { firstName :: String, lastName :: String, phone :: String, date :: BigInt, tpe :: PassengerType, from :: Address, to :: Address }
+type GetFreeDrivers = { date :: BigInt }
+type GetFreePassengers = { date :: BigInt }
 type GetCitiesList = { country :: String, lang :: String }
 
 encodePull :: Pull -> Uint8Array
@@ -99,7 +100,7 @@ encodeAddDriver msg = do
         , Encode.unsignedVarint32 34
         , Encode.string msg.carPlate
         , Encode.unsignedVarint32 40
-        , Encode.signedVarint64 msg.date
+        , Encode.bigInt msg.date
         , Encode.unsignedVarint32 48
         , Encode.signedVarint32 msg.deviationDistance
         , Encode.unsignedVarint32 56
@@ -184,7 +185,7 @@ encodeAddPassenger msg = do
         , Encode.unsignedVarint32 26
         , Encode.string msg.phone
         , Encode.unsignedVarint32 32
-        , Encode.signedVarint64 msg.date
+        , Encode.bigInt msg.date
         , Encode.unsignedVarint32 42
         , encodePassengerType msg.tpe
         , Encode.unsignedVarint32 50
@@ -198,7 +199,7 @@ encodeGetFreeDrivers :: GetFreeDrivers -> Uint8Array
 encodeGetFreeDrivers msg = do
   let xs = concatAll
         [ Encode.unsignedVarint32 8
-        , Encode.signedVarint64 msg.date
+        , Encode.bigInt msg.date
         ]
   concatAll [ Encode.unsignedVarint32 $ length xs, xs ]
 
@@ -206,7 +207,7 @@ encodeGetFreePassengers :: GetFreePassengers -> Uint8Array
 encodeGetFreePassengers msg = do
   let xs = concatAll
         [ Encode.unsignedVarint32 8
-        , Encode.signedVarint64 msg.date
+        , Encode.bigInt msg.date
         ]
   concatAll [ Encode.unsignedVarint32 $ length xs, xs ]
 

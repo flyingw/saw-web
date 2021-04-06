@@ -1,1 +1,1 @@
-php -S ridehub.city.local:8002 -t public/
+php -S ridehub.city:80 -t public/ bin/run.php

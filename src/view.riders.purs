@@ -15,6 +15,7 @@ import React.DOM.Props (_type, frameBorder, height, href, key, onClick, src, wid
 
 import Api.Pull (Pull(GetFreePassengers))
 import Api.Push (Push(FreePassengers), UserData, PassengerInfo)
+import Proto.BigInt (fromNumber, unsafeToNumber)
 
 import Lib.Datepicker (datepickerClass, toLocaleTimeString)
 import Lib.React(cn)
@@ -64,7 +65,7 @@ ridersClass = component "View.Passengers" \this -> do
   fetchPassengers this = do
     p  <- getProps this
     s  <- getState this
-    WS.snd p.ws $ GetFreePassengers { date: getTime s.date }
+    WS.snd p.ws $ GetFreePassengers { date: fromNumber $ getTime s.date }
 
   render :: This -> Effect ReactElement
   render this = do
@@ -95,7 +96,7 @@ ridersClass = component "View.Passengers" \this -> do
     state <- getState this
     props <- getProps this
     map (div [ cn "list-group d-flex flex-column justify-content-center" ]) $ sequence $ map (\pi -> do
-      t <- toLocaleTimeString $ fromTime pi.date
+      t <- toLocaleTimeString $ fromTime $ unsafeToNumber pi.date
       pure $
         div [ cn "list-group-item", key pi.id ]
         [ div [ cn "d-flex flex-row" ]

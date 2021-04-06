@@ -16,6 +16,7 @@ import React.DOM.Props (_type, frameBorder, height, href, key, onClick, src, wid
 
 import Api.Pull (Pull(GetFreeDrivers))
 import Api.Push (Push(FreeDrivers), UserData, DriverInfo)
+import Proto.BigInt (fromNumber, unsafeToNumber)
 
 import Lib.Datepicker (datepickerClass, toLocaleTimeString)
 import Lib.React(cn)
@@ -65,7 +66,7 @@ driversClass = component "View.Drivers" \this -> do
   fetchDrivers this = do
     p  <- getProps this
     s  <- getState this
-    WS.snd p.ws $ GetFreeDrivers { date: getTime s.date }
+    WS.snd p.ws $ GetFreeDrivers { date: fromNumber $ getTime s.date }
 
   render :: This -> Effect ReactElement
   render this = do
@@ -96,7 +97,7 @@ driversClass = component "View.Drivers" \this -> do
     state <- getState this
     props <- getProps this
     map (div [ cn "list-group d-flex flex-column justify-content-center" ]) $ map catMaybes $ sequence $ map (\di -> do
-      t <- toLocaleTimeString $ fromTime di.date
+      t <- toLocaleTimeString $ fromTime $ unsafeToNumber di.date
       pure $ head di.routes <#> (\route ->
         div [ cn "list-group-item", key di.id ]
         [ div [ cn "d-flex flex-row" ]

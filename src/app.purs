@@ -19,9 +19,7 @@ import Web.DOM.NonElementParentNode (getElementById)
 import Web.HTML (window)
 import Web.HTML.HTMLDocument (toNonElementParentNode)
 import Web.HTML.Window (document, location)
-import Web.HTML.Location (hostname)
-
-import Ajax (getEff)
+import Web.HTML.Location (port)
 
 import Api.Push (Push(SessionData), UserData)
 
@@ -29,6 +27,7 @@ import Lib.Datepicker (datepickerLoad)
 import Lib.React (cn, onChangeValue)
 import Lib.WebSocket (Ws)
 import Lib.WebSocket as WS
+import Lib.Ajax (getEff)
 
 import App.Add (addClass)
 import App.Home (homeClass)
@@ -154,15 +153,11 @@ appClass = component "App" \this -> do
 
 view :: Effect Unit
 view = do
-  _         <- datepickerLoad
-  doc       <- window >>= document
-  elem      <- getElementById "container" $ toNonElementParentNode doc
+  _ <- datepickerLoad
+  doc <- window >>= document
+  elem <- getElementById "container" $ toNonElementParentNode doc
   container <- maybe (throw "container not found") pure elem
-  hostname' <- window >>= location >>= hostname
-  ws <- WS.new $
-    if hostname' == "localhost"
-      then "localhost:8001/ws"
-      else "ridehub.city/ws"
+  port' <- window >>= location >>= port
+  ws <- WS.new "ridehub.city:8001/ws"
   let element = createLeafElement appClass { ws }
   void $ render element container
-

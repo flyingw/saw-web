@@ -28,6 +28,7 @@ import Data.Int.Bits (zshr, (.&.))
 import Data.Maybe (Maybe(Just, Nothing))
 import Data.Unit (Unit, unit)
 import Prelude (map, bind, pure, ($), (+), (<))
+import Proto.BigInt (BigInt)
 import Proto.Decode as Decode
 import Proto.Uint8Array (Uint8Array)
 import Api
@@ -50,10 +51,10 @@ defaultAddRouteErr = { err: Nothing }
 type FreeDrivers = { freeDrivers :: Array DriverInfo }
 defaultFreeDrivers :: { freeDrivers :: Array DriverInfo }
 defaultFreeDrivers = { freeDrivers: [] }
-type DriverInfo = { id :: String, date :: Number, routes :: Array RouteInfo, types :: Array PassengerType }
+type DriverInfo = { id :: String, date :: BigInt, routes :: Array RouteInfo, types :: Array PassengerType }
 defaultDriverInfo :: { routes :: Array RouteInfo, types :: Array PassengerType }
 defaultDriverInfo = { routes: [], types: [] }
-type DriverInfo' = { id :: Maybe String, date :: Maybe Number, routes :: Array RouteInfo, types :: Array PassengerType }
+type DriverInfo' = { id :: Maybe String, date :: Maybe BigInt, routes :: Array RouteInfo, types :: Array PassengerType }
 type RouteInfo = { fromAddress :: String, fromLocation :: Location, toAddress :: String, toLocation :: Location }
 type RouteInfo' = { fromAddress :: Maybe String, fromLocation :: Maybe Location, toAddress :: Maybe String, toLocation :: Maybe Location }
 type Location = { lat :: Number, lng :: Number }
@@ -61,8 +62,8 @@ type Location' = { lat :: Maybe Number, lng :: Maybe Number }
 type FreePassengers = { freePassengers :: Array PassengerInfo }
 defaultFreePassengers :: { freePassengers :: Array PassengerInfo }
 defaultFreePassengers = { freePassengers: [] }
-type PassengerInfo = { id :: String, date :: Number, fromAddress :: String, fromLocation :: Location, toAddress :: String, toLocation :: Location, tpe :: PassengerType }
-type PassengerInfo' = { id :: Maybe String, date :: Maybe Number, fromAddress :: Maybe String, fromLocation :: Maybe Location, toAddress :: Maybe String, toLocation :: Maybe Location, tpe :: Maybe PassengerType }
+type PassengerInfo = { id :: String, date :: BigInt, fromAddress :: String, fromLocation :: Location, toAddress :: String, toLocation :: Location, tpe :: PassengerType }
+type PassengerInfo' = { id :: Maybe String, date :: Maybe BigInt, fromAddress :: Maybe String, fromLocation :: Maybe Location, toAddress :: Maybe String, toLocation :: Maybe Location, tpe :: Maybe PassengerType }
 type CitiesList = { cities :: Array String }
 defaultCitiesList :: { cities :: Array String }
 defaultCitiesList = { cities: [] }
@@ -244,7 +245,7 @@ decodeDriverInfo _xs_ pos0 = do
       { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
       case tag `zshr` 3 of
         1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { id = Just val }
-        6 -> decodeFieldLoop end (Decode.signedVarint64 _xs_ pos2) \val -> acc { date = Just val }
+        6 -> decodeFieldLoop end (Decode.bigInt _xs_ pos2) \val -> acc { date = Just val }
         8 -> decodeFieldLoop end (decodeRouteInfo _xs_ pos2) \val -> acc { routes = snoc acc.routes val }
         9 -> decodeFieldLoop end (decodePassengerType _xs_ pos2) \val -> acc { types = snoc acc.types val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
@@ -312,7 +313,7 @@ decodePassengerInfo _xs_ pos0 = do
       { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
       case tag `zshr` 3 of
         1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { id = Just val }
-        5 -> decodeFieldLoop end (Decode.signedVarint64 _xs_ pos2) \val -> acc { date = Just val }
+        5 -> decodeFieldLoop end (Decode.bigInt _xs_ pos2) \val -> acc { date = Just val }
         6 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { fromAddress = Just val }
         7 -> decodeFieldLoop end (decodeLocation _xs_ pos2) \val -> acc { fromLocation = Just val }
         8 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { toAddress = Just val }
