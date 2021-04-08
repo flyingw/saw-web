@@ -32,6 +32,7 @@ import Lib.Ajax (getEff)
 import App.Add (addClass)
 import App.Home (homeClass)
 import App.View (viewClass)
+import App.ConfirmRegistration (confirmRegistrationClass)
 
 type Props =
   { ws :: Ws
@@ -47,9 +48,11 @@ type State =
 
 type This = ReactThis Props State
 
-data MenuItem = HomeItem | ViewItem | AddItem
+data MenuItem = Loading | Register | HomeItem | ViewItem | AddItem
 instance showMenuItem :: Show MenuItem where
   show :: MenuItem -> String
+  show Loading  = ""
+  show Register = ""
   show HomeItem = "key.menu.home"
   show ViewItem = "key.menu.view"
   show AddItem  = "key.menu.add"
@@ -63,7 +66,7 @@ appClass = component "App" \this -> do
       { user: Nothing
       , lang: "uk"
       , keyText: \key -> key
-      , menuItem: HomeItem
+      , menuItem: Register
       , expandMenu: false
       }:: State
     , render: render this
@@ -116,6 +119,13 @@ appClass = component "App" \this -> do
         , ul [ cn "navbar-nav ml-auto nav-flex-icons d-none d-lg-inline" ] [ u ]
         ]
       , div [ cn "m-3"] $ case state.menuItem of
+          Loading  -> [ div [] [] ]
+          Register -> [ createLeafElement confirmRegistrationClass { ws: props.ws
+                                                                   , keyText: state.keyText
+                                                                   , lang: state.lang
+                                                                   , done: modifyState this _{ menuItem = HomeItem }
+                                                                   }
+                      ]
           HomeItem -> [ createLeafElement homeClass { await: pure unit
                                                     , ok: WS.reconnect props.ws
                                                     , err: pure unit

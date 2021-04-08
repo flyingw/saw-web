@@ -25,6 +25,7 @@ import Lib.React(cn, onChangeValue, onChangeValueInt)
 import Lib.WebSocket (Ws)
 import Lib.WebSocket as WS
 import Lib.JS (encodeURI)
+import App.Waypoint (waypointClass)
 
 type Props =
   { ws :: Ws
@@ -195,7 +196,7 @@ driverClass = component "Driver" \this -> do
         , div [ cn "col-md-1 d-lg-none mb-md-3" ] []  
         , div [ cn "col-md-4 col-lg-1 mb-3" ]
           [ label [ htmlFor "seats" ] [ text $ props.keyText "key.seats" ]
-          , input [ _type "number", cn "form-control", _id "seats", min "1", max "5", value "1", disabled true, required true
+          , input [ _type "number", cn "form-control", _id "seats", min "1", max "5", value "1", required true
                   , value $ show state.seats
                   , onChangeValueInt \v -> modifyState this _{ seats=v }
                   ]
@@ -276,6 +277,7 @@ driverClass = component "Driver" \this -> do
                   ]
           ]
         ]
+      , createLeafElement waypointClass props
       , button [ cn "btn btn-outline-secondary mb-3", _type "button"
                , onClick \_ -> updateMap this ] [ text $ props.keyText "key.overview_route"
                ]

@@ -4830,6 +4830,22 @@ var PS = {};
       };
       return GetCitiesList;
   })();
+  var GetUserData = (function () {
+      function GetUserData() {
+
+      };
+      GetUserData.value = new GetUserData();
+      return GetUserData;
+  })();
+  var ConfirmRegistration = (function () {
+      function ConfirmRegistration(value0) {
+          this.value0 = value0;
+      };
+      ConfirmRegistration.create = function (value0) {
+          return new ConfirmRegistration(value0);
+      };
+      return ConfirmRegistration;
+  })();
   var encodeTelegramString = function (msg) {
       var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), Proto_Encode.string(msg.key), Proto_Encode.unsignedVarint32(18), Proto_Encode.string(msg.value) ]);
       return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
@@ -4847,7 +4863,7 @@ var PS = {};
           var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(18), encodeTelegramNum(v.value0) ]);
           return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 63, column 1 - line 63, column 49): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Api.Pull (line 67, column 1 - line 67, column 49): " + [ v.constructor.name ]);
   };
   var encodeTelegramLogin = function (msg) {
       var xs = Proto_Uint8Array.concatAll([ Proto_Uint8Array.concatAll(Data_Array.concatMap(function (x) {
@@ -4859,6 +4875,7 @@ var PS = {};
   var encodePolice = Proto_Encode.unsignedVarint32(0);
   var encodePing = Proto_Encode.unsignedVarint32(0);
   var encodeMedical = Proto_Encode.unsignedVarint32(0);
+  var encodeGetUserData = Proto_Encode.unsignedVarint32(0);
   var encodeGetFreePassengers = function (msg) {
       var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(8), Proto_Encode.bigInt(msg.date) ]);
       return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
@@ -4873,6 +4890,10 @@ var PS = {};
   };
   var encodeFirefighter = Proto_Encode.unsignedVarint32(0);
   var encodeFarmacy = Proto_Encode.unsignedVarint32(0);
+  var encodeConfirmRegistration = function (msg) {
+      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), Proto_Encode.string(msg.firstName), Proto_Encode.unsignedVarint32(18), Proto_Encode.string(msg.lastName), Proto_Encode.unsignedVarint32(26), Proto_Encode.string(msg.phone), Proto_Encode.unsignedVarint32(34), Proto_Encode.string(msg.carPlate), Proto_Encode.unsignedVarint32(42), Proto_Encode.string(msg.carColor) ]);
+      return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
+  };
   var encodeCashier = Proto_Encode.unsignedVarint32(0);
   var encodeArmy = Proto_Encode.unsignedVarint32(0);
   var encodePassengerType = function (v) {
@@ -4904,7 +4925,7 @@ var PS = {};
           var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(58), encodeRegular ]);
           return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 134, column 1 - line 134, column 51): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Api.Pull (line 138, column 1 - line 138, column 51): " + [ v.constructor.name ]);
   };
   var encodeAddress = function (msg) {
       var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), Proto_Encode.string(msg.country), Proto_Encode.unsignedVarint32(18), Proto_Encode.string(msg.city), Proto_Encode.unsignedVarint32(26), Proto_Encode.string(msg.street), Proto_Encode.unsignedVarint32(34), Proto_Encode.string(msg.building) ]);
@@ -4942,13 +4963,22 @@ var PS = {};
       if (v instanceof GetCitiesList) {
           return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(402), encodeGetCitiesList(v.value0) ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 44, column 1 - line 44, column 33): " + [ v.constructor.name ]);
+      if (v instanceof GetUserData) {
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(482), encodeGetUserData ]);
+      };
+      if (v instanceof ConfirmRegistration) {
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(490), encodeConfirmRegistration(v.value0) ]);
+      };
+      throw new Error("Failed pattern match at Api.Pull (line 46, column 1 - line 46, column 33): " + [ v.constructor.name ]);
   };
   exports["TelegramLogin"] = TelegramLogin;
   exports["AddDriver"] = AddDriver;
   exports["AddPassenger"] = AddPassenger;
   exports["GetFreeDrivers"] = GetFreeDrivers;
   exports["GetFreePassengers"] = GetFreePassengers;
+  exports["GetCitiesList"] = GetCitiesList;
+  exports["GetUserData"] = GetUserData;
+  exports["ConfirmRegistration"] = ConfirmRegistration;
   exports["TelegramString"] = TelegramString;
   exports["TelegramNum"] = TelegramNum;
   exports["encodePull"] = encodePull;
@@ -5556,6 +5586,27 @@ var PS = {};
   var Data_Maybe = $PS["Data.Maybe"];
   var Data_Unit = $PS["Data.Unit"];
   var Proto_Decode = $PS["Proto.Decode"];                
+  var Guest = (function () {
+      function Guest() {
+
+      };
+      Guest.value = new Guest();
+      return Guest;
+  })();
+  var AwaitRegister = (function () {
+      function AwaitRegister() {
+
+      };
+      AwaitRegister.value = new AwaitRegister();
+      return AwaitRegister;
+  })();
+  var Active = (function () {
+      function Active() {
+
+      };
+      Active.value = new Active();
+      return Active;
+  })();
   var Pong = (function () {
       function Pong() {
 
@@ -5631,6 +5682,31 @@ var PS = {};
       };
       return CitiesList;
   })();
+  var UserDataOk = (function () {
+      function UserDataOk(value0) {
+          this.value0 = value0;
+      };
+      UserDataOk.create = function (value0) {
+          return new UserDataOk(value0);
+      };
+      return UserDataOk;
+  })();
+  var ConfirmRegistrationOk = (function () {
+      function ConfirmRegistrationOk() {
+
+      };
+      ConfirmRegistrationOk.value = new ConfirmRegistrationOk();
+      return ConfirmRegistrationOk;
+  })();
+  var ConfirmRegistrationErr = (function () {
+      function ConfirmRegistrationErr(value0) {
+          this.value0 = value0;
+      };
+      ConfirmRegistrationErr.create = function (value0) {
+          return new ConfirmRegistrationErr(value0);
+      };
+      return ConfirmRegistrationErr;
+  })();
   var decodeRegular = function (_xs_) {
       return function (pos0) {
           return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
@@ -5682,6 +5758,16 @@ var PS = {};
       };
   };
   var decodeLoginErr = function (_xs_) {
+      return function (pos0) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
+              return Control_Applicative.pure(Data_Either.applicativeEither)({
+                  pos: v.pos + v.val | 0,
+                  val: Data_Unit.unit
+              });
+          });
+      };
+  };
+  var decodeGuest = function (_xs_) {
       return function (pos0) {
           return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Applicative.pure(Data_Either.applicativeEither)({
@@ -5862,6 +5948,50 @@ var PS = {};
           });
       };
   };
+  var decodeConfirmRegistrationOk = function (_xs_) {
+      return function (pos0) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
+              return Control_Applicative.pure(Data_Either.applicativeEither)({
+                  pos: v.pos + v.val | 0,
+                  val: Data_Unit.unit
+              });
+          });
+      };
+  };
+  var decodeConfirmRegistrationErr = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (acc) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
+                              var v1 = v.val >>> 3;
+                              if (v1 === 1) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          err: new Data_Maybe.Just(val)
+                                      };
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v.pos)(v.val & 7))(function (v2) {
+                                  return acc;
+                              });
+                          });
+                      };
+                      return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                          pos: pos1,
+                          val: acc
+                      }));
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
+              return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
+                  err: Data_Maybe.Nothing.value
+              })(v.pos);
+          });
+      };
+  };
   var decodeCitiesList = function (_xs_) {
       return function (pos0) {
           var decode = function (end) {
@@ -5897,6 +6027,16 @@ var PS = {};
       };
   };
   var decodeCashier = function (_xs_) {
+      return function (pos0) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
+              return Control_Applicative.pure(Data_Either.applicativeEither)({
+                  pos: v.pos + v.val | 0,
+                  val: Data_Unit.unit
+              });
+          });
+      };
+  };
+  var decodeAwaitRegister = function (_xs_) {
       return function (pos0) {
           return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Applicative.pure(Data_Either.applicativeEither)({
@@ -5973,7 +6113,7 @@ var PS = {};
                       if (v instanceof Data_Maybe.Nothing) {
                           return Data_Either.Left.create(new Proto_Decode.MissingFields("PassengerType"));
                       };
-                      throw new Error("Failed pattern match at Api.Push (line 143, column 5 - line 143, column 159): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
+                      throw new Error("Failed pattern match at Api.Push (line 158, column 5 - line 158, column 159): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
                   };
               };
           };
@@ -6377,7 +6517,7 @@ var PS = {};
           });
       };
   };
-  var decodeSessionData = function (_xs_) {
+  var decodeUserDataOk = function (_xs_) {
       return function (pos0) {
           var decode = function (end) {
               return function (acc) {
@@ -6388,7 +6528,7 @@ var PS = {};
                               if (v1 === 1) {
                                   return decodeFieldLoop(end)(decodeUserData(_xs_)(v.pos))(function (val) {
                                       return {
-                                          user: new Data_Maybe.Just(val)
+                                          userData: new Data_Maybe.Just(val)
                                       };
                                   });
                               };
@@ -6406,17 +6546,17 @@ var PS = {};
           };
           return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
               return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
-                  user: Data_Maybe.Nothing.value
+                  userData: Data_Maybe.Nothing.value
               })(v.pos))(function (v1) {
-                  if (v1.val.user instanceof Data_Maybe.Just) {
+                  if (v1.val.userData instanceof Data_Maybe.Just) {
                       return Control_Applicative.pure(Data_Either.applicativeEither)({
                           pos: v1.pos,
                           val: {
-                              user: v1.val.user.value0
+                              userData: v1.val.userData.value0
                           }
                       });
                   };
-                  return Data_Either.Left.create(new Proto_Decode.MissingFields("SessionData"));
+                  return Data_Either.Left.create(new Proto_Decode.MissingFields("UserDataOk"));
               });
           });
       };
@@ -6499,6 +6639,117 @@ var PS = {};
           });
       };
   };
+  var decodeActive = function (_xs_) {
+      return function (pos0) {
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
+              return Control_Applicative.pure(Data_Either.applicativeEither)({
+                  pos: v.pos + v.val | 0,
+                  val: Data_Unit.unit
+              });
+          });
+      };
+  };
+  var decodeUserStatus = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (v) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v1) {
+                              var v2 = v1.val >>> 3;
+                              if (v2 === 1) {
+                                  return decodeFieldLoop(end)(decodeGuest(_xs_)(v1.pos))(function (v3) {
+                                      return new Data_Maybe.Just(Guest.value);
+                                  });
+                              };
+                              if (v2 === 2) {
+                                  return decodeFieldLoop(end)(decodeAwaitRegister(_xs_)(v1.pos))(function (v3) {
+                                      return new Data_Maybe.Just(AwaitRegister.value);
+                                  });
+                              };
+                              if (v2 === 3) {
+                                  return decodeFieldLoop(end)(decodeActive(_xs_)(v1.pos))(function (v3) {
+                                      return new Data_Maybe.Just(Active.value);
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v1.pos)(v1.val & 7))(function (v3) {
+                                  return v;
+                              });
+                          });
+                      };
+                      if (v instanceof Data_Maybe.Just) {
+                          return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                              pos: pos1,
+                              val: v.value0
+                          }));
+                      };
+                      if (v instanceof Data_Maybe.Nothing) {
+                          return Data_Either.Left.create(new Proto_Decode.MissingFields("UserStatus"));
+                      };
+                      throw new Error("Failed pattern match at Api.Push (line 213, column 5 - line 213, column 150): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
+              return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)(Data_Maybe.Nothing.value)(v.pos);
+          });
+      };
+  };
+  var decodeSessionData = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (acc) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
+                              var v1 = v.val >>> 3;
+                              if (v1 === 1) {
+                                  return decodeFieldLoop(end)(decodeUserData(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          user: new Data_Maybe.Just(val),
+                                          status: acc.status
+                                      };
+                                  });
+                              };
+                              if (v1 === 2) {
+                                  return decodeFieldLoop(end)(decodeUserStatus(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          status: new Data_Maybe.Just(val),
+                                          user: acc.user
+                                      };
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v.pos)(v.val & 7))(function (v2) {
+                                  return acc;
+                              });
+                          });
+                      };
+                      return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                          pos: pos1,
+                          val: acc
+                      }));
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
+              return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
+                  user: Data_Maybe.Nothing.value,
+                  status: Data_Maybe.Nothing.value
+              })(v.pos))(function (v1) {
+                  if (v1.val.user instanceof Data_Maybe.Just && v1.val.status instanceof Data_Maybe.Just) {
+                      return Control_Applicative.pure(Data_Either.applicativeEither)({
+                          pos: v1.pos,
+                          val: {
+                              user: v1.val.user.value0,
+                              status: v1.val.status.value0
+                          }
+                      });
+                  };
+                  return Data_Either.Left.create(new Proto_Decode.MissingFields("SessionData"));
+              });
+          });
+      };
+  };
   var decodePush = function (_xs_) {
       var decode = function (res) {
           return function (f) {
@@ -6545,6 +6796,17 @@ var PS = {};
           if (v1 === 50) {
               return decode(decodeCitiesList(_xs_)(v.pos))(CitiesList.create);
           };
+          if (v1 === 60) {
+              return decode(decodeUserDataOk(_xs_)(v.pos))(UserDataOk.create);
+          };
+          if (v1 === 61) {
+              return decode(decodeConfirmRegistrationOk(_xs_)(v.pos))(function (v2) {
+                  return ConfirmRegistrationOk.value;
+              });
+          };
+          if (v1 === 62) {
+              return decode(decodeConfirmRegistrationErr(_xs_)(v.pos))(ConfirmRegistrationErr.create);
+          };
           return Data_Either.Left.create(new Proto_Decode.BadType(v1));
       });
   };
@@ -6555,6 +6817,10 @@ var PS = {};
   exports["AddRouteErr"] = AddRouteErr;
   exports["FreeDrivers"] = FreeDrivers;
   exports["FreePassengers"] = FreePassengers;
+  exports["CitiesList"] = CitiesList;
+  exports["UserDataOk"] = UserDataOk;
+  exports["ConfirmRegistrationOk"] = ConfirmRegistrationOk;
+  exports["ConfirmRegistrationErr"] = ConfirmRegistrationErr;
   exports["decodePush"] = decodePush;
 })(PS);
 (function(exports) {
@@ -6593,92 +6859,69 @@ var PS = {};
   exports["parse"] = $foreign.parse;
   exports["fromTime"] = $foreign.fromTime;
 })(PS);
+(function(exports) {
+  "use strict";
+
+  exports.error = function (s) {
+    return function () {
+      console.error(s);
+    };
+  };
+
+  exports.info = function (s) {
+    return function () {
+      console.info(s);
+    };
+  };
+})(PS["Effect.Console"] = PS["Effect.Console"] || {});
 (function($PS) {
   // Generated by purs version 0.14.0
   "use strict";
-  $PS["Keys"] = $PS["Keys"] || {};
-  var exports = $PS["Keys"];
-  var Api = $PS["Api"];                
-  var keyPassengerType = function (v) {
-      if (v instanceof Api.Medical) {
-          return "key.medical";
+  $PS["Effect.Console"] = $PS["Effect.Console"] || {};
+  var exports = $PS["Effect.Console"];
+  var $foreign = $PS["Effect.Console"];
+  var Data_Show = $PS["Data.Show"];
+  var infoShow = function (dictShow) {
+      return function (a) {
+          return $foreign.info(Data_Show.show(dictShow)(a));
       };
-      if (v instanceof Api.Police) {
-          return "key.police";
-      };
-      if (v instanceof Api.Firefighter) {
-          return "key.firefighter";
-      };
-      if (v instanceof Api.Army) {
-          return "key.army";
-      };
-      if (v instanceof Api.Farmacy) {
-          return "key.farmacy";
-      };
-      if (v instanceof Api.Cashier) {
-          return "key.cashier";
-      };
-      if (v instanceof Api.Regular) {
-          return "key.regular";
-      };
-      throw new Error("Failed pattern match at Keys (line 7, column 1 - line 7, column 44): " + [ v.constructor.name ]);
   };
-  exports["keyPassengerType"] = keyPassengerType;
+  var errorShow = function (dictShow) {
+      return function (a) {
+          return $foreign.error(Data_Show.show(dictShow)(a));
+      };
+  };
+  exports["errorShow"] = errorShow;
+  exports["infoShow"] = infoShow;
+  exports["error"] = $foreign.error;
 })(PS);
-(function(exports) {
-  "use strict";
-
-  exports.toLocaleTimeString_ = new Intl.DateTimeFormat('uk-UA', { hour: "2-digit", minute: "2-digit"}).format
-
-  exports.formatISO_ = date => new Intl.DateTimeFormat('uk-UA', { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"}).formatToParts(date)
-
-  exports.nativeDate = () => {
-    let test = document.createElement('input')
-    test.type = 'datetime-local'
-    return test.type === 'datetime-local'
-  }
-
-  exports.datepickerLoad = function() {
-    if (!exports.nativeDate() && !window['ext']) {
-      var el1 = document.createElement('script')
-      el1.async = true
-      el1.src = 'ext.js'
-      document.head.appendChild(el1)
-      var el2 = document.createElement('link')
-      el2.async = true
-      el2.href = 'ext.css'
-      el2.rel = 'stylesheet'
-      document.head.appendChild(el2)
-    }
-    return {}
-  }
-
-  exports.datepickerExtClass = function() {
-    return window.ext.DatePicker
-  }
-
-  exports.uk = function() {
-    return window.ext.uk
-  }
-
-  exports.ru = function() {
-    return window.ext.ru
-  }
-})(PS["Lib.Datepicker"] = PS["Lib.Datepicker"] || {});
-(function(exports) {
-  "use strict";
-
-  exports.unsafePerformEffect = function (f) {
-    return f();
-  };
-})(PS["Effect.Unsafe"] = PS["Effect.Unsafe"] || {});
 (function($PS) {
   // Generated by purs version 0.14.0
   "use strict";
-  $PS["Effect.Unsafe"] = $PS["Effect.Unsafe"] || {};
-  var exports = $PS["Effect.Unsafe"];
-  var $foreign = $PS["Effect.Unsafe"];
-  exports["unsafePerformEffect"] = $foreign.unsafePerformEffect;
+  $PS["Effect.Class.Console"] = $PS["Effect.Class.Console"] || {};
+  var exports = $PS["Effect.Class.Console"];
+  var Effect_Class = $PS["Effect.Class"];
+  var Effect_Console = $PS["Effect.Console"];
+  var infoShow = function (dictMonadEffect) {
+      return function (dictShow) {
+          var $32 = Effect_Class.liftEffect(dictMonadEffect);
+          var $33 = Effect_Console.infoShow(dictShow);
+          return function ($34) {
+              return $32($33($34));
+          };
+      };
+  };
+  var errorShow = function (dictMonadEffect) {
+      return function (dictShow) {
+          var $37 = Effect_Class.liftEffect(dictMonadEffect);
+          var $38 = Effect_Console.errorShow(dictShow);
+          return function ($39) {
+              return $37($38($39));
+          };
+      };
+  };
+  exports["errorShow"] = errorShow;
+  exports["infoShow"] = infoShow;
 })(PS);
 (function(exports) {
   "use strict";
@@ -6809,7 +7052,8 @@ var PS = {};
   var width = $foreign.unsafeMkProps("width");     
   var value = $foreign.unsafeMkProps("value");    
   var style = $foreign.unsafeUnfoldProps("style");
-  var src = $foreign.unsafeMkProps("src");          
+  var src = $foreign.unsafeMkProps("src");    
+  var selected = $foreign.unsafeMkProps("selected");
   var required = $foreign.unsafeMkProps("required");
   var onClick = function (f) {
       return $foreign.unsafeMkProps("onClick")(Effect_Uncurried.mkEffectFn1(f));
@@ -6818,7 +7062,8 @@ var PS = {};
       return $foreign.unsafeMkProps("onChange")(Effect_Uncurried.mkEffectFn1(f));
   };                                                  
   var min = $foreign.unsafeMkProps("min");            
-  var max = $foreign.unsafeMkProps("max");            
+  var max = $foreign.unsafeMkProps("max");  
+  var list = $foreign.unsafeMkProps("list");          
   var key = $foreign.unsafeMkProps("key");            
   var htmlFor = $foreign.unsafeMkProps("htmlFor");  
   var href = $foreign.unsafeMkProps("href");    
@@ -6841,9 +7086,11 @@ var PS = {};
   exports["htmlFor"] = htmlFor;
   exports["_id"] = _id;
   exports["key"] = key;
+  exports["list"] = list;
   exports["max"] = max;
   exports["min"] = min;
   exports["required"] = required;
+  exports["selected"] = selected;
   exports["src"] = src;
   exports["_type"] = _type;
   exports["value"] = value;
@@ -6876,438 +7123,6 @@ var PS = {};
   exports["onChangeValueInt"] = onChangeValueInt;
 })(PS);
 (function(exports) {
-  /* global exports */
-  "use strict";
-  var React =require("react"); 
-
-  function createClass(baseClass) {
-    function bindProperty(instance, prop, value) {
-      switch (prop) {
-        case 'state':
-        case 'render':
-        case 'componentDidMount':
-        case 'componentWillUnmount':
-          instance[prop] = value;
-          break;
-
-        case 'componentDidCatch':
-        case 'componentWillUpdate':
-        case 'shouldComponentUpdate':
-        case 'getSnapshotBeforeUpdate':
-          instance[prop] = function (a, b) { return value(a)(b)(); };
-          break;
-
-        case 'componentDidUpdate':
-          instance[prop] = function (a, b, c) { return value(a)(b)(c)(); };
-          break;
-
-        case 'unsafeComponentWillMount':
-          instance['UNSAFE_componentWillMount'] = value;
-          break;
-
-        case 'unsafeComponentWillReceiveProps':
-          instance['UNSAFE_componentWillReceiveProps'] = function (a) { return value(a)(); };
-          break;
-
-        case 'unsafeComponentWillUpdate':
-          instance['UNSAFE_componentWillUpdate'] = function (a, b) { return value(a)(b)(); };
-          break;
-
-        default:
-          throw new Error('[purescript-react] Not a component property: ' + prop);
-      }
-    }
-
-    return function (displayName) {
-      return function (ctrFn) {
-        var Constructor = function (props) {
-          baseClass.call(this, props);
-          var spec = ctrFn(this)();
-          for (var k in spec) {
-            bindProperty(this, k, spec[k]);
-          }
-        };
-
-        Constructor.displayName = displayName;
-        Constructor.prototype = Object.create(baseClass.prototype);
-        Constructor.prototype.constructor = Constructor;
-
-        return Constructor;
-      };
-    };
-  }
-
-  function createClassWithDerivedState(classCtr) {
-    return function(displayName) {
-      return function(getDerivedStateFromProps) {
-        return function(ctrFn) {
-          var Constructor = componentImpl(displayName)(ctrFn);
-          Constructor.getDerivedStateFromProps = function(a, b) { return getDerivedStateFromProps(a)(b); };
-          return Constructor;
-        };
-      };
-    };
-  }
-
-  var componentImpl = createClass(React.Component);
-  exports.componentImpl = componentImpl;                 
-
-  exports.fragment = React.Fragment;
-
-  function getProps(this_) {
-    return function(){
-      return this_.props;
-    };
-  }
-  exports.getProps = getProps;                 
-
-  function setStateImpl(this_) {
-    return function(state){
-      return function(){
-        this_.setState(state);
-      };
-    };
-  }
-  exports.setStateImpl = setStateImpl;
-
-  function setStateWithCallbackImpl(this_) {
-    return function(state){
-      return function(cb){
-        return function() {
-          this_.setState(state, cb);
-        };
-      };
-    };
-  }                                                           
-
-  function getState(this_) {
-    return function(){
-      if (!this_.state) {
-        throw new Error('[purescript-react] Cannot get state within constructor');
-      }
-      return this_.state;
-    };
-  }
-  exports.getState = getState;
-
-  function forceUpdateWithCallback(this_) {
-    return function(cb) {
-      return function() {
-        this_.forceUpdate(cb);
-      };
-    };
-  }                                                         
-
-  function createElement(class_) {
-    return function(props){
-      return function(children){
-        return React.createElement.apply(React, [class_, props].concat(children));
-      };
-    };
-  }
-  exports.createElementImpl = createElement;
-  exports.createElementTagName = createElement;
-
-  function createLeafElement(class_) {
-    return function(props) {
-      return React.createElement(class_, props);
-    };
-  }
-  exports.createLeafElementImpl = createLeafElement;
-
-  function createElementDynamic(class_) {
-    return function(props) {
-      return function(children){
-        return React.createElement(class_, props, children);
-      };
-    };
-  };                                                      
-  exports.createElementTagNameDynamic = createElementDynamic;
-
-  function createContext(defaultValue) {
-    var context = React.createContext(defaultValue);
-    return {
-      consumer: context.Consumer,
-      provider: context.Provider
-    };
-  }
-})(PS["React"] = PS["React"] || {});
-(function($PS) {
-  // Generated by purs version 0.14.0
-  "use strict";
-  $PS["React"] = $PS["React"] || {};
-  var exports = $PS["React"];
-  var $foreign = $PS["React"];
-  var Data_Monoid = $PS["Data.Monoid"];
-  var Data_Semigroup = $PS["Data.Semigroup"];
-  var IsReactElement = function (toElement) {
-      this.toElement = toElement;
-  };                                                   
-  var toElement = function (dict) {
-      return dict.toElement;
-  };                                                              
-  var modifyState = $foreign.setStateImpl;
-  var createLeafElement = function (dictReactPropFields) {
-      return $foreign.createLeafElementImpl;
-  };
-  var createElement = function (dictReactPropFields) {
-      return $foreign.createElementImpl;
-  };   
-  var isReactElementArray = new IsReactElement(createElement()($foreign.fragment)({}));
-  var semigroupReactElement = new Data_Semigroup.Semigroup(function (a) {
-      return function (b) {
-          return toElement(isReactElementArray)([ a, b ]);
-      };
-  });
-  var monoidReactElement = new Data_Monoid.Monoid(function () {
-      return semigroupReactElement;
-  }, toElement(isReactElementArray)([  ]));
-  var component = function (dictReactComponentSpec) {
-      return $foreign.componentImpl;
-  };
-  exports["component"] = component;
-  exports["modifyState"] = modifyState;
-  exports["createLeafElement"] = createLeafElement;
-  exports["monoidReactElement"] = monoidReactElement;
-  exports["getProps"] = $foreign.getProps;
-  exports["getState"] = $foreign.getState;
-  exports["createElementTagName"] = $foreign.createElementTagName;
-  exports["createElementTagNameDynamic"] = $foreign.createElementTagNameDynamic;
-})(PS);
-(function($PS) {
-  // Generated by purs version 0.14.0
-  "use strict";
-  $PS["React.DOM"] = $PS["React.DOM"] || {};
-  var exports = $PS["React.DOM"];
-  var React = $PS["React"];
-  var React_DOM_Props = $PS["React.DOM.Props"];
-  var Unsafe_Coerce = $PS["Unsafe.Coerce"];
-  var text = Unsafe_Coerce.unsafeCoerce;  
-  var mkDOM = function (dynamic) {
-      return function (tag) {
-          return function (props) {
-              var createElement = (function () {
-                  if (!dynamic) {
-                      return React.createElementTagName;
-                  };
-                  if (dynamic) {
-                      return React.createElementTagNameDynamic;
-                  };
-                  throw new Error("Failed pattern match at React.DOM (line 15, column 5 - line 17, column 55): " + [ dynamic.constructor.name ]);
-              })();
-              return createElement(tag)(React_DOM_Props.unsafeFromPropsArray(props));
-          };
-      };
-  };
-  var nav = mkDOM(false)("nav");      
-  var option = mkDOM(false)("option");
-  var select = mkDOM(false)("select");
-  var small = mkDOM(false)("small");
-  var span = mkDOM(false)("span");
-  var ul = mkDOM(false)("ul");
-  var li = mkDOM(false)("li");    
-  var label = mkDOM(false)("label");
-  var input = function (props) {
-      return mkDOM(false)("input")(props)([  ]);
-  };                            
-  var img = function (props) {
-      return mkDOM(false)("img")(props)([  ]);
-  };                        
-  var iframe = mkDOM(false)("iframe");
-  var h6 = mkDOM(false)("h6");
-  var div = mkDOM(false)("div");  
-  var button = mkDOM(false)("button");
-  var a = mkDOM(false)("a");
-  exports["text"] = text;
-  exports["a"] = a;
-  exports["button"] = button;
-  exports["div"] = div;
-  exports["h6"] = h6;
-  exports["iframe"] = iframe;
-  exports["img"] = img;
-  exports["input"] = input;
-  exports["label"] = label;
-  exports["li"] = li;
-  exports["nav"] = nav;
-  exports["option"] = option;
-  exports["select"] = select;
-  exports["small"] = small;
-  exports["span"] = span;
-  exports["ul"] = ul;
-})(PS);
-(function($PS) {
-  // Generated by purs version 0.14.0
-  "use strict";
-  $PS["Lib.Datepicker"] = $PS["Lib.Datepicker"] || {};
-  var exports = $PS["Lib.Datepicker"];
-  var $foreign = $PS["Lib.Datepicker"];
-  var Data_Foldable = $PS["Data.Foldable"];
-  var Data_Functor = $PS["Data.Functor"];
-  var Data_JSDate = $PS["Data.JSDate"];
-  var Data_Maybe = $PS["Data.Maybe"];
-  var Data_Monoid = $PS["Data.Monoid"];
-  var Effect_Unsafe = $PS["Effect.Unsafe"];
-  var Lib_React = $PS["Lib.React"];
-  var React = $PS["React"];
-  var React_DOM = $PS["React.DOM"];
-  var React_DOM_Props = $PS["React.DOM.Props"];                
-  var toLocaleTimeString = function (d) {
-      return function () {
-          return $foreign.toLocaleTimeString_(d);
-      };
-  };
-  var extract = function (xs) {
-      return function (_type) {
-          return Data_Maybe.fromMaybe("")(Data_Functor.map(Data_Maybe.functorMaybe)(function (v) {
-              return v.value;
-          })(Data_Foldable.find(Data_Foldable.foldableArray)(function (x) {
-              return x.type === _type;
-          })(xs)));
-      };
-  };
-  var isoDate = function (date) {
-      return function __do() {
-          var xs = $foreign.formatISO_(date);
-          var y = extract(xs)("year");
-          var _M = extract(xs)("month");
-          var d = extract(xs)("day");
-          return Data_Foldable.fold(Data_Foldable.foldableArray)(Data_Monoid.monoidString)([ y, "-", _M, "-", d ]);
-      };
-  };
-  var isoDateTime = function (date) {
-      return function __do() {
-          var ymd = isoDate(date)();
-          var xs = $foreign.formatISO_(date);
-          var h = extract(xs)("hour");
-          var m = extract(xs)("minute");
-          return Data_Foldable.fold(Data_Foldable.foldableArray)(Data_Monoid.monoidString)([ ymd, "T", h, ":", m ]);
-      };
-  };
-  var datepickerClass = React.component()("Datepicker")(function ($$this) {
-      return function __do() {
-          var today = Data_JSDate.now();
-          var $$native = $foreign.nativeDate();
-          return {
-              state: {
-                  date: today
-              },
-              render: function __do() {
-                  var props = React.getProps($$this)();
-                  var state = React.getState($$this)();
-                  if ($$native) {
-                      var vv = (function () {
-                          if (props.showTime) {
-                              return isoDateTime(state.date)();
-                          };
-                          return isoDate(state.date)();
-                      })();
-                      var t1 = isoDateTime(today)();
-                      var t2 = isoDateTime(Data_JSDate.fromTime(Data_JSDate.getTime(today) + 4.32e8))();
-                      return React_DOM.input([ React_DOM_Props["_type"]((function () {
-                          if (props.showTime) {
-                              return "datetime-local";
-                          };
-                          return "date";
-                      })()), Lib_React.cn(props.className + (" " + props.wrapperClassName)), React_DOM_Props["_id"](props["_id"]), React_DOM_Props.value(vv), Lib_React.onChangeValue(function (v) {
-                          return function __do() {
-                              var d = Data_JSDate.parse(v)();
-                              React.modifyState($$this)(function (v1) {
-                                  var $6 = {};
-                                  for (var $7 in v1) {
-                                      if ({}.hasOwnProperty.call(v1, $7)) {
-                                          $6[$7] = v1[$7];
-                                      };
-                                  };
-                                  $6.date = d;
-                                  return $6;
-                              })();
-                              return props.onChange(d)();
-                          };
-                      }), React_DOM_Props.min(t1), React_DOM_Props.max(t2) ]);
-                  };
-                  var dclass = $foreign.datepickerExtClass();
-                  var locale = (function () {
-                      if (props.lang === "uk") {
-                          return $foreign.uk();
-                      };
-                      if (props.lang === "ru") {
-                          return $foreign.ru();
-                      };
-                      return $foreign.uk();
-                  })();
-                  var maxD = Data_JSDate.fromTime(Data_JSDate.getTime(today) + 4.32e8);
-                  return React.createLeafElement()(dclass)({
-                      selected: state.date,
-                      onChange: function (d) {
-                          return Effect_Unsafe.unsafePerformEffect(function __do() {
-                              React.modifyState($$this)(function (v) {
-                                  var $10 = {};
-                                  for (var $11 in v) {
-                                      if ({}.hasOwnProperty.call(v, $11)) {
-                                          $10[$11] = v[$11];
-                                      };
-                                  };
-                                  $10.date = d;
-                                  return $10;
-                              })();
-                              return props.onChange(d)();
-                          });
-                      },
-                      showTimeSelect: props.showTime,
-                      className: props.className,
-                      wrapperClassName: props.wrapperClassName,
-                      popperClassName: "react-datepicker-popper-fix",
-                      id: props["_id"],
-                      locale: locale,
-                      timeFormat: (function () {
-                          if (props.showTime) {
-                              return "p";
-                          };
-                          return "";
-                      })(),
-                      dateFormat: (function () {
-                          if (props.showTime) {
-                              return "Pp";
-                          };
-                          return "P";
-                      })(),
-                      minDate: today,
-                      maxDate: maxD,
-                      timeCaption: props.keyText("key.time")
-                  });
-              }
-          };
-      };
-  });
-  exports["datepickerClass"] = datepickerClass;
-  exports["toLocaleTimeString"] = toLocaleTimeString;
-  exports["datepickerLoad"] = $foreign.datepickerLoad;
-})(PS);
-(function(exports) {
-  "use strict"
-
-  exports._encodeURI = (fail, succ, s) => {
-    try {
-      return succ(encodeURI(s))
-    } catch (e) {
-      return fail(e.message)
-    }
-  }
-})(PS["Lib.JS"] = PS["Lib.JS"] || {});
-(function($PS) {
-  // Generated by purs version 0.14.0
-  "use strict";
-  $PS["Lib.JS"] = $PS["Lib.JS"] || {};
-  var exports = $PS["Lib.JS"];
-  var $foreign = $PS["Lib.JS"];
-  var Data_Function = $PS["Data.Function"];
-  var Data_Maybe = $PS["Data.Maybe"];                
-  var $$encodeURI = function (s) {
-      return $foreign["_encodeURI"](Data_Function["const"](Data_Maybe.Nothing.value), Data_Maybe.Just.create, s);
-  };
-  exports["encodeURI"] = $$encodeURI;
-})(PS);
-(function(exports) {
   "use strict"
 
   exports.uint8Array = (arrayBuffer) => new Uint8Array(arrayBuffer)
@@ -7334,30 +7149,6 @@ var PS = {};
   };
   exports["Tuple"] = Tuple;
   exports["fst"] = fst;
-})(PS);
-(function(exports) {
-  "use strict";
-
-  exports.error = function (s) {
-    return function () {
-      console.error(s);
-    };
-  };
-})(PS["Effect.Console"] = PS["Effect.Console"] || {});
-(function($PS) {
-  // Generated by purs version 0.14.0
-  "use strict";
-  $PS["Effect.Console"] = $PS["Effect.Console"] || {};
-  var exports = $PS["Effect.Console"];
-  var $foreign = $PS["Effect.Console"];
-  var Data_Show = $PS["Data.Show"];
-  var errorShow = function (dictShow) {
-      return function (a) {
-          return $foreign.error(Data_Show.show(dictShow)(a));
-      };
-  };
-  exports["errorShow"] = errorShow;
-  exports["error"] = $foreign.error;
 })(PS);
 (function(exports) {
   "use strict";
@@ -8070,6 +7861,692 @@ var PS = {};
   exports["reconnect"] = reconnect;
 })(PS);
 (function(exports) {
+  /* global exports */
+  "use strict";
+  var React =require("react"); 
+
+  function createClass(baseClass) {
+    function bindProperty(instance, prop, value) {
+      switch (prop) {
+        case 'state':
+        case 'render':
+        case 'componentDidMount':
+        case 'componentWillUnmount':
+          instance[prop] = value;
+          break;
+
+        case 'componentDidCatch':
+        case 'componentWillUpdate':
+        case 'shouldComponentUpdate':
+        case 'getSnapshotBeforeUpdate':
+          instance[prop] = function (a, b) { return value(a)(b)(); };
+          break;
+
+        case 'componentDidUpdate':
+          instance[prop] = function (a, b, c) { return value(a)(b)(c)(); };
+          break;
+
+        case 'unsafeComponentWillMount':
+          instance['UNSAFE_componentWillMount'] = value;
+          break;
+
+        case 'unsafeComponentWillReceiveProps':
+          instance['UNSAFE_componentWillReceiveProps'] = function (a) { return value(a)(); };
+          break;
+
+        case 'unsafeComponentWillUpdate':
+          instance['UNSAFE_componentWillUpdate'] = function (a, b) { return value(a)(b)(); };
+          break;
+
+        default:
+          throw new Error('[purescript-react] Not a component property: ' + prop);
+      }
+    }
+
+    return function (displayName) {
+      return function (ctrFn) {
+        var Constructor = function (props) {
+          baseClass.call(this, props);
+          var spec = ctrFn(this)();
+          for (var k in spec) {
+            bindProperty(this, k, spec[k]);
+          }
+        };
+
+        Constructor.displayName = displayName;
+        Constructor.prototype = Object.create(baseClass.prototype);
+        Constructor.prototype.constructor = Constructor;
+
+        return Constructor;
+      };
+    };
+  }
+
+  function createClassWithDerivedState(classCtr) {
+    return function(displayName) {
+      return function(getDerivedStateFromProps) {
+        return function(ctrFn) {
+          var Constructor = componentImpl(displayName)(ctrFn);
+          Constructor.getDerivedStateFromProps = function(a, b) { return getDerivedStateFromProps(a)(b); };
+          return Constructor;
+        };
+      };
+    };
+  }
+
+  var componentImpl = createClass(React.Component);
+  exports.componentImpl = componentImpl;                 
+
+  exports.fragment = React.Fragment;
+
+  function getProps(this_) {
+    return function(){
+      return this_.props;
+    };
+  }
+  exports.getProps = getProps;                 
+
+  function setStateImpl(this_) {
+    return function(state){
+      return function(){
+        this_.setState(state);
+      };
+    };
+  }
+  exports.setStateImpl = setStateImpl;
+
+  function setStateWithCallbackImpl(this_) {
+    return function(state){
+      return function(cb){
+        return function() {
+          this_.setState(state, cb);
+        };
+      };
+    };
+  }                                                           
+
+  function getState(this_) {
+    return function(){
+      if (!this_.state) {
+        throw new Error('[purescript-react] Cannot get state within constructor');
+      }
+      return this_.state;
+    };
+  }
+  exports.getState = getState;
+
+  function forceUpdateWithCallback(this_) {
+    return function(cb) {
+      return function() {
+        this_.forceUpdate(cb);
+      };
+    };
+  }                                                         
+
+  function createElement(class_) {
+    return function(props){
+      return function(children){
+        return React.createElement.apply(React, [class_, props].concat(children));
+      };
+    };
+  }
+  exports.createElementImpl = createElement;
+  exports.createElementTagName = createElement;
+
+  function createLeafElement(class_) {
+    return function(props) {
+      return React.createElement(class_, props);
+    };
+  }
+  exports.createLeafElementImpl = createLeafElement;
+
+  function createElementDynamic(class_) {
+    return function(props) {
+      return function(children){
+        return React.createElement(class_, props, children);
+      };
+    };
+  };                                                      
+  exports.createElementTagNameDynamic = createElementDynamic;
+
+  function createContext(defaultValue) {
+    var context = React.createContext(defaultValue);
+    return {
+      consumer: context.Consumer,
+      provider: context.Provider
+    };
+  }
+})(PS["React"] = PS["React"] || {});
+(function($PS) {
+  // Generated by purs version 0.14.0
+  "use strict";
+  $PS["React"] = $PS["React"] || {};
+  var exports = $PS["React"];
+  var $foreign = $PS["React"];
+  var Data_Monoid = $PS["Data.Monoid"];
+  var Data_Semigroup = $PS["Data.Semigroup"];
+  var IsReactElement = function (toElement) {
+      this.toElement = toElement;
+  };                                                   
+  var toElement = function (dict) {
+      return dict.toElement;
+  };                                                              
+  var modifyState = $foreign.setStateImpl;
+  var createLeafElement = function (dictReactPropFields) {
+      return $foreign.createLeafElementImpl;
+  };
+  var createElement = function (dictReactPropFields) {
+      return $foreign.createElementImpl;
+  };   
+  var isReactElementArray = new IsReactElement(createElement()($foreign.fragment)({}));
+  var semigroupReactElement = new Data_Semigroup.Semigroup(function (a) {
+      return function (b) {
+          return toElement(isReactElementArray)([ a, b ]);
+      };
+  });
+  var monoidReactElement = new Data_Monoid.Monoid(function () {
+      return semigroupReactElement;
+  }, toElement(isReactElementArray)([  ]));
+  var component = function (dictReactComponentSpec) {
+      return $foreign.componentImpl;
+  };
+  exports["component"] = component;
+  exports["modifyState"] = modifyState;
+  exports["createLeafElement"] = createLeafElement;
+  exports["monoidReactElement"] = monoidReactElement;
+  exports["getProps"] = $foreign.getProps;
+  exports["getState"] = $foreign.getState;
+  exports["createElementTagName"] = $foreign.createElementTagName;
+  exports["createElementTagNameDynamic"] = $foreign.createElementTagNameDynamic;
+})(PS);
+(function($PS) {
+  // Generated by purs version 0.14.0
+  "use strict";
+  $PS["React.DOM"] = $PS["React.DOM"] || {};
+  var exports = $PS["React.DOM"];
+  var React = $PS["React"];
+  var React_DOM_Props = $PS["React.DOM.Props"];
+  var Unsafe_Coerce = $PS["Unsafe.Coerce"];
+  var text = Unsafe_Coerce.unsafeCoerce;  
+  var mkDOM = function (dynamic) {
+      return function (tag) {
+          return function (props) {
+              var createElement = (function () {
+                  if (!dynamic) {
+                      return React.createElementTagName;
+                  };
+                  if (dynamic) {
+                      return React.createElementTagNameDynamic;
+                  };
+                  throw new Error("Failed pattern match at React.DOM (line 15, column 5 - line 17, column 55): " + [ dynamic.constructor.name ]);
+              })();
+              return createElement(tag)(React_DOM_Props.unsafeFromPropsArray(props));
+          };
+      };
+  };
+  var nav = mkDOM(false)("nav");      
+  var option = mkDOM(false)("option");
+  var select = mkDOM(false)("select");
+  var small = mkDOM(false)("small");
+  var span = mkDOM(false)("span");
+  var ul = mkDOM(false)("ul");
+  var li = mkDOM(false)("li");    
+  var label = mkDOM(false)("label");
+  var input = function (props) {
+      return mkDOM(false)("input")(props)([  ]);
+  };                            
+  var img = function (props) {
+      return mkDOM(false)("img")(props)([  ]);
+  };                        
+  var iframe = mkDOM(false)("iframe");
+  var h6 = mkDOM(false)("h6");
+  var div = mkDOM(false)("div");
+  var datalist = mkDOM(false)("datalist");
+  var button = mkDOM(false)("button");
+  var a = mkDOM(false)("a");
+  exports["text"] = text;
+  exports["a"] = a;
+  exports["button"] = button;
+  exports["datalist"] = datalist;
+  exports["div"] = div;
+  exports["h6"] = h6;
+  exports["iframe"] = iframe;
+  exports["img"] = img;
+  exports["input"] = input;
+  exports["label"] = label;
+  exports["li"] = li;
+  exports["nav"] = nav;
+  exports["option"] = option;
+  exports["select"] = select;
+  exports["small"] = small;
+  exports["span"] = span;
+  exports["ul"] = ul;
+})(PS);
+(function($PS) {
+  // Generated by purs version 0.14.0
+  "use strict";
+  $PS["App.Waypoint"] = $PS["App.Waypoint"] || {};
+  var exports = $PS["App.Waypoint"];
+  var Api_Pull = $PS["Api.Pull"];
+  var Api_Push = $PS["Api.Push"];
+  var Control_Applicative = $PS["Control.Applicative"];
+  var Data_Functor = $PS["Data.Functor"];
+  var Data_JSDate = $PS["Data.JSDate"];
+  var Data_Maybe = $PS["Data.Maybe"];
+  var Data_Show = $PS["Data.Show"];
+  var Data_Unit = $PS["Data.Unit"];
+  var Effect = $PS["Effect"];
+  var Effect_Class = $PS["Effect.Class"];
+  var Effect_Class_Console = $PS["Effect.Class.Console"];
+  var Lib_React = $PS["Lib.React"];
+  var Lib_WebSocket = $PS["Lib.WebSocket"];
+  var React = $PS["React"];
+  var React_DOM = $PS["React.DOM"];
+  var React_DOM_Props = $PS["React.DOM.Props"];                
+  var waypointClass = (function () {
+      var render = function ($$this) {
+          return function __do() {
+              var props = React.getProps($$this)();
+              var state = React.getState($$this)();
+              return React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("country") ])([ React_DOM.text(props.keyText("key.country")) ]), React_DOM.select([ Lib_React.cn("form-control custom-select"), React_DOM_Props["_id"]("country"), React_DOM_Props.value(state.country), Lib_React.onChangeValue(function (v) {
+                  return function __do() {
+                      Lib_WebSocket.snd(props.ws)(new Api_Pull.GetCitiesList({
+                          country: v,
+                          lang: props.lang
+                      }))();
+                      return React.modifyState($$this)(function (v1) {
+                          return {
+                              addrs: v1.addrs,
+                              countries: v1.countries,
+                              cities: v1.cities,
+                              country: v,
+                              city: v1.city,
+                              street: v1.street,
+                              building: v1.building,
+                              unsub: v1.unsub
+                          };
+                      })();
+                  };
+              }) ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
+                  return React_DOM.option([ React_DOM_Props.value(v), React_DOM_Props.selected(v === state.country) ])([ React_DOM.text(props.keyText("key.country." + v)) ]);
+              })([ "UA" ])) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("city") ])([ React_DOM.text(props.keyText("key.city3")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("city"), React_DOM_Props.autoComplete("off"), React_DOM_Props.list("cities"), React_DOM_Props.value(state.city), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          addrs: v1.addrs,
+                          countries: v1.countries,
+                          cities: v1.cities,
+                          country: v1.country,
+                          city: v,
+                          street: v1.street,
+                          building: v1.building,
+                          unsub: v1.unsub
+                      };
+                  });
+              }) ]), React_DOM.datalist([ React_DOM_Props["_id"]("cities") ])(Data_Functor.map(Data_Functor.functorArray)(function (city) {
+                  return React_DOM.option([ React_DOM_Props.value(city) ])([  ]);
+              })(state.cities)) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("streetFrom") ])([ React_DOM.text(props.keyText("key.street")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("streetFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.street), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          addrs: v1.addrs,
+                          countries: v1.countries,
+                          cities: v1.cities,
+                          country: v1.country,
+                          city: v1.city,
+                          street: v,
+                          building: v1.building,
+                          unsub: v1.unsub
+                      };
+                  });
+              }) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("buildingFrom") ])([ React_DOM.text(props.keyText("key.building")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("buildingFrom"), React_DOM_Props.required(true), React_DOM_Props.value(state.building), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          addrs: v1.addrs,
+                          countries: v1.countries,
+                          cities: v1.cities,
+                          country: v1.country,
+                          city: v1.city,
+                          street: v1.street,
+                          building: v,
+                          unsub: v1.unsub
+                      };
+                  });
+              }) ]) ]) ]);
+          };
+      };
+      var onMsg = function ($$this) {
+          return function (v) {
+              if (v instanceof Data_Maybe.Just && v.value0 instanceof Api_Push.CitiesList) {
+                  return function __do() {
+                      Effect_Class_Console.infoShow(Effect_Class.monadEffectEffect)(Data_Show.showString)("get cities")();
+                      return React.modifyState($$this)(function (v1) {
+                          return {
+                              addrs: v1.addrs,
+                              countries: v1.countries,
+                              cities: v.value0.value0.cities,
+                              country: v1.country,
+                              city: v1.city,
+                              street: v1.street,
+                              building: v1.building,
+                              unsub: v1.unsub
+                          };
+                      })();
+                  };
+              };
+              return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
+          };
+      };
+      return React.component()("Waypoints")(function ($$this) {
+          return function __do() {
+              var date = Data_JSDate.now();
+              var props = React.getProps($$this)();
+              return {
+                  state: {
+                      addrs: {
+                          country: "\u0423\u043a\u0440\u0430\u0438\u043d\u0430",
+                          city: "\u041a\u0438\u0435\u0432",
+                          street: "\u041b\u044c\u0432\u0430 \u0422\u043e\u043b\u0441\u0442\u043e\u0433\u043e",
+                          building: "1"
+                      },
+                      countries: [ "\u0423\u043a\u0440\u0430\u0438\u043d\u0430" ],
+                      cities: [ "default", "list" ],
+                      country: "",
+                      city: "",
+                      street: "",
+                      building: "",
+                      unsub: Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit)
+                  },
+                  render: render($$this),
+                  componentDidMount: function __do() {
+                      (function __do() {
+                          var unsub = Lib_WebSocket.sub(props.ws)(onMsg($$this))();
+                          return React.modifyState($$this)(function (v) {
+                              return {
+                                  addrs: v.addrs,
+                                  countries: v.countries,
+                                  cities: v.cities,
+                                  country: v.country,
+                                  city: v.city,
+                                  street: v.street,
+                                  building: v.building,
+                                  unsub: unsub
+                              };
+                          })();
+                      })();
+                      return Lib_WebSocket.snd(props.ws)(new Api_Pull.GetCitiesList({
+                          country: "UA",
+                          lang: props.lang
+                      }))();
+                  },
+                  componentWillUnmount: function __do() {
+                      var v = React.getState($$this)();
+                      return v.unsub();
+                  }
+              };
+          };
+      });
+  })();
+  exports["waypointClass"] = waypointClass;
+})(PS);
+(function($PS) {
+  // Generated by purs version 0.14.0
+  "use strict";
+  $PS["Keys"] = $PS["Keys"] || {};
+  var exports = $PS["Keys"];
+  var Api = $PS["Api"];                
+  var keyPassengerType = function (v) {
+      if (v instanceof Api.Medical) {
+          return "key.medical";
+      };
+      if (v instanceof Api.Police) {
+          return "key.police";
+      };
+      if (v instanceof Api.Firefighter) {
+          return "key.firefighter";
+      };
+      if (v instanceof Api.Army) {
+          return "key.army";
+      };
+      if (v instanceof Api.Farmacy) {
+          return "key.farmacy";
+      };
+      if (v instanceof Api.Cashier) {
+          return "key.cashier";
+      };
+      if (v instanceof Api.Regular) {
+          return "key.regular";
+      };
+      throw new Error("Failed pattern match at Keys (line 7, column 1 - line 7, column 44): " + [ v.constructor.name ]);
+  };
+  exports["keyPassengerType"] = keyPassengerType;
+})(PS);
+(function(exports) {
+  "use strict";
+
+  exports.toLocaleTimeString_ = new Intl.DateTimeFormat('uk-UA', { hour: "2-digit", minute: "2-digit"}).format
+
+  exports.formatISO_ = date => new Intl.DateTimeFormat('uk-UA', { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit"}).formatToParts(date)
+
+  exports.nativeDate = () => {
+    let test = document.createElement('input')
+    test.type = 'datetime-local'
+    return test.type === 'datetime-local'
+  }
+
+  exports.datepickerLoad = function() {
+    if (!exports.nativeDate() && !window['ext']) {
+      var el1 = document.createElement('script')
+      el1.async = true
+      el1.src = 'ext.js'
+      document.head.appendChild(el1)
+      var el2 = document.createElement('link')
+      el2.async = true
+      el2.href = 'ext.css'
+      el2.rel = 'stylesheet'
+      document.head.appendChild(el2)
+    }
+    return {}
+  }
+
+  exports.datepickerExtClass = function() {
+    return window.ext.DatePicker
+  }
+
+  exports.uk = function() {
+    return window.ext.uk
+  }
+
+  exports.ru = function() {
+    return window.ext.ru
+  }
+})(PS["Lib.Datepicker"] = PS["Lib.Datepicker"] || {});
+(function(exports) {
+  "use strict";
+
+  exports.unsafePerformEffect = function (f) {
+    return f();
+  };
+})(PS["Effect.Unsafe"] = PS["Effect.Unsafe"] || {});
+(function($PS) {
+  // Generated by purs version 0.14.0
+  "use strict";
+  $PS["Effect.Unsafe"] = $PS["Effect.Unsafe"] || {};
+  var exports = $PS["Effect.Unsafe"];
+  var $foreign = $PS["Effect.Unsafe"];
+  exports["unsafePerformEffect"] = $foreign.unsafePerformEffect;
+})(PS);
+(function($PS) {
+  // Generated by purs version 0.14.0
+  "use strict";
+  $PS["Lib.Datepicker"] = $PS["Lib.Datepicker"] || {};
+  var exports = $PS["Lib.Datepicker"];
+  var $foreign = $PS["Lib.Datepicker"];
+  var Data_Foldable = $PS["Data.Foldable"];
+  var Data_Functor = $PS["Data.Functor"];
+  var Data_JSDate = $PS["Data.JSDate"];
+  var Data_Maybe = $PS["Data.Maybe"];
+  var Data_Monoid = $PS["Data.Monoid"];
+  var Effect_Unsafe = $PS["Effect.Unsafe"];
+  var Lib_React = $PS["Lib.React"];
+  var React = $PS["React"];
+  var React_DOM = $PS["React.DOM"];
+  var React_DOM_Props = $PS["React.DOM.Props"];                
+  var toLocaleTimeString = function (d) {
+      return function () {
+          return $foreign.toLocaleTimeString_(d);
+      };
+  };
+  var extract = function (xs) {
+      return function (_type) {
+          return Data_Maybe.fromMaybe("")(Data_Functor.map(Data_Maybe.functorMaybe)(function (v) {
+              return v.value;
+          })(Data_Foldable.find(Data_Foldable.foldableArray)(function (x) {
+              return x.type === _type;
+          })(xs)));
+      };
+  };
+  var isoDate = function (date) {
+      return function __do() {
+          var xs = $foreign.formatISO_(date);
+          var y = extract(xs)("year");
+          var _M = extract(xs)("month");
+          var d = extract(xs)("day");
+          return Data_Foldable.fold(Data_Foldable.foldableArray)(Data_Monoid.monoidString)([ y, "-", _M, "-", d ]);
+      };
+  };
+  var isoDateTime = function (date) {
+      return function __do() {
+          var ymd = isoDate(date)();
+          var xs = $foreign.formatISO_(date);
+          var h = extract(xs)("hour");
+          var m = extract(xs)("minute");
+          return Data_Foldable.fold(Data_Foldable.foldableArray)(Data_Monoid.monoidString)([ ymd, "T", h, ":", m ]);
+      };
+  };
+  var datepickerClass = React.component()("Datepicker")(function ($$this) {
+      return function __do() {
+          var today = Data_JSDate.now();
+          var $$native = $foreign.nativeDate();
+          return {
+              state: {
+                  date: today
+              },
+              render: function __do() {
+                  var props = React.getProps($$this)();
+                  var state = React.getState($$this)();
+                  if ($$native) {
+                      var vv = (function () {
+                          if (props.showTime) {
+                              return isoDateTime(state.date)();
+                          };
+                          return isoDate(state.date)();
+                      })();
+                      var t1 = isoDateTime(today)();
+                      var t2 = isoDateTime(Data_JSDate.fromTime(Data_JSDate.getTime(today) + 4.32e8))();
+                      return React_DOM.input([ React_DOM_Props["_type"]((function () {
+                          if (props.showTime) {
+                              return "datetime-local";
+                          };
+                          return "date";
+                      })()), Lib_React.cn(props.className + (" " + props.wrapperClassName)), React_DOM_Props["_id"](props["_id"]), React_DOM_Props.value(vv), Lib_React.onChangeValue(function (v) {
+                          return function __do() {
+                              var d = Data_JSDate.parse(v)();
+                              React.modifyState($$this)(function (v1) {
+                                  var $6 = {};
+                                  for (var $7 in v1) {
+                                      if ({}.hasOwnProperty.call(v1, $7)) {
+                                          $6[$7] = v1[$7];
+                                      };
+                                  };
+                                  $6.date = d;
+                                  return $6;
+                              })();
+                              return props.onChange(d)();
+                          };
+                      }), React_DOM_Props.min(t1), React_DOM_Props.max(t2) ]);
+                  };
+                  var dclass = $foreign.datepickerExtClass();
+                  var locale = (function () {
+                      if (props.lang === "uk") {
+                          return $foreign.uk();
+                      };
+                      if (props.lang === "ru") {
+                          return $foreign.ru();
+                      };
+                      return $foreign.uk();
+                  })();
+                  var maxD = Data_JSDate.fromTime(Data_JSDate.getTime(today) + 4.32e8);
+                  return React.createLeafElement()(dclass)({
+                      selected: state.date,
+                      onChange: function (d) {
+                          return Effect_Unsafe.unsafePerformEffect(function __do() {
+                              React.modifyState($$this)(function (v) {
+                                  var $10 = {};
+                                  for (var $11 in v) {
+                                      if ({}.hasOwnProperty.call(v, $11)) {
+                                          $10[$11] = v[$11];
+                                      };
+                                  };
+                                  $10.date = d;
+                                  return $10;
+                              })();
+                              return props.onChange(d)();
+                          });
+                      },
+                      showTimeSelect: props.showTime,
+                      className: props.className,
+                      wrapperClassName: props.wrapperClassName,
+                      popperClassName: "react-datepicker-popper-fix",
+                      id: props["_id"],
+                      locale: locale,
+                      timeFormat: (function () {
+                          if (props.showTime) {
+                              return "p";
+                          };
+                          return "";
+                      })(),
+                      dateFormat: (function () {
+                          if (props.showTime) {
+                              return "Pp";
+                          };
+                          return "P";
+                      })(),
+                      minDate: today,
+                      maxDate: maxD,
+                      timeCaption: props.keyText("key.time")
+                  });
+              }
+          };
+      };
+  });
+  exports["datepickerClass"] = datepickerClass;
+  exports["toLocaleTimeString"] = toLocaleTimeString;
+  exports["datepickerLoad"] = $foreign.datepickerLoad;
+})(PS);
+(function(exports) {
+  "use strict"
+
+  exports._encodeURI = (fail, succ, s) => {
+    try {
+      return succ(encodeURI(s))
+    } catch (e) {
+      return fail(e.message)
+    }
+  }
+})(PS["Lib.JS"] = PS["Lib.JS"] || {});
+(function($PS) {
+  // Generated by purs version 0.14.0
+  "use strict";
+  $PS["Lib.JS"] = $PS["Lib.JS"] || {};
+  var exports = $PS["Lib.JS"];
+  var $foreign = $PS["Lib.JS"];
+  var Data_Function = $PS["Data.Function"];
+  var Data_Maybe = $PS["Data.Maybe"];                
+  var $$encodeURI = function (s) {
+      return $foreign["_encodeURI"](Data_Function["const"](Data_Maybe.Nothing.value), Data_Maybe.Just.create, s);
+  };
+  exports["encodeURI"] = $$encodeURI;
+})(PS);
+(function(exports) {
   "use strict"
 
   exports.fromNumber = num => BigInt(num)
@@ -8092,6 +8569,7 @@ var PS = {};
   var Api = $PS["Api"];
   var Api_Pull = $PS["Api.Pull"];
   var Api_Push = $PS["Api.Push"];
+  var App_Waypoint = $PS["App.Waypoint"];
   var Control_Applicative = $PS["Control.Applicative"];
   var Control_Bind = $PS["Control.Bind"];
   var Data_Array = $PS["Data.Array"];
@@ -8341,7 +8819,7 @@ var PS = {};
                           unsub: v1.unsub
                       };
                   });
-              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.deviation_time.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 d-lg-none mb-md-3") ])([  ]), React_DOM.div([ Lib_React.cn("col-md-4 col-lg-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("seats") ])([ React_DOM.text(props.keyText("key.seats")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("seats"), React_DOM_Props.min("1"), React_DOM_Props.max("5"), React_DOM_Props.value("1"), React_DOM_Props.disabled(true), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.seats)), Lib_React.onChangeValueInt(function (v) {
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.deviation_time.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-1 d-lg-none mb-md-3") ])([  ]), React_DOM.div([ Lib_React.cn("col-md-4 col-lg-1 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("seats") ])([ React_DOM.text(props.keyText("key.seats")) ]), React_DOM.input([ React_DOM_Props["_type"]("number"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("seats"), React_DOM_Props.min("1"), React_DOM_Props.max("5"), React_DOM_Props.value("1"), React_DOM_Props.required(true), React_DOM_Props.value(Data_Show.show(Data_Show.showInt)(state.seats)), Lib_React.onChangeValueInt(function (v) {
                   return React.modifyState($$this)(function (v1) {
                       return {
                           firstName: v1.firstName,
@@ -8599,7 +9077,7 @@ var PS = {};
                           unsub: s.unsub
                       };
                   });
-              }) ]) ]) ]), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
+              }) ]) ]) ]), React.createLeafElement()(App_Waypoint.waypointClass)(props), React_DOM.button([ Lib_React.cn("btn btn-outline-secondary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.onClick(function (v) {
                   return updateMap($$this);
               }) ])([ React_DOM.text(props.keyText("key.overview_route")) ]), (function () {
                   if (state.mapQ instanceof Data_Maybe.Just) {
@@ -8608,7 +9086,7 @@ var PS = {};
                   if (state.mapQ instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 282, column 9 - line 290, column 28): " + [ state.mapQ.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 284, column 9 - line 292, column 28): " + [ state.mapQ.constructor.name ]);
               })(), React_DOM.div([ Lib_React.cn("form-group") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_terms") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_terms"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_terms")) ]) ]), React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("agree_rules") ]), React_DOM.label([ React_DOM_Props.htmlFor("agree_rules"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.agree_rules")) ]) ]) ]), React_DOM.div([ Lib_React.cn("alert alert-info col-md-12") ])([ React_DOM.text(props.keyText("key.add.hint")) ]), (function () {
                   if (state.error instanceof Data_Maybe.Just) {
                       return React_DOM.div([ Lib_React.cn("alert alert-danger") ])([ React_DOM.text(props.keyText("key.err." + state.error.value0)) ]);
@@ -8616,7 +9094,7 @@ var PS = {};
                   if (state.error instanceof Data_Maybe.Nothing) {
                       return Data_Monoid.mempty(React.monoidReactElement);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 302, column 9 - line 304, column 28): " + [ state.error.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 304, column 9 - line 306, column 28): " + [ state.error.constructor.name ]);
               })(), (function () {
                   if (state.routeId instanceof Data_Maybe.Just) {
                       return React_DOM.div([ Lib_React.cn("alert alert-success") ])([ React_DOM.text(props.keyText("key.add.success") + (" " + state.routeId.value0)) ]);
@@ -8631,7 +9109,7 @@ var PS = {};
                           return Data_Monoid.mempty(React.monoidReactElement);
                       })() ]);
                   };
-                  throw new Error("Failed pattern match at App.Driver (line 305, column 9 - line 315, column 14): " + [ state.routeId.constructor.name ]);
+                  throw new Error("Failed pattern match at App.Driver (line 307, column 9 - line 317, column 14): " + [ state.routeId.constructor.name ]);
               })() ]);
           };
       };
@@ -9824,6 +10302,254 @@ var PS = {};
   })();
   exports["addClass"] = addClass;
 })(PS);
+(function($PS) {
+  // Generated by purs version 0.14.0
+  "use strict";
+  $PS["App.ConfirmRegistration"] = $PS["App.ConfirmRegistration"] || {};
+  var exports = $PS["App.ConfirmRegistration"];
+  var Api_Pull = $PS["Api.Pull"];
+  var Api_Push = $PS["Api.Push"];
+  var Control_Applicative = $PS["Control.Applicative"];
+  var Data_JSDate = $PS["Data.JSDate"];
+  var Data_Maybe = $PS["Data.Maybe"];
+  var Data_Monoid = $PS["Data.Monoid"];
+  var Data_Unit = $PS["Data.Unit"];
+  var Effect = $PS["Effect"];
+  var Lib_React = $PS["Lib.React"];
+  var Lib_WebSocket = $PS["Lib.WebSocket"];
+  var React = $PS["React"];
+  var React_DOM = $PS["React.DOM"];
+  var React_DOM_Props = $PS["React.DOM.Props"];                
+  var confirmRegistrationClass = (function () {
+      var requiredSymbol = React_DOM.span([ Lib_React.cn("text-danger ml-2") ])([ React_DOM.text("*") ]);
+      var onMsg = function ($$this) {
+          return function (v) {
+              if (v instanceof Data_Maybe.Just && v.value0 instanceof Api_Push.UserDataOk) {
+                  return function __do() {
+                      React.modifyState($$this)(function (v1) {
+                          return {
+                              unsub: v1.unsub,
+                              firstName: Data_Maybe.fromMaybe("")(v.value0.value0.userData.firstName),
+                              lastName: Data_Maybe.fromMaybe("")(v.value0.value0.userData.lastName),
+                              phone: Data_Maybe.fromMaybe("")(v.value0.value0.userData.phone),
+                              carPlate: Data_Maybe.fromMaybe("")(v.value0.value0.userData.carPlate),
+                              carColor: v1.carColor,
+                              driver: v1.driver,
+                              "await": v1["await"],
+                              error: v1.error
+                          };
+                      })();
+                      return Data_Unit.unit;
+                  };
+              };
+              if (v instanceof Data_Maybe.Just && v.value0 instanceof Api_Push.ConfirmRegistrationOk) {
+                  return function __do() {
+                      var v1 = React.getProps($$this)();
+                      return v1.done();
+                  };
+              };
+              if (v instanceof Data_Maybe.Just && v.value0 instanceof Api_Push.ConfirmRegistrationErr) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          unsub: v1.unsub,
+                          firstName: v1.firstName,
+                          lastName: v1.lastName,
+                          phone: v1.phone,
+                          carPlate: v1.carPlate,
+                          carColor: v1.carColor,
+                          driver: v1.driver,
+                          "await": v1["await"],
+                          error: v.value0.value0.err
+                      };
+                  });
+              };
+              return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
+          };
+      };
+      var confirmRegistration = function ($$this) {
+          return function __do() {
+              var s = React.getState($$this)();
+              var p = React.getProps($$this)();
+              React.modifyState($$this)(function (v) {
+                  return {
+                      unsub: v.unsub,
+                      firstName: v.firstName,
+                      lastName: v.lastName,
+                      phone: v.phone,
+                      carPlate: v.carPlate,
+                      carColor: v.carColor,
+                      driver: v.driver,
+                      "await": true,
+                      error: v.error
+                  };
+              })();
+              var req = new Api_Pull.ConfirmRegistration({
+                  firstName: s.firstName,
+                  lastName: s.lastName,
+                  phone: s.phone,
+                  carPlate: s.carPlate,
+                  carColor: s.carColor
+              });
+              return Lib_WebSocket.snd(p.ws)(req)();
+          };
+      };
+      var render = function ($$this) {
+          return function __do() {
+              var props = React.getProps($$this)();
+              var state = React.getState($$this)();
+              return React_DOM.div([  ])([ React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row mb-3") ])([ React_DOM.h6([  ])([ React_DOM.text(props.keyText("key.confirm_registration.head")) ]), React_DOM.span([  ])([ React_DOM.text(props.keyText("key.confirm_registration.text")) ]) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("firstName") ])([ React_DOM.text(props.keyText("key.first_name")), requiredSymbol ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("firstName"), React_DOM_Props.required(true), React_DOM_Props.value(state.firstName), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          unsub: v1.unsub,
+                          firstName: v,
+                          lastName: v1.lastName,
+                          phone: v1.phone,
+                          carPlate: v1.carPlate,
+                          carColor: v1.carColor,
+                          driver: v1.driver,
+                          "await": v1["await"],
+                          error: v1.error
+                      };
+                  });
+              }), React_DOM_Props.value(state.firstName) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("lastName") ])([ React_DOM.text(props.keyText("key.last_name")) ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("lastName"), React_DOM_Props.required(true), React_DOM_Props.value(state.lastName), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          unsub: v1.unsub,
+                          firstName: v1.firstName,
+                          lastName: v,
+                          phone: v1.phone,
+                          carPlate: v1.carPlate,
+                          carColor: v1.carColor,
+                          driver: v1.driver,
+                          "await": v1["await"],
+                          error: v1.error
+                      };
+                  });
+              }), React_DOM_Props.value(state.lastName) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.last_name.hint")) ]) ]) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("phone") ])([ React_DOM.text(props.keyText("key.phone")), requiredSymbol ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("phone"), React_DOM_Props.autoComplete("phone"), React_DOM_Props.required(true), React_DOM_Props.value(state.phone), Lib_React.onChangeValue(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          unsub: v1.unsub,
+                          firstName: v1.firstName,
+                          lastName: v1.lastName,
+                          phone: v,
+                          carPlate: v1.carPlate,
+                          carColor: v1.carColor,
+                          driver: v1.driver,
+                          "await": v1["await"],
+                          error: v1.error
+                      };
+                  });
+              }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.phone.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 d-none d-md-block") ])([  ]) ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.div([ Lib_React.cn("form-check") ])([ React_DOM.input([ React_DOM_Props["_type"]("checkbox"), Lib_React.cn("form-check-input"), React_DOM_Props["_id"]("i_am_driver"), React_DOM_Props.checked(state.driver), React_DOM_Props.onChange(function (v) {
+                  return React.modifyState($$this)(function (v1) {
+                      return {
+                          unsub: v1.unsub,
+                          firstName: v1.firstName,
+                          lastName: v1.lastName,
+                          phone: v1.phone,
+                          carPlate: v1.carPlate,
+                          carColor: v1.carColor,
+                          driver: !state.driver,
+                          "await": v1["await"],
+                          error: v1.error
+                      };
+                  });
+              }) ]), React_DOM.label([ React_DOM_Props.htmlFor("i_am_driver"), Lib_React.cn("form-check-label") ])([ React_DOM.text(props.keyText("key.i_am_driver")) ]) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3 d-none d-md-block") ])([  ]) ]), (function () {
+                  if (state.driver) {
+                      return React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("carPlate") ])([ React_DOM.text(props.keyText("key.car_plate")), requiredSymbol ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("carPlate"), React_DOM_Props.autoComplete("carPlate"), React_DOM_Props.required(true), React_DOM_Props.value(state.carPlate), Lib_React.onChangeValue(function (v) {
+                          return React.modifyState($$this)(function (v1) {
+                              return {
+                                  unsub: v1.unsub,
+                                  firstName: v1.firstName,
+                                  lastName: v1.lastName,
+                                  phone: v1.phone,
+                                  carPlate: v,
+                                  carColor: v1.carColor,
+                                  driver: v1.driver,
+                                  "await": v1["await"],
+                                  error: v1.error
+                              };
+                          });
+                      }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_plate.hint")) ]) ]), React_DOM.div([ Lib_React.cn("col-md-5 col-lg-3 mb-3") ])([ React_DOM.label([ React_DOM_Props.htmlFor("carColor") ])([ React_DOM.text(props.keyText("key.car_color")), requiredSymbol ]), React_DOM.input([ React_DOM_Props["_type"]("text"), Lib_React.cn("form-control"), React_DOM_Props["_id"]("carColor"), React_DOM_Props.autoComplete("carColor"), React_DOM_Props.required(true), React_DOM_Props.value(state.carColor), Lib_React.onChangeValue(function (v) {
+                          return React.modifyState($$this)(function (v1) {
+                              return {
+                                  unsub: v1.unsub,
+                                  firstName: v1.firstName,
+                                  lastName: v1.lastName,
+                                  phone: v1.phone,
+                                  carPlate: v1.carPlate,
+                                  carColor: v,
+                                  driver: v1.driver,
+                                  "await": v1["await"],
+                                  error: v1.error
+                              };
+                          });
+                      }) ]), React_DOM.small([ Lib_React.cn("form-text text-muted") ])([ React_DOM.text(props.keyText("key.car_color.hint")) ]) ]) ]);
+                  };
+                  return Data_Monoid.mempty(React.monoidReactElement);
+              })(), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ (function () {
+                  if (state.error instanceof Data_Maybe.Just) {
+                      return React_DOM.div([ Lib_React.cn("alert alert-danger") ])([ React_DOM.text(props.keyText("key.err." + state.error.value0)) ]);
+                  };
+                  if (state.error instanceof Data_Maybe.Nothing) {
+                      return Data_Monoid.mempty(React.monoidReactElement);
+                  };
+                  throw new Error("Failed pattern match at App.ConfirmRegistration (line 173, column 11 - line 175, column 31): " + [ state.error.constructor.name ]);
+              })() ]), React_DOM.div([ Lib_React.cn("d-flex justify-content-center form-row") ])([ React_DOM.button([ Lib_React.cn("btn btn-primary mb-3"), React_DOM_Props["_type"]("button"), React_DOM_Props.disabled(state["await"]), React_DOM_Props.onClick(function (v) {
+                  return confirmRegistration($$this);
+              }) ])([ React_DOM.text(props.keyText("key.confirm_registration")), (function () {
+                  if (state["await"]) {
+                      return React_DOM.div([ Lib_React.cn("spinner-border text-light spinner-border-sm ml-1") ])([  ]);
+                  };
+                  return Data_Monoid.mempty(React.monoidReactElement);
+              })() ]) ]) ]);
+          };
+      };
+      return React.component()("ConfirmRegistration")(function ($$this) {
+          return function __do() {
+              var date = Data_JSDate.now();
+              var props = React.getProps($$this)();
+              return {
+                  state: {
+                      unsub: Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit),
+                      firstName: "",
+                      lastName: "",
+                      phone: "",
+                      carPlate: "",
+                      carColor: "",
+                      driver: false,
+                      "await": false,
+                      error: Data_Maybe.Nothing.value
+                  },
+                  render: render($$this),
+                  componentDidMount: function __do() {
+                      (function __do() {
+                          var unsub = Lib_WebSocket.sub(props.ws)(onMsg($$this))();
+                          return React.modifyState($$this)(function (v) {
+                              return {
+                                  unsub: unsub,
+                                  firstName: v.firstName,
+                                  lastName: v.lastName,
+                                  phone: v.phone,
+                                  carPlate: v.carPlate,
+                                  carColor: v.carColor,
+                                  driver: v.driver,
+                                  "await": v["await"],
+                                  error: v.error
+                              };
+                          })();
+                      })();
+                      return Lib_WebSocket.snd(props.ws)(Api_Pull.GetUserData.value)();
+                  },
+                  componentWillUnmount: function __do() {
+                      var v = React.getState($$this)();
+                      return v.unsub();
+                  }
+              };
+          };
+      });
+  })();
+  exports["confirmRegistrationClass"] = confirmRegistrationClass;
+})(PS);
 (function(exports) {
   "use strict";
 
@@ -9987,24 +10713,6 @@ var PS = {};
     return new Uint8Array(arrayBuffer)
   }
 })(PS["Lib.Ajax"] = PS["Lib.Ajax"] || {});
-(function($PS) {
-  // Generated by purs version 0.14.0
-  "use strict";
-  $PS["Effect.Class.Console"] = $PS["Effect.Class.Console"] || {};
-  var exports = $PS["Effect.Class.Console"];
-  var Effect_Class = $PS["Effect.Class"];
-  var Effect_Console = $PS["Effect.Console"];
-  var errorShow = function (dictMonadEffect) {
-      return function (dictShow) {
-          var $37 = Effect_Class.liftEffect(dictMonadEffect);
-          var $38 = Effect_Console.errorShow(dictShow);
-          return function ($39) {
-              return $37($38($39));
-          };
-      };
-  };
-  exports["errorShow"] = errorShow;
-})(PS);
 (function($PS) {
   // Generated by purs version 0.14.0
   "use strict";
@@ -10186,7 +10894,7 @@ var PS = {};
                           return err();
                       };
                       if (v instanceof Data_Either.Right) {
-                          return Lib_Ajax.postEff("//ridehub.city:8001/login")(Proto_Uint8Array.unwrap(Api_Pull.encodePull(v.value0)))(function (v1) {
+                          return Lib_Ajax.postEff("//ridehub.city/login")(Proto_Uint8Array.unwrap(Api_Pull.encodePull(v.value0)))(function (v1) {
                               return err;
                           })(function (x) {
                               var v1 = Api_Push.decodePush(Proto_Uint8Array.wrap(x));
@@ -10734,6 +11442,7 @@ var PS = {};
   var exports = $PS["App"];
   var Api_Push = $PS["Api.Push"];
   var App_Add = $PS["App.Add"];
+  var App_ConfirmRegistration = $PS["App.ConfirmRegistration"];
   var App_Home = $PS["App.Home"];
   var App_View = $PS["App.View"];
   var Control_Alt = $PS["Control.Alt"];
@@ -10766,6 +11475,20 @@ var PS = {};
   var Web_HTML_HTMLDocument = $PS["Web.HTML.HTMLDocument"];
   var Web_HTML_Location = $PS["Web.HTML.Location"];
   var Web_HTML_Window = $PS["Web.HTML.Window"];                
+  var Loading = (function () {
+      function Loading() {
+
+      };
+      Loading.value = new Loading();
+      return Loading;
+  })();
+  var Register = (function () {
+      function Register() {
+
+      };
+      Register.value = new Register();
+      return Register;
+  })();
   var HomeItem = (function () {
       function HomeItem() {
 
@@ -10788,6 +11511,12 @@ var PS = {};
       return AddItem;
   })();
   var showMenuItem = new Data_Show.Show(function (v) {
+      if (v instanceof Loading) {
+          return "";
+      };
+      if (v instanceof Register) {
+          return "";
+      };
       if (v instanceof HomeItem) {
           return "key.menu.home";
       };
@@ -10797,10 +11526,16 @@ var PS = {};
       if (v instanceof AddItem) {
           return "key.menu.add";
       };
-      throw new Error("Failed pattern match at App (line 51, column 1 - line 55, column 33): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at App (line 52, column 1 - line 58, column 33): " + [ v.constructor.name ]);
   });
   var eqMenuItem = new Data_Eq.Eq(function (x) {
       return function (y) {
+          if (x instanceof Loading && y instanceof Loading) {
+              return true;
+          };
+          if (x instanceof Register && y instanceof Register) {
+              return true;
+          };
           if (x instanceof HomeItem && y instanceof HomeItem) {
               return true;
           };
@@ -10817,6 +11552,24 @@ var PS = {};
       return eqMenuItem;
   }, function (x) {
       return function (y) {
+          if (x instanceof Loading && y instanceof Loading) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof Loading) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof Loading) {
+              return Data_Ordering.GT.value;
+          };
+          if (x instanceof Register && y instanceof Register) {
+              return Data_Ordering.EQ.value;
+          };
+          if (x instanceof Register) {
+              return Data_Ordering.LT.value;
+          };
+          if (y instanceof Register) {
+              return Data_Ordering.GT.value;
+          };
           if (x instanceof HomeItem && y instanceof HomeItem) {
               return Data_Ordering.EQ.value;
           };
@@ -10838,7 +11591,7 @@ var PS = {};
           if (x instanceof AddItem && y instanceof AddItem) {
               return Data_Ordering.EQ.value;
           };
-          throw new Error("Failed pattern match at App (line 57, column 1 - line 57, column 44): " + [ x.constructor.name, y.constructor.name ]);
+          throw new Error("Failed pattern match at App (line 60, column 1 - line 60, column 44): " + [ x.constructor.name, y.constructor.name ]);
       };
   });
   var appClass = (function () {
@@ -10864,7 +11617,7 @@ var PS = {};
                       });
                   }) ])([ React_DOM.text(state.keyText("key.login")) ]) ]);
               };
-              throw new Error("Failed pattern match at App (line 135, column 12 - line 152, column 10): " + [ state.user.constructor.name ]);
+              throw new Error("Failed pattern match at App (line 145, column 12 - line 162, column 10): " + [ state.user.constructor.name ]);
           };
       };
       var setLang = function ($$this) {
@@ -10919,8 +11672,8 @@ var PS = {};
                   return " collapse";
               })()) ])([ React_DOM.ul([ Lib_React.cn("navbar-nav mr-auto") ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.li([ Lib_React.cn("nav-item" + (function () {
-                      var $27 = Data_Eq.eq(eqMenuItem)(v)(state.menuItem);
-                      if ($27) {
+                      var $28 = Data_Eq.eq(eqMenuItem)(v)(state.menuItem);
+                      if ($28) {
                           return " active";
                       };
                       return "";
@@ -10942,6 +11695,25 @@ var PS = {};
               }), React_DOM_Props.value(state.lang) ])(Data_Functor.map(Data_Functor.functorArray)(function (v) {
                   return React_DOM.option([ React_DOM_Props.value(v) ])([ React_DOM.text(state.keyText("key." + v)) ]);
               })([ "uk", "ru" ])) ]), React_DOM.ul([ Lib_React.cn("navbar-nav ml-auto nav-flex-icons d-none d-lg-inline") ])([ u ]) ]), React_DOM.div([ Lib_React.cn("m-3") ])((function () {
+                  if (state.menuItem instanceof Loading) {
+                      return [ React_DOM.div([  ])([  ]) ];
+                  };
+                  if (state.menuItem instanceof Register) {
+                      return [ React.createLeafElement()(App_ConfirmRegistration.confirmRegistrationClass)({
+                          ws: props.ws,
+                          keyText: state.keyText,
+                          lang: state.lang,
+                          done: React.modifyState($$this)(function (v) {
+                              return {
+                                  user: v.user,
+                                  lang: v.lang,
+                                  keyText: v.keyText,
+                                  menuItem: HomeItem.value,
+                                  expandMenu: v.expandMenu
+                              };
+                          })
+                      }) ];
+                  };
                   if (state.menuItem instanceof HomeItem) {
                       return [ React.createLeafElement()(App_Home.homeClass)({
                           "await": Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit),
@@ -10967,7 +11739,7 @@ var PS = {};
                           user: state.user
                       }) ];
                   };
-                  throw new Error("Failed pattern match at App (line 118, column 27 - line 129, column 24): " + [ state.menuItem.constructor.name ]);
+                  throw new Error("Failed pattern match at App (line 121, column 27 - line 139, column 24): " + [ state.menuItem.constructor.name ]);
               })()) ]);
           };
       };
@@ -10995,7 +11767,7 @@ var PS = {};
                   keyText: function (key) {
                       return key;
                   },
-                  menuItem: HomeItem.value,
+                  menuItem: Register.value,
                   expandMenu: false
               },
               render: render($$this),
@@ -11019,6 +11791,8 @@ var PS = {};
       });
       return Data_Functor["void"](Effect.functorEffect)(ReactDOM.render(element)(container))();
   };
+  exports["Loading"] = Loading;
+  exports["Register"] = Register;
   exports["HomeItem"] = HomeItem;
   exports["ViewItem"] = ViewItem;
   exports["AddItem"] = AddItem;

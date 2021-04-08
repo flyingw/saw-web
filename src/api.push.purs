@@ -3,6 +3,7 @@ module Api.Push
   , SessionData
   , UserData
   , defaultUserData
+  , UserStatus(..)
   , AddRouteOk
   , AddRouteErr
   , defaultAddRouteErr
@@ -17,6 +18,9 @@ module Api.Push
   , PassengerInfo
   , CitiesList
   , defaultCitiesList
+  , UserDataOk
+  , ConfirmRegistrationErr
+  , defaultConfirmRegistrationErr
   , decodePush
   ) where
 
@@ -36,13 +40,15 @@ import Api
 decodeFieldLoop :: forall a b c. Int -> Decode.Result a -> (a -> b) -> Decode.Result' (Step { a :: Int, b :: b, c :: Int } { pos :: Int, val :: c })
 decodeFieldLoop end res f = map (\{ pos, val } -> Loop { a: end, b: f val, c: pos }) res
 
-data Push = Pong | LoginOk | LoginErr | SessionData SessionData | AddRouteOk AddRouteOk | AddRouteErr AddRouteErr | FreeDrivers FreeDrivers | FreePassengers FreePassengers | CitiesList CitiesList
+data Push = Pong | LoginOk | LoginErr | SessionData SessionData | AddRouteOk AddRouteOk | AddRouteErr AddRouteErr | FreeDrivers FreeDrivers | FreePassengers FreePassengers | CitiesList CitiesList | UserDataOk UserDataOk | ConfirmRegistrationOk | ConfirmRegistrationErr ConfirmRegistrationErr
 derive instance eqPush :: Eq Push
-type SessionData = { user :: UserData }
-type SessionData' = { user :: Maybe UserData }
+type SessionData = { user :: UserData, status :: UserStatus }
+type SessionData' = { user :: Maybe UserData, status :: Maybe UserStatus }
 type UserData = { firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, tpe :: Maybe PassengerType }
 defaultUserData :: { firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, tpe :: Maybe PassengerType }
 defaultUserData = { firstName: Nothing, lastName: Nothing, photo: Nothing, phone: Nothing, carPlate: Nothing, tpe: Nothing }
+data UserStatus = Guest | AwaitRegister | Active
+derive instance eqUserStatus :: Eq UserStatus
 type AddRouteOk = { id :: String }
 type AddRouteOk' = { id :: Maybe String }
 type AddRouteErr = { err :: Maybe String }
@@ -67,6 +73,11 @@ type PassengerInfo' = { id :: Maybe String, date :: Maybe BigInt, fromAddress ::
 type CitiesList = { cities :: Array String }
 defaultCitiesList :: { cities :: Array String }
 defaultCitiesList = { cities: [] }
+type UserDataOk = { userData :: UserData }
+type UserDataOk' = { userData :: Maybe UserData }
+type ConfirmRegistrationErr = { err :: Maybe String }
+defaultConfirmRegistrationErr :: { err :: Maybe String }
+defaultConfirmRegistrationErr = { err: Nothing }
 
 decodePush :: Uint8Array -> Decode.Result Push
 decodePush _xs_ = do
@@ -81,6 +92,9 @@ decodePush _xs_ = do
     30 -> decode (decodeFreeDrivers _xs_ pos1) FreeDrivers
     40 -> decode (decodeFreePassengers _xs_ pos1) FreePassengers
     50 -> decode (decodeCitiesList _xs_ pos1) CitiesList
+    60 -> decode (decodeUserDataOk _xs_ pos1) UserDataOk
+    61 -> decode (decodeConfirmRegistrationOk _xs_ pos1) \_ -> ConfirmRegistrationOk
+    62 -> decode (decodeConfirmRegistrationErr _xs_ pos1) ConfirmRegistrationErr
     i -> Left $ Decode.BadType i
   where
   decode :: forall a. Decode.Result a -> (a -> Push) -> Decode.Result Push
@@ -104,9 +118,9 @@ decodeLoginErr _xs_ pos0 = do
 decodeSessionData :: Uint8Array -> Int -> Decode.Result SessionData
 decodeSessionData _xs_ pos0 = do
   { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
-  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { user: Nothing } pos
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { user: Nothing, status: Nothing } pos
   case val of
-    { user: Just user } -> pure { pos: pos1, val: { user } }
+    { user: Just user, status: Just status } -> pure { pos: pos1, val: { user, status } }
     _ -> Left $ Decode.MissingFields "SessionData"
     where
     decode :: Int -> SessionData' -> Int -> Decode.Result' (Step { a :: Int, b :: SessionData', c :: Int } { pos :: Int, val :: SessionData' })
@@ -114,6 +128,7 @@ decodeSessionData _xs_ pos0 = do
       { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
       case tag `zshr` 3 of
         1 -> decodeFieldLoop end (decodeUserData _xs_ pos2) \val -> acc { user = Just val }
+        2 -> decodeFieldLoop end (decodeUserStatus _xs_ pos2) \val -> acc { status = Just val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
     decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
 
@@ -187,6 +202,37 @@ decodeCashier _xs_ pos0 = do
 
 decodeRegular :: Uint8Array -> Int -> Decode.Result Unit
 decodeRegular _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeUserStatus :: Uint8Array -> Int -> Decode.Result UserStatus
+decodeUserStatus _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  tailRecM3 decode (pos + msglen) Nothing pos
+    where
+    decode :: Int -> Maybe UserStatus -> Int -> Decode.Result' (Step { a :: Int, b :: Maybe UserStatus, c :: Int } { pos :: Int, val :: UserStatus })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (decodeGuest _xs_ pos2) \_ -> Just Guest
+        2 -> decodeFieldLoop end (decodeAwaitRegister _xs_ pos2) \_ -> Just AwaitRegister
+        3 -> decodeFieldLoop end (decodeActive _xs_ pos2) \_ -> Just Active
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end (Just acc) pos1 = pure $ Done { pos: pos1, val: acc }
+    decode end acc@Nothing pos1 = Left $ Decode.MissingFields "UserStatus"
+
+decodeGuest :: Uint8Array -> Int -> Decode.Result Unit
+decodeGuest _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeAwaitRegister :: Uint8Array -> Int -> Decode.Result Unit
+decodeAwaitRegister _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeActive :: Uint8Array -> Int -> Decode.Result Unit
+decodeActive _xs_ pos0 = do
   { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
   pure { pos: pos + msglen, val: unit }
 
@@ -332,5 +378,39 @@ decodeCitiesList _xs_ pos0 = do
       { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
       case tag `zshr` 3 of
         1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { cities = snoc acc.cities val }
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
+
+decodeUserDataOk :: Uint8Array -> Int -> Decode.Result UserDataOk
+decodeUserDataOk _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { userData: Nothing } pos
+  case val of
+    { userData: Just userData } -> pure { pos: pos1, val: { userData } }
+    _ -> Left $ Decode.MissingFields "UserDataOk"
+    where
+    decode :: Int -> UserDataOk' -> Int -> Decode.Result' (Step { a :: Int, b :: UserDataOk', c :: Int } { pos :: Int, val :: UserDataOk' })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (decodeUserData _xs_ pos2) \val -> acc { userData = Just val }
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
+
+decodeConfirmRegistrationOk :: Uint8Array -> Int -> Decode.Result Unit
+decodeConfirmRegistrationOk _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeConfirmRegistrationErr :: Uint8Array -> Int -> Decode.Result ConfirmRegistrationErr
+decodeConfirmRegistrationErr _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  tailRecM3 decode (pos + msglen) { err: Nothing } pos
+    where
+    decode :: Int -> ConfirmRegistrationErr -> Int -> Decode.Result' (Step { a :: Int, b :: ConfirmRegistrationErr, c :: Int } { pos :: Int, val :: ConfirmRegistrationErr })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { err = Just val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
     decode end acc pos1 = pure $ Done { pos: pos1, val: acc }

@@ -12,6 +12,7 @@ module Api.Pull
   , GetFreeDrivers
   , GetFreePassengers
   , GetCitiesList
+  , ConfirmRegistration
   , encodePull
   ) where
 
@@ -23,7 +24,7 @@ import Proto.Encode as Encode
 import Proto.Uint8Array (Uint8Array, length, concatAll)
 import Api
 
-data Pull = Ping | TelegramLogin TelegramLogin | AddDriver AddDriver | AddPassenger AddPassenger | GetFreeDrivers GetFreeDrivers | GetFreePassengers GetFreePassengers | GetCitiesList GetCitiesList
+data Pull = Ping | TelegramLogin TelegramLogin | AddDriver AddDriver | AddPassenger AddPassenger | GetFreeDrivers GetFreeDrivers | GetFreePassengers GetFreePassengers | GetCitiesList GetCitiesList | GetUserData | ConfirmRegistration ConfirmRegistration
 derive instance eqPull :: Eq Pull
 type TelegramLogin = { d :: Array TelegramData }
 defaultTelegramLogin :: { d :: Array TelegramData }
@@ -40,6 +41,7 @@ type AddPassenger = { firstName :: String, lastName :: String, phone :: String, 
 type GetFreeDrivers = { date :: BigInt }
 type GetFreePassengers = { date :: BigInt }
 type GetCitiesList = { country :: String, lang :: String }
+type ConfirmRegistration = { firstName :: String, lastName :: String, phone :: String, carPlate :: String, carColor :: String }
 
 encodePull :: Pull -> Uint8Array
 encodePull Ping = concatAll [ Encode.unsignedVarint32 10, encodePing ]
@@ -49,6 +51,8 @@ encodePull (AddPassenger x) = concatAll [ Encode.unsignedVarint32 162, encodeAdd
 encodePull (GetFreeDrivers x) = concatAll [ Encode.unsignedVarint32 242, encodeGetFreeDrivers x ]
 encodePull (GetFreePassengers x) = concatAll [ Encode.unsignedVarint32 322, encodeGetFreePassengers x ]
 encodePull (GetCitiesList x) = concatAll [ Encode.unsignedVarint32 402, encodeGetCitiesList x ]
+encodePull GetUserData = concatAll [ Encode.unsignedVarint32 482, encodeGetUserData ]
+encodePull (ConfirmRegistration x) = concatAll [ Encode.unsignedVarint32 490, encodeConfirmRegistration x ]
 
 encodePing :: Uint8Array
 encodePing = Encode.unsignedVarint32 0
@@ -218,5 +222,24 @@ encodeGetCitiesList msg = do
         , Encode.string msg.country
         , Encode.unsignedVarint32 18
         , Encode.string msg.lang
+        ]
+  concatAll [ Encode.unsignedVarint32 $ length xs, xs ]
+
+encodeGetUserData :: Uint8Array
+encodeGetUserData = Encode.unsignedVarint32 0
+
+encodeConfirmRegistration :: ConfirmRegistration -> Uint8Array
+encodeConfirmRegistration msg = do
+  let xs = concatAll
+        [ Encode.unsignedVarint32 10
+        , Encode.string msg.firstName
+        , Encode.unsignedVarint32 18
+        , Encode.string msg.lastName
+        , Encode.unsignedVarint32 26
+        , Encode.string msg.phone
+        , Encode.unsignedVarint32 34
+        , Encode.string msg.carPlate
+        , Encode.unsignedVarint32 42
+        , Encode.string msg.carColor
         ]
   concatAll [ Encode.unsignedVarint32 $ length xs, xs ]

@@ -4,3 +4,5 @@
 /ext/node_modules/
 /output/
 /.spago/
+/bower_components/
+/out/
