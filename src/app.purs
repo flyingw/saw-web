@@ -19,7 +19,7 @@ import Web.DOM.NonElementParentNode (getElementById)
 import Web.HTML (window)
 import Web.HTML.HTMLDocument (toNonElementParentNode)
 import Web.HTML.Window (document, location)
-import Web.HTML.Location (port)
+import Web.HTML.Location (protocol)
 
 import Api.Push (Push(SessionData), UserData)
 
@@ -167,7 +167,8 @@ view = do
   doc <- window >>= document
   elem <- getElementById "container" $ toNonElementParentNode doc
   container <- maybe (throw "container not found") pure elem
-  port' <- window >>= location >>= port
-  ws <- WS.new "ridehub.city:8001/ws"
+  protocol' <- window >>= location >>= protocol
+  let port = if protocol' == "https:" then "" else ":8001"
+  ws <- WS.new $ "ridehub.city"<>port<>"/ws"
   let element = createLeafElement appClass { ws }
   void $ render element container

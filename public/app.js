@@ -7274,14 +7274,6 @@ var PS = {};
 
   // ----------------------------------------------------------------------------
 
-  exports.port = function (location) {
-    return function () {
-      return location.port;
-    };
-  };
-
-  // ----------------------------------------------------------------------------
-
   exports.protocol = function (location) {
     return function () {
       return location.protocol;
@@ -7294,7 +7286,6 @@ var PS = {};
   $PS["Web.HTML.Location"] = $PS["Web.HTML.Location"] || {};
   var exports = $PS["Web.HTML.Location"];
   var $foreign = $PS["Web.HTML.Location"];
-  exports["port"] = $foreign.port;
   exports["protocol"] = $foreign.protocol;
 })(PS);
 (function(exports) {
@@ -11784,8 +11775,15 @@ var PS = {};
       var doc = Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.document)();
       var elem = Web_DOM_NonElementParentNode.getElementById("container")(Web_HTML_HTMLDocument.toNonElementParentNode(doc))();
       var container = Data_Maybe.maybe(Effect_Exception["throw"]("container not found"))(Control_Applicative.pure(Effect.applicativeEffect))(elem)();
-      var port$prime = Control_Bind.bind(Effect.bindEffect)(Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.location))(Web_HTML_Location.port)();
-      var ws = Lib_WebSocket["new"]("ridehub.city:8001/ws")();
+      var protocol$prime = Control_Bind.bind(Effect.bindEffect)(Control_Bind.bind(Effect.bindEffect)(Web_HTML.window)(Web_HTML_Window.location))(Web_HTML_Location.protocol)();
+      var port = (function () {
+          var $34 = protocol$prime === "https:";
+          if ($34) {
+              return "";
+          };
+          return ":8001";
+      })();
+      var ws = Lib_WebSocket["new"]("ridehub.city" + (port + "/ws"))();
       var element = React.createLeafElement()(appClass)({
           ws: ws
       });
