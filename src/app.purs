@@ -2,7 +2,6 @@ module App where
 
 import Prelude hiding (div)
 
-import Control.Alt ((<|>))
 import Data.Array (take, drop)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe, fromMaybe)
@@ -11,9 +10,10 @@ import Data.String.Pattern (Pattern(Pattern))
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
 import Effect.Exception (throw)
+import Effect.Class.Console (infoShow)
 import React (ReactClass, ReactElement, ReactThis, component, createLeafElement, getProps, getState, modifyState)
 import React.DOM (a, button, div, img, li, nav, option, select, span, text, ul)
-import React.DOM.Props (_type, height, href, onClick, src, style, value)
+import React.DOM.Props (_type, height, href, onClick, src, style, value, _id)
 import ReactDOM (render)
 import Web.DOM.NonElementParentNode (getElementById)
 import Web.HTML (window)
@@ -21,8 +21,8 @@ import Web.HTML.HTMLDocument (toNonElementParentNode)
 import Web.HTML.Window (document, location)
 import Web.HTML.Location (protocol)
 
-import Api.Push (Push(SessionData), UserData)
-
+import Api.Push (Push(SessionData), UserData, UserStatus(AwaitRegister, Active, Guest))
+import Lib.Maps(loadMap)
 import Lib.Datepicker (datepickerLoad)
 import Lib.React (cn, onChangeValue)
 import Lib.WebSocket (Ws)
@@ -66,7 +66,7 @@ appClass = component "App" \this -> do
       { user: Nothing
       , lang: "uk"
       , keyText: \key -> key
-      , menuItem: Register
+      , menuItem: Loading
       , expandMenu: false
       }:: State
     , render: render this
@@ -74,11 +74,18 @@ appClass = component "App" \this -> do
         props <- getProps this
         _     <- setLang this "uk"
         void $ WS.sub props.ws $ onMsg this
+        -- void $ loadMap "div-map"
     }
   where
   onMsg :: This -> Maybe Push -> Effect Unit
-  onMsg this (Just (SessionData r)) = modifyState this _{ user = Just r.user }
-  onMsg this _                      = pure unit
+  onMsg this (Just (SessionData { status: AwaitRegister })) = modifyState this _{ menuItem = Register }
+  onMsg this (Just (SessionData { status: Active r }))      = do
+    infoShow "User"
+    modifyState this _{ user = Just r.user }
+  onMsg this (Just (SessionData { status: Guest })) = modifyState this _{ menuItem = HomeItem }
+  onMsg this _                                              = do
+    infoShow "Guest"
+    pure unit
 
   setLang :: This -> String -> Effect Unit
   setLang this lang = do
@@ -120,6 +127,12 @@ appClass = component "App" \this -> do
         ]
       , div [ cn "m-3"] $ case state.menuItem of
           Loading  -> [ div [] [] ]
+            -- [ div [ cn "d-flex justify-content-center form-row" ]
+            --   [ div [ cn "col-md-10 col-lg-6 mb-3" ]
+            --     [ div [ _id "div-map", style { height: "300px" } ] []
+            --     ]
+            --   ]
+            -- ]
           Register -> [ createLeafElement confirmRegistrationClass { ws: props.ws
                                                                    , keyText: state.keyText
                                                                    , lang: state.lang
@@ -147,13 +160,13 @@ appClass = component "App" \this -> do
         li [ cn "avatar" ]
         [ span [ cn "nav-link p-0" ]
           [ img [ src photo, cn "rounded-circle z-depth-0 mr-1", height "35" ]
-          , text $ fromMaybe "" $ user.firstName <|> user.lastName 
+          , text $ user.firstName <> (fromMaybe "" user.lastName) 
           ]
         ]
       Just user ->
         li [ cn "nav-item" ]
         [ span [ cn "nav-link" ]
-          [ text $ fromMaybe "" $ user.firstName <|> user.lastName ]
+          [ text $ user.firstName <> (fromMaybe "" user.lastName) ]
         ]
       Nothing ->
         li [ cn "nav-item" ]

@@ -9,7 +9,7 @@ import Data.Array (fromFoldable, elem, delete, (:))
 import Data.JSDate (JSDate, now, getTime)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Effect (Effect)
-import React (ReactClass, ReactThis, getProps, getState, modifyState, component, createLeafElement)
+import React (ReactClass, ReactThis, getProps, getState, modifyState, component, createLeafElement, ReactElement)
 import React.DOM (text, div, label, input, button, h6, small, iframe)
 import React.DOM.Props (htmlFor, _id, _type, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, disabled, checked)
 
@@ -63,9 +63,9 @@ driverClass = component "Driver" \this -> do
     { state:
       { mapQ: Nothing
       , routeId: Nothing
-      , firstName: fromMaybe "" $ props.user >>= _.firstName
+      , firstName: fromMaybe "" $ props.user <#> _.firstName
       , lastName: fromMaybe "" $ props.user >>= _.lastName
-      , phone: fromMaybe "" $ props.user >>= _.phone
+      , phone: fromMaybe "" $ props.user <#> _.phone
       , carPlate: fromMaybe "" $ props.user >>= _.carPlate
       , date: date
       , deviationDistance: 2
@@ -122,6 +122,7 @@ driverClass = component "Driver" \this -> do
     modifyState this \state -> state{ mapQ = Just q }
 
 
+  render :: This -> Effect ReactElement
   render this = do
     props <- getProps this
     state <- getState this

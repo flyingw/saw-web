@@ -1,0 +1,4 @@
+#!/bin/bash
+
+sh ./bin/com
+rsync -a public/ root@167.99.138.184:/var/www/saww/public

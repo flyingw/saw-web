@@ -1,9 +1,10 @@
 module Api.Push
   ( Push(..)
   , SessionData
+  , UserStatus(..)
+  , Active
   , UserData
   , defaultUserData
-  , UserStatus(..)
   , AddRouteOk
   , AddRouteErr
   , defaultAddRouteErr
@@ -31,7 +32,7 @@ import Data.Eq (class Eq)
 import Data.Int.Bits (zshr, (.&.))
 import Data.Maybe (Maybe(Just, Nothing))
 import Data.Unit (Unit, unit)
-import Prelude (map, bind, pure, ($), (+), (<))
+import Prelude (map, bind, pure, ($), (+), (<), (<<<))
 import Proto.BigInt (BigInt)
 import Proto.Decode as Decode
 import Proto.Uint8Array (Uint8Array)
@@ -42,13 +43,16 @@ decodeFieldLoop end res f = map (\{ pos, val } -> Loop { a: end, b: f val, c: po
 
 data Push = Pong | LoginOk | LoginErr | SessionData SessionData | AddRouteOk AddRouteOk | AddRouteErr AddRouteErr | FreeDrivers FreeDrivers | FreePassengers FreePassengers | CitiesList CitiesList | UserDataOk UserDataOk | ConfirmRegistrationOk | ConfirmRegistrationErr ConfirmRegistrationErr
 derive instance eqPush :: Eq Push
-type SessionData = { user :: UserData, status :: UserStatus }
-type SessionData' = { user :: Maybe UserData, status :: Maybe UserStatus }
-type UserData = { firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, tpe :: Maybe PassengerType }
-defaultUserData :: { firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, tpe :: Maybe PassengerType }
-defaultUserData = { firstName: Nothing, lastName: Nothing, photo: Nothing, phone: Nothing, carPlate: Nothing, tpe: Nothing }
-data UserStatus = Guest | AwaitRegister | Active
+type SessionData = { status :: UserStatus }
+type SessionData' = { status :: Maybe UserStatus }
+data UserStatus = AwaitRegister | Active Active | Guest
 derive instance eqUserStatus :: Eq UserStatus
+type Active = { user :: UserData }
+type Active' = { user :: Maybe UserData }
+type UserData = { firstName :: String, lastName :: Maybe String, photo :: Maybe String, phone :: String, carPlate :: Maybe String, tpe :: PassengerType }
+defaultUserData :: { lastName :: Maybe String, photo :: Maybe String, carPlate :: Maybe String }
+defaultUserData = { lastName: Nothing, photo: Nothing, carPlate: Nothing }
+type UserData' = { firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, tpe :: Maybe PassengerType }
 type AddRouteOk = { id :: String }
 type AddRouteOk' = { id :: Maybe String }
 type AddRouteErr = { err :: Maybe String }
@@ -118,26 +122,65 @@ decodeLoginErr _xs_ pos0 = do
 decodeSessionData :: Uint8Array -> Int -> Decode.Result SessionData
 decodeSessionData _xs_ pos0 = do
   { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
-  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { user: Nothing, status: Nothing } pos
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { status: Nothing } pos
   case val of
-    { user: Just user, status: Just status } -> pure { pos: pos1, val: { user, status } }
+    { status: Just status } -> pure { pos: pos1, val: { status } }
     _ -> Left $ Decode.MissingFields "SessionData"
     where
     decode :: Int -> SessionData' -> Int -> Decode.Result' (Step { a :: Int, b :: SessionData', c :: Int } { pos :: Int, val :: SessionData' })
     decode end acc pos1 | pos1 < end = do
       { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
       case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (decodeUserStatus _xs_ pos2) \val -> acc { status = Just val }
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
+
+decodeUserStatus :: Uint8Array -> Int -> Decode.Result UserStatus
+decodeUserStatus _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  tailRecM3 decode (pos + msglen) Nothing pos
+    where
+    decode :: Int -> Maybe UserStatus -> Int -> Decode.Result' (Step { a :: Int, b :: Maybe UserStatus, c :: Int } { pos :: Int, val :: UserStatus })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (decodeAwaitRegister _xs_ pos2) \_ -> Just AwaitRegister
+        2 -> decodeFieldLoop end (decodeActive _xs_ pos2) (Just <<< Active)
+        3 -> decodeFieldLoop end (decodeGuest _xs_ pos2) \_ -> Just Guest
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end (Just acc) pos1 = pure $ Done { pos: pos1, val: acc }
+    decode end acc@Nothing pos1 = Left $ Decode.MissingFields "UserStatus"
+
+decodeAwaitRegister :: Uint8Array -> Int -> Decode.Result Unit
+decodeAwaitRegister _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeActive :: Uint8Array -> Int -> Decode.Result Active
+decodeActive _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { user: Nothing } pos
+  case val of
+    { user: Just user } -> pure { pos: pos1, val: { user } }
+    _ -> Left $ Decode.MissingFields "Active"
+    where
+    decode :: Int -> Active' -> Int -> Decode.Result' (Step { a :: Int, b :: Active', c :: Int } { pos :: Int, val :: Active' })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
+      case tag `zshr` 3 of
         1 -> decodeFieldLoop end (decodeUserData _xs_ pos2) \val -> acc { user = Just val }
-        2 -> decodeFieldLoop end (decodeUserStatus _xs_ pos2) \val -> acc { status = Just val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
     decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
 
 decodeUserData :: Uint8Array -> Int -> Decode.Result UserData
 decodeUserData _xs_ pos0 = do
   { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
-  tailRecM3 decode (pos + msglen) { firstName: Nothing, lastName: Nothing, photo: Nothing, phone: Nothing, carPlate: Nothing, tpe: Nothing } pos
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { firstName: Nothing, lastName: Nothing, photo: Nothing, phone: Nothing, carPlate: Nothing, tpe: Nothing } pos
+  case val of
+    { firstName: Just firstName, lastName, photo, phone: Just phone, carPlate, tpe: Just tpe } -> pure { pos: pos1, val: { firstName, lastName, photo, phone, carPlate, tpe } }
+    _ -> Left $ Decode.MissingFields "UserData"
     where
-    decode :: Int -> UserData -> Int -> Decode.Result' (Step { a :: Int, b :: UserData, c :: Int } { pos :: Int, val :: UserData })
+    decode :: Int -> UserData' -> Int -> Decode.Result' (Step { a :: Int, b :: UserData', c :: Int } { pos :: Int, val :: UserData' })
     decode end acc pos1 | pos1 < end = do
       { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
       case tag `zshr` 3 of
@@ -205,34 +248,8 @@ decodeRegular _xs_ pos0 = do
   { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
   pure { pos: pos + msglen, val: unit }
 
-decodeUserStatus :: Uint8Array -> Int -> Decode.Result UserStatus
-decodeUserStatus _xs_ pos0 = do
-  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
-  tailRecM3 decode (pos + msglen) Nothing pos
-    where
-    decode :: Int -> Maybe UserStatus -> Int -> Decode.Result' (Step { a :: Int, b :: Maybe UserStatus, c :: Int } { pos :: Int, val :: UserStatus })
-    decode end acc pos1 | pos1 < end = do
-      { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
-      case tag `zshr` 3 of
-        1 -> decodeFieldLoop end (decodeGuest _xs_ pos2) \_ -> Just Guest
-        2 -> decodeFieldLoop end (decodeAwaitRegister _xs_ pos2) \_ -> Just AwaitRegister
-        3 -> decodeFieldLoop end (decodeActive _xs_ pos2) \_ -> Just Active
-        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
-    decode end (Just acc) pos1 = pure $ Done { pos: pos1, val: acc }
-    decode end acc@Nothing pos1 = Left $ Decode.MissingFields "UserStatus"
-
 decodeGuest :: Uint8Array -> Int -> Decode.Result Unit
 decodeGuest _xs_ pos0 = do
-  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
-  pure { pos: pos + msglen, val: unit }
-
-decodeAwaitRegister :: Uint8Array -> Int -> Decode.Result Unit
-decodeAwaitRegister _xs_ pos0 = do
-  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
-  pure { pos: pos + msglen, val: unit }
-
-decodeActive :: Uint8Array -> Int -> Decode.Result Unit
-decodeActive _xs_ pos0 = do
   { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
   pure { pos: pos + msglen, val: unit }
 

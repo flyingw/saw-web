@@ -66,9 +66,9 @@ confirmRegistrationClass = component "ConfirmRegistration" \this -> do
   where
   onMsg :: This -> Maybe Push -> Effect Unit
   onMsg this (Just (UserDataOk r)) = do
-    modifyState this _{ firstName = fromMaybe "" r.userData.firstName
+    modifyState this _{ firstName = r.userData.firstName
                       , lastName = fromMaybe "" r.userData.lastName
-                      , phone = fromMaybe "" r.userData.phone
+                      , phone = r.userData.phone
                       , carPlate = fromMaybe "" r.userData.carPlate
                       }
     pure unit
@@ -102,7 +102,9 @@ confirmRegistrationClass = component "ConfirmRegistration" \this -> do
         [ h6 [] 
           [ text $ props.keyText "key.confirm_registration.head"
           ]
-        , span []
+        ]
+      , div [ cn "d-flex justify-content-center form-row mb-3" ] 
+        [ span [ cn "col-md-10 col-lg-6 mb-3" ]
           [ text $ props.keyText "key.confirm_registration.text"
           ]
         ] 
@@ -110,17 +112,17 @@ confirmRegistrationClass = component "ConfirmRegistration" \this -> do
         [ div [ cn "col-md-5 col-lg-3 mb-3" ]
           [ label [ htmlFor "firstName" ] [ text $ props.keyText "key.first_name", requiredSymbol ]
           , input [ _type "text", cn "form-control", _id "firstName", required true 
+                  , autoComplete "given-name cc-given-name"
                   , value state.firstName
                   , onChangeValue \v -> modifyState this _{ firstName=v }
-                  , value state.firstName
                   ]
           ]
         , div [ cn "col-md-5 col-lg-3 mb-3" ]
           [ label [ htmlFor "lastName" ] [ text $ props.keyText "key.last_name" ]
-          , input [ _type "text", cn "form-control", _id "lastName", required true 
+          , input [ _type "text", cn "form-control", _id "lastName", required true
+                  , autoComplete "family-name cc-family-name"
                   , value state.lastName
                   , onChangeValue \v -> modifyState this _{ lastName=v }
-                  , value state.lastName
                   ]
           , small [ cn "form-text text-muted" ] [ text $ props.keyText "key.last_name.hint" ]
           ]
@@ -128,7 +130,8 @@ confirmRegistrationClass = component "ConfirmRegistration" \this -> do
       , div [ cn "d-flex justify-content-center form-row" ]
         [ div [ cn "col-md-5 col-lg-3 mb-3" ]
           [ label [ htmlFor "phone" ] [ text $ props.keyText "key.phone", requiredSymbol ]
-          , input [ _type "text", cn "form-control", _id "phone", autoComplete "phone", required true 
+          , input [ _type "text", cn "form-control", _id "phone", required true 
+                  , autoComplete "phone"
                   , value state.phone
                   , onChangeValue \v -> modifyState this _{ phone=v }
                   ]

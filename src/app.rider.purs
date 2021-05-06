@@ -10,7 +10,7 @@ import Data.Map (Map, fromFoldable, lookup)
 import Data.Maybe (Maybe(Just, Nothing), fromMaybe)
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
-import React (ReactClass, ReactThis, getProps, getState, modifyState, component, createLeafElement)
+import React (ReactClass, ReactThis, getProps, getState, modifyState, component, createLeafElement, ReactElement)
 import React.DOM (text, div, label, input, button, h6, small, iframe, select, option)
 import React.DOM.Props (htmlFor, _id, _type, required, autoComplete, value, src, width, height, frameBorder, onClick, disabled)
 
@@ -58,11 +58,11 @@ riderClass = component "Rider" \this -> do
     { state:
       { mapQ: Nothing
       , routeId: Nothing
-      , firstName: fromMaybe "" $ props.user >>= _.firstName
+      , firstName: fromMaybe "" $ props.user <#> _.firstName
       , lastName: fromMaybe "" $ props.user >>= _.lastName
-      , phone: fromMaybe "" $ props.user >>= _.phone
+      , phone: fromMaybe "" $ props.user <#> _.phone
       , date: date
-      , tpe: fromMaybe Medical $ props.user >>= _.tpe
+      , tpe: fromMaybe Medical $ props.user <#> _.tpe
       , from: { country: "Украина", city: "Киев", street: "Спортивная", building: "1" }
       , to: { country: "Украина", city: "Киев", street: "Льва Толстого", building: "1" }
       , await: false
@@ -111,6 +111,7 @@ riderClass = component "Rider" \this -> do
     let q = host <> "?origin=" <> origin <> "&destination=" <> destination <> "&key=" <> key
     modifyState this \state -> state{ mapQ = Just q }
 
+  render :: This -> Effect ReactElement
   render this = do
     props <- getProps this
     state <- getState this
