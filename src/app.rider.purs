@@ -58,9 +58,9 @@ riderClass = component "Rider" \this -> do
     { state:
       { mapQ: Nothing
       , routeId: Nothing
-      , firstName: fromMaybe "" $ props.user <#> _.firstName
+      , firstName: fromMaybe "" $ props.user >>= _.firstName
       , lastName: fromMaybe "" $ props.user >>= _.lastName
-      , phone: fromMaybe "" $ props.user <#> _.phone
+      , phone: fromMaybe "" $ props.user >>= _.phone
       , date: date
       , tpe: fromMaybe Medical $ props.user <#> _.tpe
       , from: { country: "Украина", city: "Киев", street: "Спортивная", building: "1" }

@@ -22,6 +22,11 @@ module Api.Push
   , UserDataOk
   , ConfirmRegistrationErr
   , defaultConfirmRegistrationErr
+  , AutocompleteOk
+  , defaultAutocompleteOk
+  , Waypoint
+  , WaypointType(..)
+  , GeolocationOk
   , decodePush
   ) where
 
@@ -41,18 +46,18 @@ import Api
 decodeFieldLoop :: forall a b c. Int -> Decode.Result a -> (a -> b) -> Decode.Result' (Step { a :: Int, b :: b, c :: Int } { pos :: Int, val :: c })
 decodeFieldLoop end res f = map (\{ pos, val } -> Loop { a: end, b: f val, c: pos }) res
 
-data Push = Pong | LoginOk | LoginErr | SessionData SessionData | AddRouteOk AddRouteOk | AddRouteErr AddRouteErr | FreeDrivers FreeDrivers | FreePassengers FreePassengers | CitiesList CitiesList | UserDataOk UserDataOk | ConfirmRegistrationOk | ConfirmRegistrationErr ConfirmRegistrationErr
+data Push = Pong | LoginOk | LoginErr | SessionData SessionData | AddRouteOk AddRouteOk | AddRouteErr AddRouteErr | FreeDrivers FreeDrivers | FreePassengers FreePassengers | CitiesList CitiesList | UserDataOk UserDataOk | ConfirmRegistrationOk | ConfirmRegistrationErr ConfirmRegistrationErr | AutocompleteOk AutocompleteOk | GeolocationOk GeolocationOk
 derive instance eqPush :: Eq Push
 type SessionData = { status :: UserStatus }
 type SessionData' = { status :: Maybe UserStatus }
-data UserStatus = AwaitRegister | Active Active | Guest
+data UserStatus = Active Active | Guest
 derive instance eqUserStatus :: Eq UserStatus
 type Active = { user :: UserData }
 type Active' = { user :: Maybe UserData }
-type UserData = { firstName :: String, lastName :: Maybe String, photo :: Maybe String, phone :: String, carPlate :: Maybe String, tpe :: PassengerType }
-defaultUserData :: { lastName :: Maybe String, photo :: Maybe String, carPlate :: Maybe String }
-defaultUserData = { lastName: Nothing, photo: Nothing, carPlate: Nothing }
-type UserData' = { firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, tpe :: Maybe PassengerType }
+type UserData = { username :: Maybe String, firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, tpe :: PassengerType }
+defaultUserData :: { username :: Maybe String, firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String }
+defaultUserData = { username: Nothing, firstName: Nothing, lastName: Nothing, photo: Nothing, phone: Nothing, carPlate: Nothing }
+type UserData' = { username :: Maybe String, firstName :: Maybe String, lastName :: Maybe String, photo :: Maybe String, phone :: Maybe String, carPlate :: Maybe String, tpe :: Maybe PassengerType }
 type AddRouteOk = { id :: String }
 type AddRouteOk' = { id :: Maybe String }
 type AddRouteErr = { err :: Maybe String }
@@ -82,6 +87,16 @@ type UserDataOk' = { userData :: Maybe UserData }
 type ConfirmRegistrationErr = { err :: Maybe String }
 defaultConfirmRegistrationErr :: { err :: Maybe String }
 defaultConfirmRegistrationErr = { err: Nothing }
+type AutocompleteOk = { predictions :: Array Waypoint }
+defaultAutocompleteOk :: { predictions :: Array Waypoint }
+defaultAutocompleteOk = { predictions: [] }
+type Waypoint = { description :: String, raw :: String, tpe :: WaypointType }
+type Waypoint' = { description :: Maybe String, raw :: Maybe String, tpe :: Maybe WaypointType }
+data WaypointType = SubwayWaypoint | BusStationWaypoint | AirportWaypoint | RouteWaypoint | StreetAddressWaypoint | LocalityWaypoint | ShoppingMallWaypoint | PointOfInterest | UnknownWaypoint
+derive instance eqWaypointType :: Eq WaypointType
+type GeolocationOk = { coordinates :: Coordinates }
+type GeolocationOk' = { coordinates :: Maybe Coordinates }
+type Coordinates' = { lat :: Maybe Number, lng :: Maybe Number }
 
 decodePush :: Uint8Array -> Decode.Result Push
 decodePush _xs_ = do
@@ -99,6 +114,8 @@ decodePush _xs_ = do
     60 -> decode (decodeUserDataOk _xs_ pos1) UserDataOk
     61 -> decode (decodeConfirmRegistrationOk _xs_ pos1) \_ -> ConfirmRegistrationOk
     62 -> decode (decodeConfirmRegistrationErr _xs_ pos1) ConfirmRegistrationErr
+    71 -> decode (decodeAutocompleteOk _xs_ pos1) AutocompleteOk
+    81 -> decode (decodeGeolocationOk _xs_ pos1) GeolocationOk
     i -> Left $ Decode.BadType i
   where
   decode :: forall a. Decode.Result a -> (a -> Push) -> Decode.Result Push
@@ -144,17 +161,11 @@ decodeUserStatus _xs_ pos0 = do
     decode end acc pos1 | pos1 < end = do
       { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
       case tag `zshr` 3 of
-        1 -> decodeFieldLoop end (decodeAwaitRegister _xs_ pos2) \_ -> Just AwaitRegister
-        2 -> decodeFieldLoop end (decodeActive _xs_ pos2) (Just <<< Active)
-        3 -> decodeFieldLoop end (decodeGuest _xs_ pos2) \_ -> Just Guest
+        1 -> decodeFieldLoop end (decodeActive _xs_ pos2) (Just <<< Active)
+        2 -> decodeFieldLoop end (decodeGuest _xs_ pos2) \_ -> Just Guest
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
     decode end (Just acc) pos1 = pure $ Done { pos: pos1, val: acc }
     decode end acc@Nothing pos1 = Left $ Decode.MissingFields "UserStatus"
-
-decodeAwaitRegister :: Uint8Array -> Int -> Decode.Result Unit
-decodeAwaitRegister _xs_ pos0 = do
-  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
-  pure { pos: pos + msglen, val: unit }
 
 decodeActive :: Uint8Array -> Int -> Decode.Result Active
 decodeActive _xs_ pos0 = do
@@ -175,21 +186,22 @@ decodeActive _xs_ pos0 = do
 decodeUserData :: Uint8Array -> Int -> Decode.Result UserData
 decodeUserData _xs_ pos0 = do
   { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
-  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { firstName: Nothing, lastName: Nothing, photo: Nothing, phone: Nothing, carPlate: Nothing, tpe: Nothing } pos
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { username: Nothing, firstName: Nothing, lastName: Nothing, photo: Nothing, phone: Nothing, carPlate: Nothing, tpe: Nothing } pos
   case val of
-    { firstName: Just firstName, lastName, photo, phone: Just phone, carPlate, tpe: Just tpe } -> pure { pos: pos1, val: { firstName, lastName, photo, phone, carPlate, tpe } }
+    { username, firstName, lastName, photo, phone, carPlate, tpe: Just tpe } -> pure { pos: pos1, val: { username, firstName, lastName, photo, phone, carPlate, tpe } }
     _ -> Left $ Decode.MissingFields "UserData"
     where
     decode :: Int -> UserData' -> Int -> Decode.Result' (Step { a :: Int, b :: UserData', c :: Int } { pos :: Int, val :: UserData' })
     decode end acc pos1 | pos1 < end = do
       { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
       case tag `zshr` 3 of
-        1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { firstName = Just val }
-        2 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { lastName = Just val }
-        3 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { photo = Just val }
-        4 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { phone = Just val }
-        5 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { carPlate = Just val }
-        6 -> decodeFieldLoop end (decodePassengerType _xs_ pos2) \val -> acc { tpe = Just val }
+        1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { username = Just val }
+        2 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { firstName = Just val }
+        3 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { lastName = Just val }
+        4 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { photo = Just val }
+        5 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { phone = Just val }
+        6 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { carPlate = Just val }
+        7 -> decodeFieldLoop end (decodePassengerType _xs_ pos2) \val -> acc { tpe = Just val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
     decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
 
@@ -429,5 +441,136 @@ decodeConfirmRegistrationErr _xs_ pos0 = do
       { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
       case tag `zshr` 3 of
         1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { err = Just val }
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
+
+decodeAutocompleteOk :: Uint8Array -> Int -> Decode.Result AutocompleteOk
+decodeAutocompleteOk _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  tailRecM3 decode (pos + msglen) { predictions: [] } pos
+    where
+    decode :: Int -> AutocompleteOk -> Int -> Decode.Result' (Step { a :: Int, b :: AutocompleteOk, c :: Int } { pos :: Int, val :: AutocompleteOk })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (decodeWaypoint _xs_ pos2) \val -> acc { predictions = snoc acc.predictions val }
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
+
+decodeWaypoint :: Uint8Array -> Int -> Decode.Result Waypoint
+decodeWaypoint _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { description: Nothing, raw: Nothing, tpe: Nothing } pos
+  case val of
+    { description: Just description, raw: Just raw, tpe: Just tpe } -> pure { pos: pos1, val: { description, raw, tpe } }
+    _ -> Left $ Decode.MissingFields "Waypoint"
+    where
+    decode :: Int -> Waypoint' -> Int -> Decode.Result' (Step { a :: Int, b :: Waypoint', c :: Int } { pos :: Int, val :: Waypoint' })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { description = Just val }
+        2 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { raw = Just val }
+        3 -> decodeFieldLoop end (decodeWaypointType _xs_ pos2) \val -> acc { tpe = Just val }
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
+
+decodeWaypointType :: Uint8Array -> Int -> Decode.Result WaypointType
+decodeWaypointType _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  tailRecM3 decode (pos + msglen) Nothing pos
+    where
+    decode :: Int -> Maybe WaypointType -> Int -> Decode.Result' (Step { a :: Int, b :: Maybe WaypointType, c :: Int } { pos :: Int, val :: WaypointType })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (decodeSubwayWaypoint _xs_ pos2) \_ -> Just SubwayWaypoint
+        2 -> decodeFieldLoop end (decodeBusStationWaypoint _xs_ pos2) \_ -> Just BusStationWaypoint
+        3 -> decodeFieldLoop end (decodeAirportWaypoint _xs_ pos2) \_ -> Just AirportWaypoint
+        4 -> decodeFieldLoop end (decodeRouteWaypoint _xs_ pos2) \_ -> Just RouteWaypoint
+        5 -> decodeFieldLoop end (decodeStreetAddressWaypoint _xs_ pos2) \_ -> Just StreetAddressWaypoint
+        6 -> decodeFieldLoop end (decodeLocalityWaypoint _xs_ pos2) \_ -> Just LocalityWaypoint
+        7 -> decodeFieldLoop end (decodeShoppingMallWaypoint _xs_ pos2) \_ -> Just ShoppingMallWaypoint
+        8 -> decodeFieldLoop end (decodePointOfInterest _xs_ pos2) \_ -> Just PointOfInterest
+        9 -> decodeFieldLoop end (decodeUnknownWaypoint _xs_ pos2) \_ -> Just UnknownWaypoint
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end (Just acc) pos1 = pure $ Done { pos: pos1, val: acc }
+    decode end acc@Nothing pos1 = Left $ Decode.MissingFields "WaypointType"
+
+decodeSubwayWaypoint :: Uint8Array -> Int -> Decode.Result Unit
+decodeSubwayWaypoint _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeBusStationWaypoint :: Uint8Array -> Int -> Decode.Result Unit
+decodeBusStationWaypoint _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeAirportWaypoint :: Uint8Array -> Int -> Decode.Result Unit
+decodeAirportWaypoint _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeRouteWaypoint :: Uint8Array -> Int -> Decode.Result Unit
+decodeRouteWaypoint _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeStreetAddressWaypoint :: Uint8Array -> Int -> Decode.Result Unit
+decodeStreetAddressWaypoint _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeLocalityWaypoint :: Uint8Array -> Int -> Decode.Result Unit
+decodeLocalityWaypoint _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeShoppingMallWaypoint :: Uint8Array -> Int -> Decode.Result Unit
+decodeShoppingMallWaypoint _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodePointOfInterest :: Uint8Array -> Int -> Decode.Result Unit
+decodePointOfInterest _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeUnknownWaypoint :: Uint8Array -> Int -> Decode.Result Unit
+decodeUnknownWaypoint _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  pure { pos: pos + msglen, val: unit }
+
+decodeGeolocationOk :: Uint8Array -> Int -> Decode.Result GeolocationOk
+decodeGeolocationOk _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { coordinates: Nothing } pos
+  case val of
+    { coordinates: Just coordinates } -> pure { pos: pos1, val: { coordinates } }
+    _ -> Left $ Decode.MissingFields "GeolocationOk"
+    where
+    decode :: Int -> GeolocationOk' -> Int -> Decode.Result' (Step { a :: Int, b :: GeolocationOk', c :: Int } { pos :: Int, val :: GeolocationOk' })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (decodeCoordinates _xs_ pos2) \val -> acc { coordinates = Just val }
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
+
+decodeCoordinates :: Uint8Array -> Int -> Decode.Result Coordinates
+decodeCoordinates _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { lat: Nothing, lng: Nothing } pos
+  case val of
+    { lat: Just lat, lng: Just lng } -> pure { pos: pos1, val: { lat, lng } }
+    _ -> Left $ Decode.MissingFields "Coordinates"
+    where
+    decode :: Int -> Coordinates' -> Int -> Decode.Result' (Step { a :: Int, b :: Coordinates', c :: Int } { pos :: Int, val :: Coordinates' })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (Decode.double _xs_ pos2) \val -> acc { lat = Just val }
+        2 -> decodeFieldLoop end (Decode.double _xs_ pos2) \val -> acc { lng = Just val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
     decode end acc pos1 = pure $ Done { pos: pos1, val: acc }

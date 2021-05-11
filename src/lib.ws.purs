@@ -67,6 +67,7 @@ new url = do
 reconnect :: Ws -> Effect Unit
 reconnect (Ws ref) = do
   st  <- Ref.read ref
+  _   <- close st.con
   con <- create st.url
   _   <- Ref.modify_ _{ con = con, await = true } ref
   initWs $ Ws ref

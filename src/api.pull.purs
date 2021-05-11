@@ -13,18 +13,22 @@ module Api.Pull
   , GetFreePassengers
   , GetCitiesList
   , ConfirmRegistration
+  , GetAutocomplete
+  , defaultGetAutocomplete
+  , GetGeolocation
   , encodePull
   ) where
 
 import Data.Array (concatMap)
 import Data.Eq (class Eq)
-import Prelude (($))
+import Data.Maybe (Maybe(..), fromMaybe)
+import Prelude (map, ($))
 import Proto.BigInt (BigInt)
 import Proto.Encode as Encode
-import Proto.Uint8Array (Uint8Array, length, concatAll)
+import Proto.Uint8Array (Uint8Array, length, concatAll, fromArray)
 import Api
 
-data Pull = Ping | TelegramLogin TelegramLogin | AddDriver AddDriver | AddPassenger AddPassenger | GetFreeDrivers GetFreeDrivers | GetFreePassengers GetFreePassengers | GetCitiesList GetCitiesList | GetUserData | ConfirmRegistration ConfirmRegistration
+data Pull = Ping | Logout | TelegramLogin TelegramLogin | AddDriver AddDriver | AddPassenger AddPassenger | GetFreeDrivers GetFreeDrivers | GetFreePassengers GetFreePassengers | GetCitiesList GetCitiesList | GetUserData | ConfirmRegistration ConfirmRegistration | GetAutocomplete GetAutocomplete | GetGeolocation GetGeolocation
 derive instance eqPull :: Eq Pull
 type TelegramLogin = { d :: Array TelegramData }
 defaultTelegramLogin :: { d :: Array TelegramData }
@@ -42,9 +46,14 @@ type GetFreeDrivers = { date :: BigInt }
 type GetFreePassengers = { date :: BigInt }
 type GetCitiesList = { country :: String, lang :: String }
 type ConfirmRegistration = { firstName :: String, lastName :: String, phone :: String, carPlate :: String, carColor :: String }
+type GetAutocomplete = { text :: String, location :: Maybe Coordinates, lang :: String }
+defaultGetAutocomplete :: { location :: Maybe Coordinates }
+defaultGetAutocomplete = { location: Nothing }
+type GetGeolocation = { text :: String }
 
 encodePull :: Pull -> Uint8Array
 encodePull Ping = concatAll [ Encode.unsignedVarint32 10, encodePing ]
+encodePull Logout = concatAll [ Encode.unsignedVarint32 18, encodeLogout ]
 encodePull (TelegramLogin x) = concatAll [ Encode.unsignedVarint32 26, encodeTelegramLogin x ]
 encodePull (AddDriver x) = concatAll [ Encode.unsignedVarint32 82, encodeAddDriver x ]
 encodePull (AddPassenger x) = concatAll [ Encode.unsignedVarint32 162, encodeAddPassenger x ]
@@ -53,9 +62,14 @@ encodePull (GetFreePassengers x) = concatAll [ Encode.unsignedVarint32 322, enco
 encodePull (GetCitiesList x) = concatAll [ Encode.unsignedVarint32 402, encodeGetCitiesList x ]
 encodePull GetUserData = concatAll [ Encode.unsignedVarint32 482, encodeGetUserData ]
 encodePull (ConfirmRegistration x) = concatAll [ Encode.unsignedVarint32 490, encodeConfirmRegistration x ]
+encodePull (GetAutocomplete x) = concatAll [ Encode.unsignedVarint32 562, encodeGetAutocomplete x ]
+encodePull (GetGeolocation x) = concatAll [ Encode.unsignedVarint32 642, encodeGetGeolocation x ]
 
 encodePing :: Uint8Array
 encodePing = Encode.unsignedVarint32 0
+
+encodeLogout :: Uint8Array
+encodeLogout = Encode.unsignedVarint32 0
 
 encodeTelegramLogin :: TelegramLogin -> Uint8Array
 encodeTelegramLogin msg = do
@@ -241,5 +255,34 @@ encodeConfirmRegistration msg = do
         , Encode.string msg.carPlate
         , Encode.unsignedVarint32 42
         , Encode.string msg.carColor
+        ]
+  concatAll [ Encode.unsignedVarint32 $ length xs, xs ]
+
+encodeGetAutocomplete :: GetAutocomplete -> Uint8Array
+encodeGetAutocomplete msg = do
+  let xs = concatAll
+        [ Encode.unsignedVarint32 10
+        , Encode.string msg.text
+        , fromMaybe (fromArray []) $ map (\x -> concatAll [ Encode.unsignedVarint32 18, encodeCoordinates x ]) msg.location
+        , Encode.unsignedVarint32 26
+        , Encode.string msg.lang
+        ]
+  concatAll [ Encode.unsignedVarint32 $ length xs, xs ]
+
+encodeCoordinates :: Coordinates -> Uint8Array
+encodeCoordinates msg = do
+  let xs = concatAll
+        [ Encode.unsignedVarint32 9
+        , Encode.double msg.lat
+        , Encode.unsignedVarint32 17
+        , Encode.double msg.lng
+        ]
+  concatAll [ Encode.unsignedVarint32 $ length xs, xs ]
+
+encodeGetGeolocation :: GetGeolocation -> Uint8Array
+encodeGetGeolocation msg = do
+  let xs = concatAll
+        [ Encode.unsignedVarint32 10
+        , Encode.string msg.text
         ]
   concatAll [ Encode.unsignedVarint32 $ length xs, xs ]

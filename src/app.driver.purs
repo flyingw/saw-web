@@ -25,7 +25,6 @@ import Lib.React(cn, onChangeValue, onChangeValueInt)
 import Lib.WebSocket (Ws)
 import Lib.WebSocket as WS
 import Lib.JS (encodeURI)
-import App.Waypoint (waypointClass)
 
 type Props =
   { ws :: Ws
@@ -63,9 +62,9 @@ driverClass = component "Driver" \this -> do
     { state:
       { mapQ: Nothing
       , routeId: Nothing
-      , firstName: fromMaybe "" $ props.user <#> _.firstName
+      , firstName: fromMaybe "" $ props.user >>= _.firstName
       , lastName: fromMaybe "" $ props.user >>= _.lastName
-      , phone: fromMaybe "" $ props.user <#> _.phone
+      , phone: fromMaybe "" $ props.user >>= _.phone
       , carPlate: fromMaybe "" $ props.user >>= _.carPlate
       , date: date
       , deviationDistance: 2
@@ -278,7 +277,6 @@ driverClass = component "Driver" \this -> do
                   ]
           ]
         ]
-      , createLeafElement waypointClass props
       , button [ cn "btn btn-outline-secondary mb-3", _type "button"
                , onClick \_ -> updateMap this ] [ text $ props.keyText "key.overview_route"
                ]

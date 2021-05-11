@@ -15,3 +15,20 @@ exports.createMap = function(id) {
     return document.maps
   }
 }
+
+
+exports.getLocation = success => error => {
+  return function() {
+    if(!navigator.geolocation) {
+      return error();
+    } else {
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          success(pos.coords.latitude)(pos.coords.longitude)()
+        }, function() {
+          error()
+        }
+      );
+    }
+  }
+}

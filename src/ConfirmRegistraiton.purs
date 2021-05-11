@@ -66,15 +66,14 @@ confirmRegistrationClass = component "ConfirmRegistration" \this -> do
   where
   onMsg :: This -> Maybe Push -> Effect Unit
   onMsg this (Just (UserDataOk r)) = do
-    modifyState this _{ firstName = r.userData.firstName
-                      , lastName = fromMaybe "" r.userData.lastName
-                      , phone = r.userData.phone
-                      , carPlate = fromMaybe "" r.userData.carPlate
+    modifyState this _{ firstName = ""-- fromMaybe "" r.userData.firstName
+                      , lastName = ""-- fromMaybe "" r.userData.lastName
+                      , phone = ""-- fromMaybe "" r.userData.phone
+                      , carPlate = ""-- fromMaybe "" r.userData.carPlate
                       }
-    pure unit
-  onMsg this (Just (ConfirmRegistrationOk)) = getProps this >>= _.done
+  onMsg this (Just (ConfirmRegistrationOk))    = getProps this >>= _.done
   onMsg this (Just (ConfirmRegistrationErr r)) = modifyState this _{ error = r.err }
-  onMsg this _ = pure unit
+  onMsg this _                                 = pure unit
 
   confirmRegistration :: This -> Effect Unit
   confirmRegistration this = do

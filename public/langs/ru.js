@@ -1,6 +1,7 @@
 key.uk=Українська
 key.ru=Русский
 key.login=Войти
+key.menu.login=Вход
 key.menu.home=Главная
 key.menu.view=Просмотреть маршруты
 key.menu.add=Добавить маршрут
@@ -59,3 +60,4 @@ key.err.wrong_time=Неверное время отклонения
 key.err.wrong_distance=Неверное расстояние отклонения
 key.err.wrong_from_address=Неверный начальный адрес
 key.err.wrong_to_address=Неверный адрес конечной точки
+key.lost.connection=Потеряно соединение с сервером. Повторное соединение ...

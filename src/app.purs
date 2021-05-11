@@ -5,7 +5,8 @@ import Prelude hiding (div)
 import Data.Array (take, drop)
 import Data.Map as Map
 import Data.Maybe (Maybe(..), maybe, fromMaybe)
-import Data.String.Common (joinWith, split, toLower)
+import Data.Foldable (find)
+import Data.String.Common (joinWith, split, toLower, trim, null)
 import Data.String.Pattern (Pattern(Pattern))
 import Data.Tuple (Tuple(Tuple))
 import Effect (Effect)
@@ -21,7 +22,8 @@ import Web.HTML.HTMLDocument (toNonElementParentNode)
 import Web.HTML.Window (document, location)
 import Web.HTML.Location (protocol)
 
-import Api.Push (Push(SessionData), UserData, UserStatus(AwaitRegister, Active, Guest))
+import Api.Push (Push(SessionData), UserData, UserStatus(Active, Guest))
+import Api.Pull (Pull(Logout))
 import Lib.Maps(loadMap)
 import Lib.Datepicker (datepickerLoad)
 import Lib.React (cn, onChangeValue)
@@ -30,6 +32,9 @@ import Lib.WebSocket as WS
 import Lib.Ajax (getEff)
 
 import App.Add (addClass)
+
+import App.Add.Menu (addMenuClass)
+import App.Login (loginClass)
 import App.Home (homeClass)
 import App.View (viewClass)
 import App.ConfirmRegistration (confirmRegistrationClass)
@@ -48,14 +53,15 @@ type State =
 
 type This = ReactThis Props State
 
-data MenuItem = Loading | Register | HomeItem | ViewItem | AddItem
+data MenuItem = Loading | LoginItem | HomeItem | ViewItem | AddItem | AddItem2
 instance showMenuItem :: Show MenuItem where
   show :: MenuItem -> String
-  show Loading  = ""
-  show Register = ""
-  show HomeItem = "key.menu.home"
-  show ViewItem = "key.menu.view"
-  show AddItem  = "key.menu.add"
+  show Loading    = ""
+  show LoginItem  = "key.menu.login"
+  show HomeItem   = "key.menu.home"
+  show ViewItem   = "key.menu.view"
+  show AddItem    = "key.menu.add"
+  show AddItem2    = "key.menu.add"
 derive instance eqMenuItem :: Eq MenuItem
 derive instance ordMenuItem :: Ord MenuItem
 
@@ -66,7 +72,7 @@ appClass = component "App" \this -> do
       { user: Nothing
       , lang: "uk"
       , keyText: \key -> key
-      , menuItem: Loading
+      , menuItem: LoginItem
       , expandMenu: false
       }:: State
     , render: render this
@@ -78,14 +84,14 @@ appClass = component "App" \this -> do
     }
   where
   onMsg :: This -> Maybe Push -> Effect Unit
-  onMsg this (Just (SessionData { status: AwaitRegister })) = modifyState this _{ menuItem = Register }
-  onMsg this (Just (SessionData { status: Active r }))      = do
-    infoShow "User"
-    modifyState this _{ user = Just r.user }
-  onMsg this (Just (SessionData { status: Guest })) = modifyState this _{ menuItem = HomeItem }
-  onMsg this _                                              = do
-    infoShow "Guest"
-    pure unit
+  onMsg this (Just (SessionData { status: Active r })) = do
+    s <- getState this
+    case s.menuItem of
+      LoginItem -> modifyState this _{ menuItem = HomeItem, user = Just r.user }
+      _         -> modifyState this _{ user = Just r.user }
+  onMsg this (Just (SessionData { status: Guest }))    =
+    modifyState this _{ menuItem = LoginItem, user = Nothing }
+  onMsg this _                                         = pure unit
 
   setLang :: This -> String -> Effect Unit
   setLang this lang = do
@@ -97,11 +103,11 @@ appClass = component "App" \this -> do
   render this = do
     props <- getProps this
     state <- getState this
-    u     <- userIcon this
-    pure $ div []
+    pure $ 
+      div []
       [ nav [ cn "navbar navbar-expand-lg navbar-dark bg-primary" ]
         [ a [ cn "navbar-brand", href "#", onClick \_ -> modifyState this _{ menuItem = HomeItem } ] [ text "Ridehub" ]
-        , ul [ cn "navbar-nav ml-auto nav-flex-icons d-lg-none" ] [ u ]
+        , ul [ cn "navbar-nav ml-auto nav-flex-icons d-lg-none" ] [ userIcon state.user ]
         , button [ cn "navbar-toggler collapsed", _type "button" 
                  , onClick \_ -> modifyState this \s -> s { expandMenu = not s.expandMenu }
                  ] 
@@ -116,63 +122,74 @@ appClass = component "App" \this -> do
                   ] 
                 [ text $ state.keyText $ show v ]
               ]
-            ) [ HomeItem, AddItem, ViewItem ]
+            ) (menuItems state.user)
           , select  [ cn "custom-select bg-primary text-white-50", style { width: "9.5rem" }
                     , onChangeValue \v -> setLang this v
                     , value state.lang
                     ] $
             map (\v -> option [ value v ] [ text $ state.keyText $ "key." <> v ]) [ "uk", "ru" ]
           ]
-        , ul [ cn "navbar-nav ml-auto nav-flex-icons d-none d-lg-inline" ] [ u ]
+        , ul [ cn "navbar-nav ml-auto nav-flex-icons d-none d-lg-inline" ] [ userIcon state.user ]
         ]
       , div [ cn "m-3"] $ case state.menuItem of
-          Loading  -> [ div [] [] ]
+          Loading    -> [ div [] [] ]
             -- [ div [ cn "d-flex justify-content-center form-row" ]
             --   [ div [ cn "col-md-10 col-lg-6 mb-3" ]
             --     [ div [ _id "div-map", style { height: "300px" } ] []
             --     ]
             --   ]
             -- ]
-          Register -> [ createLeafElement confirmRegistrationClass { ws: props.ws
-                                                                   , keyText: state.keyText
-                                                                   , lang: state.lang
-                                                                   , done: modifyState this _{ menuItem = HomeItem }
-                                                                   }
-                      ]
-          HomeItem -> [ createLeafElement homeClass { await: pure unit
-                                                    , ok: WS.reconnect props.ws
-                                                    , err: pure unit
-                                                    , keyText: state.keyText
-                                                    , user: state.user
-                                                    }
-                      ]
-          ViewItem -> [ createLeafElement viewClass { ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user }
-                      ]
-          AddItem  -> [ createLeafElement addClass { ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user }
-                      ]
+          LoginItem  -> [ createLeafElement loginClass { await: pure unit
+                                                       , ok: WS.reconnect props.ws
+                                                       , err: pure unit
+                                                       , keyText: state.keyText
+                                                       , user: state.user
+                                                       }
+                        ]
+          HomeItem   -> [ createLeafElement homeClass { ws: props.ws
+                                                      , lang: state.lang
+                                                      , keyText: state.keyText
+                                                      , user: state.user
+                                                      , logout: do
+                                                           WS.snd props.ws Logout
+                                                           modifyState this _{ menuItem = LoginItem, user = Nothing }
+                                                      }
+                        ]
+          ViewItem   -> [ createLeafElement viewClass { ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user }
+                        ]
+          AddItem    -> [ createLeafElement addMenuClass { ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user }
+                        ]
+          AddItem2   -> [ createLeafElement addClass { ws: props.ws, lang: state.lang, keyText: state.keyText, user: state.user }
+                        ]
       ]
 
-  userIcon :: This -> Effect ReactElement
-  userIcon this = do
-    state <- getState this
-    pure $ case state.user of
-      Just user @ { photo: Just photo } ->
-        li [ cn "avatar" ]
-        [ span [ cn "nav-link p-0" ]
-          [ img [ src photo, cn "rounded-circle z-depth-0 mr-1", height "35" ]
-          , text $ user.firstName <> (fromMaybe "" user.lastName) 
-          ]
-        ]
-      Just user ->
-        li [ cn "nav-item" ]
-        [ span [ cn "nav-link" ]
-          [ text $ user.firstName <> (fromMaybe "" user.lastName) ]
-        ]
-      Nothing ->
-        li [ cn "nav-item" ]
-        [ a [ cn "nav-link", href "#", onClick \_ -> modifyState this _{ menuItem = HomeItem } ]
-          [ text $ state.keyText "key.login" ]
-        ]
+  menuItems :: Maybe UserData -> Array MenuItem
+  menuItems (Just _) = [ HomeItem, AddItem, AddItem2, ViewItem ]
+  menuItems Nothing  = [ LoginItem ]
+
+  userIcon :: Maybe UserData -> ReactElement
+  userIcon (Just userData @ { photo: Just photo }) =
+    li []
+    [ span [ cn "nav-link p-0" ]
+      [ img [ src photo, cn "rounded-circle z-depth-0 mr-1", height "35" ]
+      , text $ showUserName userData
+      ]
+    ]
+  userIcon (Just userData) =
+    li [ cn "nav-item" ]
+    [ span [ cn "nav-link" ]
+      [ text $ showUserName userData
+      ]
+    ]
+  userIcon Nothing =
+    li [ cn "nav-item" ] []
+
+showUserName :: UserData -> String
+showUserName userData = do
+  let items = [ trim $ fromMaybe "" userData.username
+              , trim $ (fromMaybe "" userData.firstName) <> " " <> (fromMaybe "" userData.lastName)
+              ]
+  fromMaybe "Anonymous" $ find (trim >>> null >>> not) items
 
 view :: Effect Unit
 view = do
