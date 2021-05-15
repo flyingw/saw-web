@@ -24,7 +24,6 @@ import Web.HTML.Location (protocol)
 
 import Api.Push (Push(SessionData), UserData, UserStatus(Active, Guest))
 import Api.Pull (Pull(Logout))
-import Lib.Maps(loadMap)
 import Lib.Datepicker (datepickerLoad)
 import Lib.React (cn, onChangeValue)
 import Lib.WebSocket (Ws)
@@ -80,7 +79,6 @@ appClass = component "App" \this -> do
         props <- getProps this
         _     <- setLang this "uk"
         void $ WS.sub props.ws $ onMsg this
-        -- void $ loadMap "div-map"
     }
   where
   onMsg :: This -> Maybe Push -> Effect Unit
@@ -133,14 +131,10 @@ appClass = component "App" \this -> do
         ]
       , div [ cn "m-3"] $ case state.menuItem of
           Loading    -> [ div [] [] ]
-            -- [ div [ cn "d-flex justify-content-center form-row" ]
-            --   [ div [ cn "col-md-10 col-lg-6 mb-3" ]
-            --     [ div [ _id "div-map", style { height: "300px" } ] []
-            --     ]
-            --   ]
-            -- ]
           LoginItem  -> [ createLeafElement loginClass { await: pure unit
-                                                       , ok: WS.reconnect props.ws
+                                                       , ok: do
+                                                          WS.reconnect props.ws
+                                                          modifyState this _{ expandMenu = true }
                                                        , err: pure unit
                                                        , keyText: state.keyText
                                                        , user: state.user

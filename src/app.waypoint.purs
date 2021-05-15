@@ -15,9 +15,9 @@ import React.DOM (a, i, text, div, label, input, button, h6, small, iframe, span
 import React.DOM.Props (htmlFor, _id, _type, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, disabled, checked, href, onFocus, onBlur, placeholder)
 import Effect.Console (logShow)
 
-import Api (PassengerType(..), Coordinates)
+import Api (PassengerType(..), Location, WaypointType(..), Waypoint)
 import Api.Pull (Pull(AddDriver, GetAutocomplete), Address)
-import Api.Push (Push(AutocompleteOk, AddRouteErr), WaypointType(..), UserData, Waypoint)
+import Api.Push (Push(GetAutocompleteOk), UserData)
 import Proto.BigInt (fromNumber)
 
 import Keys (keyPassengerType)
@@ -37,16 +37,15 @@ type Props =
   , keyText :: String -> String
   , user :: Maybe UserData
   , icon :: String
-  , location :: Maybe Coordinates
-  , set :: Waypoint -> Effect Unit
+  , location :: Maybe Location
+  , waypoint :: Waypoint
+  , set :: Waypoint -> Boolean -> Effect Unit
   , removeActive :: Boolean
   , remove :: Effect Unit
   }
 
 type State =
-  { description :: String
-  , coordinates :: Maybe Coordinates
-  , timer :: Maybe TimeoutId
+  { timer :: Maybe TimeoutId
   , predictions :: Array Waypoint
   , focus :: Boolean
   , unsub :: Effect Unit
@@ -60,9 +59,7 @@ waypointClass = component "Waypoint" \this -> do
   props <- getProps this
   pure
     { state:
-      { description: ""
-      , coordinates: Nothing
-      , timer: Nothing
+      { timer: Nothing
       , predictions: []
       , focus: false
       , unsub: pure unit
@@ -75,7 +72,7 @@ waypointClass = component "Waypoint" \this -> do
     }
   where
   onMsg :: This -> Maybe Push -> Effect Unit
-  onMsg this (Just (AutocompleteOk r)) = do
+  onMsg this (Just (GetAutocompleteOk r)) = do
     s <- getState this
     if s.focus then modifyState this _{ predictions = r.predictions } else pure unit
   onMsg this _ = pure unit
@@ -85,37 +82,39 @@ waypointClass = component "Waypoint" \this -> do
     props <- getProps this
     state <- getState this
     pure $
-      div [] 
-      [ div [ cn "d-flex justify-content-center" ] 
-        [ div [ cn "col-md-8 col-lg-6 mb-3 input-group" ]
-          [ div [ cn "input-group-prepend align-self-center" ] 
-            [ i [ cn props.icon ] []
-            ]
-          , input [ _type "text", cn "form-control ml-2", _id "description", required true 
-                  , value state.description
-                  , onChangeValue \v -> fetchAutocomplete this v
-                  , onFocus \_ -> modifyState this _{ focus = true }
-                  , onBlur \_ -> modifyState this _{ focus = false }
-                  , placeholder $ props.keyText "key.waypoint.input.placeholder"
-                  ]
-          , if props.removeActive then
-              div [ cn "input-group-prepend align-self-center ml-2" ] 
-              [ a [ cn "far fa-trash-alt fa-lg"
-                  , href "#"
-                  , onClick \_ -> props.remove
-                  ] []
-              ]
-            else
-              mempty
-          , div [ cn $ "dropdown-menu ml-5" <> if not null state.predictions then " show" else "" ] $
-              map (\prediction ->
-                a [ cn "dropdown-item", href "#", onClick \_ -> modifyState this _{ description = prediction.description, predictions = [] } ]
-                [ i [ cn $ waypointIcon prediction.tpe ] []
-                , span [ cn "ml-1" ] [ text $ prediction.description ]
-                ]
-              ) state.predictions
-          ]
+      div [ cn "input-group" ] 
+      [ div [ cn "input-group-prepend align-self-center" ] 
+        [ i [ cn props.icon ] []
         ]
+      , input [ _type "text", cn "form-control ml-2", required true 
+              , value props.waypoint.description
+              , onChangeValue \v -> do
+                  props.set props.waypoint{ description = v } false
+                  fetchAutocomplete this v
+              , onFocus \_ -> modifyState this _{ focus = true }
+              , onBlur \_ -> modifyState this _{ focus = false }
+              , placeholder $ props.keyText "key.waypoint.input.placeholder"
+              ]
+      , if props.removeActive then
+          div [ cn "input-group-prepend align-self-center ml-2" ] 
+          [ a [ cn "far fa-trash-alt fa-lg text-secondary"
+              , href "#"
+              , onClick \_ -> props.remove
+              ] []
+          ]
+        else
+          mempty
+      , div [ cn $ "dropdown-menu ml-4" <> if not null state.predictions then " show" else "" ] $
+          map (\prediction ->
+            a [ cn "dropdown-item", href "#"
+              , onClick \_ -> do
+                  modifyState this _{ predictions = [] }
+                  props.set prediction true
+              ]
+            [ i [ cn $ waypointIcon prediction.tpe ] []
+            , span [ cn "ml-1" ] [ text $ prediction.description ]
+            ]
+          ) state.predictions
       ]
 
   waypointIcon :: WaypointType -> String
@@ -133,11 +132,10 @@ waypointClass = component "Waypoint" \this -> do
   fetchAutocomplete this v = do
     s  <- getState this
     p  <- getProps this
-    _  <- modifyState this _{ description=v }
     if length v > 3 
     then do
       _ <- fromMaybe (pure unit) $ map clearTimeout s.timer
-      t <- setTimeout 1000 $ WS.snd p.ws $ GetAutocomplete { text: v, lang: p.lang, location: p.location }
+      t <- setTimeout 500 $ WS.snd p.ws $ GetAutocomplete { text: v, lang: p.lang, location: p.location }
       modifyState this _{ timer = Just t }
     else do
       pure unit
