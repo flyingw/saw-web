@@ -19,7 +19,7 @@ import Data.Bifunctor (lmap)
 import Data.Either (Either(Left, Right), either)
 import Data.List.NonEmpty (toList)
 import Data.Maybe (Maybe(Just, Nothing), maybe, fromMaybe)
-import Data.Traversable (sequence)
+import Data.Traversable (sequence, maximum)
 import Data.Tuple (Tuple(Tuple), fst)
 import Effect (Effect)
 import Effect.Console (error)
@@ -105,12 +105,19 @@ snd (Ws ref) msg = do
                     Ref.modify_ _{ q = cons msg st.q } ref
                     if st.await then pure unit else reconnect $ Ws ref
 
+unsub :: Ws -> Int -> Effect Unit
+unsub (Ws ref) n =
+  Ref.modify_ (\s -> s{ subs = filter (\(Tuple nn _) -> nn /= n) s.subs }) ref
+
 sub :: Ws -> OnMsgF -> Effect Unsub
 sub (Ws ref) f = do
-  st   <- Ref.read ref
-  n    <- pure $ (+) 1 $ fromMaybe 0 $ head st.subs <#> fst
-  _    <- Ref.modify_ _{ subs = cons (Tuple n f) st.subs } ref
-  pure $ Ref.modify_  (\s -> s{ subs = filter (\(Tuple nn _) -> nn == n) s.subs }) ref
+  Ref.modify' (\s -> do
+    let currN = fromMaybe 0 $ maximum $ map (\(Tuple n _) -> n) s.subs
+    let nextN = currN + 1
+    { state: s{ subs = cons (Tuple nextN f) s.subs }
+    , value: unsub (Ws ref) nextN
+    }
+  ) ref
 
 create :: String -> Effect WebSocket
 create path = do
