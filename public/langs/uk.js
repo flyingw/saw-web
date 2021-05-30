@@ -72,4 +72,4 @@ key.lost.connection=Втрачено з'єднання з сервером. По
 key.waypoints.title=Маршрут
 key.waypoints.add.button=Додати точку
 key.waypoints.done.button=Готово
-key.waypoints.input.placeholder=Введіть адресу
+key.waypoint.input.placeholder=Введіть адресу

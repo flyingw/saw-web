@@ -25,6 +25,11 @@ module Api.Push
   , defaultGetAutocompleteOk
   , GetDirectionsOk
   , defaultGetDirectionsOk
+  , DirectionsRoute
+  , Bounds
+  , GetRevGeocodingOk
+  , defaultGetRevGeocodingOk
+  , AddDriverRouteOk
   , decodePush
   ) where
 
@@ -44,7 +49,7 @@ import Api
 decodeFieldLoop :: forall a b c. Int -> Decode.Result a -> (a -> b) -> Decode.Result' (Step { a :: Int, b :: b, c :: Int } { pos :: Int, val :: c })
 decodeFieldLoop end res f = map (\{ pos, val } -> Loop { a: end, b: f val, c: pos }) res
 
-data Push = Pong | LoginOk | LoginErr | SessionData SessionData | AddRouteOk AddRouteOk | AddRouteErr AddRouteErr | FreeDrivers FreeDrivers | FreePassengers FreePassengers | CitiesList CitiesList | UserDataOk UserDataOk | ConfirmRegistrationOk | ConfirmRegistrationErr ConfirmRegistrationErr | GetAutocompleteOk GetAutocompleteOk | GetDirectionsOk GetDirectionsOk
+data Push = Pong | LoginOk | LoginErr | SessionData SessionData | AddRouteOk AddRouteOk | AddRouteErr AddRouteErr | FreeDrivers FreeDrivers | FreePassengers FreePassengers | CitiesList CitiesList | UserDataOk UserDataOk | ConfirmRegistrationOk | ConfirmRegistrationErr ConfirmRegistrationErr | GetAutocompleteOk GetAutocompleteOk | GetDirectionsOk GetDirectionsOk | GetRevGeocodingOk GetRevGeocodingOk | AddDriverRouteOk AddDriverRouteOk
 derive instance eqPush :: Eq Push
 type SessionData = { status :: UserStatus }
 type SessionData' = { status :: Maybe UserStatus }
@@ -88,9 +93,18 @@ type GetAutocompleteOk = { predictions :: Array Waypoint }
 defaultGetAutocompleteOk :: { predictions :: Array Waypoint }
 defaultGetAutocompleteOk = { predictions: [] }
 type Waypoint' = { description :: Maybe String, tpe :: Maybe WaypointType, placeId :: Maybe String }
-type GetDirectionsOk = { routes :: Array String }
-defaultGetDirectionsOk :: { routes :: Array String }
+type GetDirectionsOk = { routes :: Array DirectionsRoute }
+defaultGetDirectionsOk :: { routes :: Array DirectionsRoute }
 defaultGetDirectionsOk = { routes: [] }
+type DirectionsRoute = { overview :: String, bounds :: Bounds }
+type DirectionsRoute' = { overview :: Maybe String, bounds :: Maybe Bounds }
+type Bounds = { northeast :: Location, southwest :: Location }
+type Bounds' = { northeast :: Maybe Location, southwest :: Maybe Location }
+type GetRevGeocodingOk = { waypoint :: Maybe Waypoint }
+defaultGetRevGeocodingOk :: { waypoint :: Maybe Waypoint }
+defaultGetRevGeocodingOk = { waypoint: Nothing }
+type AddDriverRouteOk = { res :: String }
+type AddDriverRouteOk' = { res :: Maybe String }
 
 decodePush :: Uint8Array -> Decode.Result Push
 decodePush _xs_ = do
@@ -110,6 +124,8 @@ decodePush _xs_ = do
     62 -> decode (decodeConfirmRegistrationErr _xs_ pos1) ConfirmRegistrationErr
     70 -> decode (decodeGetAutocompleteOk _xs_ pos1) GetAutocompleteOk
     80 -> decode (decodeGetDirectionsOk _xs_ pos1) GetDirectionsOk
+    90 -> decode (decodeGetRevGeocodingOk _xs_ pos1) GetRevGeocodingOk
+    100 -> decode (decodeAddDriverRouteOk _xs_ pos1) AddDriverRouteOk
     i -> Left $ Decode.BadType i
   where
   decode :: forall a. Decode.Result a -> (a -> Push) -> Decode.Result Push
@@ -545,6 +561,69 @@ decodeGetDirectionsOk _xs_ pos0 = do
     decode end acc pos1 | pos1 < end = do
       { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
       case tag `zshr` 3 of
-        1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { routes = snoc acc.routes val }
+        1 -> decodeFieldLoop end (decodeDirectionsRoute _xs_ pos2) \val -> acc { routes = snoc acc.routes val }
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
+
+decodeDirectionsRoute :: Uint8Array -> Int -> Decode.Result DirectionsRoute
+decodeDirectionsRoute _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { overview: Nothing, bounds: Nothing } pos
+  case val of
+    { overview: Just overview, bounds: Just bounds } -> pure { pos: pos1, val: { overview, bounds } }
+    _ -> Left $ Decode.MissingFields "DirectionsRoute"
+    where
+    decode :: Int -> DirectionsRoute' -> Int -> Decode.Result' (Step { a :: Int, b :: DirectionsRoute', c :: Int } { pos :: Int, val :: DirectionsRoute' })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { overview = Just val }
+        2 -> decodeFieldLoop end (decodeBounds _xs_ pos2) \val -> acc { bounds = Just val }
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
+
+decodeBounds :: Uint8Array -> Int -> Decode.Result Bounds
+decodeBounds _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { northeast: Nothing, southwest: Nothing } pos
+  case val of
+    { northeast: Just northeast, southwest: Just southwest } -> pure { pos: pos1, val: { northeast, southwest } }
+    _ -> Left $ Decode.MissingFields "Bounds"
+    where
+    decode :: Int -> Bounds' -> Int -> Decode.Result' (Step { a :: Int, b :: Bounds', c :: Int } { pos :: Int, val :: Bounds' })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (decodeLocation _xs_ pos2) \val -> acc { northeast = Just val }
+        2 -> decodeFieldLoop end (decodeLocation _xs_ pos2) \val -> acc { southwest = Just val }
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
+
+decodeGetRevGeocodingOk :: Uint8Array -> Int -> Decode.Result GetRevGeocodingOk
+decodeGetRevGeocodingOk _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  tailRecM3 decode (pos + msglen) { waypoint: Nothing } pos
+    where
+    decode :: Int -> GetRevGeocodingOk -> Int -> Decode.Result' (Step { a :: Int, b :: GetRevGeocodingOk, c :: Int } { pos :: Int, val :: GetRevGeocodingOk })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (decodeWaypoint _xs_ pos2) \val -> acc { waypoint = Just val }
+        _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
+    decode end acc pos1 = pure $ Done { pos: pos1, val: acc }
+
+decodeAddDriverRouteOk :: Uint8Array -> Int -> Decode.Result AddDriverRouteOk
+decodeAddDriverRouteOk _xs_ pos0 = do
+  { pos, val: msglen } <- Decode.unsignedVarint32 _xs_ pos0
+  { pos: pos1, val } <- tailRecM3 decode (pos + msglen) { res: Nothing } pos
+  case val of
+    { res: Just res } -> pure { pos: pos1, val: { res } }
+    _ -> Left $ Decode.MissingFields "AddDriverRouteOk"
+    where
+    decode :: Int -> AddDriverRouteOk' -> Int -> Decode.Result' (Step { a :: Int, b :: AddDriverRouteOk', c :: Int } { pos :: Int, val :: AddDriverRouteOk' })
+    decode end acc pos1 | pos1 < end = do
+      { pos: pos2, val: tag } <- Decode.unsignedVarint32 _xs_ pos1
+      case tag `zshr` 3 of
+        1 -> decodeFieldLoop end (Decode.string _xs_ pos2) \val -> acc { res = Just val }
         _ -> decodeFieldLoop end (Decode.skipType _xs_ pos2 $ tag .&. 7) \_ -> acc
     decode end acc pos1 = pure $ Done { pos: pos1, val: acc }

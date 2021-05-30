@@ -18,6 +18,8 @@ module Api.Pull
   , defaultGetAutocomplete
   , GetDirections
   , defaultGetDirections
+  , GetRevGeocoding
+  , AddDriverRoute
   , encodePull
   ) where
 
@@ -30,7 +32,7 @@ import Proto.Encode as Encode
 import Proto.Uint8Array (Uint8Array, length, concatAll, fromArray)
 import Api
 
-data Pull = Ping | Logout | TelegramLogin TelegramLogin | SimpleLogin SimpleLogin | AddDriver AddDriver | AddPassenger AddPassenger | GetFreeDrivers GetFreeDrivers | GetFreePassengers GetFreePassengers | GetCitiesList GetCitiesList | GetUserData | ConfirmRegistration ConfirmRegistration | GetAutocomplete GetAutocomplete | GetDirections GetDirections
+data Pull = Ping | Logout | TelegramLogin TelegramLogin | SimpleLogin SimpleLogin | AddDriver AddDriver | AddPassenger AddPassenger | GetFreeDrivers GetFreeDrivers | GetFreePassengers GetFreePassengers | GetCitiesList GetCitiesList | GetUserData | ConfirmRegistration ConfirmRegistration | GetAutocomplete GetAutocomplete | GetDirections GetDirections | GetRevGeocoding GetRevGeocoding | AddDriverRoute AddDriverRoute
 derive instance eqPull :: Eq Pull
 type TelegramLogin = { d :: Array TelegramData }
 defaultTelegramLogin :: { d :: Array TelegramData }
@@ -55,6 +57,8 @@ defaultGetAutocomplete = { location: Nothing }
 type GetDirections = { waypoints :: Array Waypoint, departure :: BigInt, lang :: String }
 defaultGetDirections :: { waypoints :: Array Waypoint }
 defaultGetDirections = { waypoints: [] }
+type GetRevGeocoding = { location :: Location, lang :: String }
+type AddDriverRoute = { date :: BigInt, route :: String }
 
 encodePull :: Pull -> Uint8Array
 encodePull Ping = concatAll [ Encode.unsignedVarint32 10, encodePing ]
@@ -70,6 +74,8 @@ encodePull GetUserData = concatAll [ Encode.unsignedVarint32 482, encodeGetUserD
 encodePull (ConfirmRegistration x) = concatAll [ Encode.unsignedVarint32 490, encodeConfirmRegistration x ]
 encodePull (GetAutocomplete x) = concatAll [ Encode.unsignedVarint32 562, encodeGetAutocomplete x ]
 encodePull (GetDirections x) = concatAll [ Encode.unsignedVarint32 642, encodeGetDirections x ]
+encodePull (GetRevGeocoding x) = concatAll [ Encode.unsignedVarint32 722, encodeGetRevGeocoding x ]
+encodePull (AddDriverRoute x) = concatAll [ Encode.unsignedVarint32 802, encodeAddDriverRoute x ]
 
 encodePing :: Uint8Array
 encodePing = Encode.unsignedVarint32 0
@@ -372,3 +378,23 @@ encodePointOfInterest = Encode.unsignedVarint32 0
 
 encodeUnknownWaypoint :: Uint8Array
 encodeUnknownWaypoint = Encode.unsignedVarint32 0
+
+encodeGetRevGeocoding :: GetRevGeocoding -> Uint8Array
+encodeGetRevGeocoding msg = do
+  let xs = concatAll
+        [ Encode.unsignedVarint32 10
+        , encodeLocation msg.location
+        , Encode.unsignedVarint32 18
+        , Encode.string msg.lang
+        ]
+  concatAll [ Encode.unsignedVarint32 $ length xs, xs ]
+
+encodeAddDriverRoute :: AddDriverRoute -> Uint8Array
+encodeAddDriverRoute msg = do
+  let xs = concatAll
+        [ Encode.unsignedVarint32 8
+        , Encode.bigInt msg.date
+        , Encode.unsignedVarint32 18
+        , Encode.string msg.route
+        ]
+  concatAll [ Encode.unsignedVarint32 $ length xs, xs ]

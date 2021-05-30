@@ -2193,6 +2193,11 @@ var PS = {};
     return n.toString();
   };
 
+  exports.showNumberImpl = function (n) {
+    var str = n.toString();
+    return isNaN(str + ".0") ? str : str + ".0";
+  };
+
   exports.showStringImpl = function (s) {
     var l = s.length;
     return "\"" + s.replace(
@@ -2318,7 +2323,8 @@ var PS = {};
               return $foreign.join(" ")([ "{", $foreign.join(", ")(v), "}" ]);
           });
       };
-  };                                                 
+  }; 
+  var showNumber = new Show($foreign.showNumberImpl);
   var showInt = new Show($foreign.showIntImpl);
   var show = function (dict) {
       return dict.show;
@@ -2343,6 +2349,7 @@ var PS = {};
   exports["Show"] = Show;
   exports["show"] = show;
   exports["showInt"] = showInt;
+  exports["showNumber"] = showNumber;
   exports["showString"] = showString;
   exports["showArray"] = showArray;
   exports["showRecord"] = showRecord;
@@ -5317,6 +5324,24 @@ var PS = {};
       };
       return GetDirections;
   })();
+  var GetRevGeocoding = (function () {
+      function GetRevGeocoding(value0) {
+          this.value0 = value0;
+      };
+      GetRevGeocoding.create = function (value0) {
+          return new GetRevGeocoding(value0);
+      };
+      return GetRevGeocoding;
+  })();
+  var AddDriverRoute = (function () {
+      function AddDriverRoute(value0) {
+          this.value0 = value0;
+      };
+      AddDriverRoute.create = function (value0) {
+          return new AddDriverRoute(value0);
+      };
+      return AddDriverRoute;
+  })();
   var encodeUnknownWaypoint = Proto_Encode.unsignedVarint32(0);
   var encodeTelegramString = function (msg) {
       var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), Proto_Encode.string(msg.key), Proto_Encode.unsignedVarint32(18), Proto_Encode.string(msg.value) ]);
@@ -5335,7 +5360,7 @@ var PS = {};
           var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(18), encodeTelegramNum(v.value0) ]);
           return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 87, column 1 - line 87, column 49): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Api.Pull (line 93, column 1 - line 93, column 49): " + [ v.constructor.name ]);
   };
   var encodeTelegramLogin = function (msg) {
       var xs = Proto_Uint8Array.concatAll([ Proto_Uint8Array.concatAll(Data_Array.concatMap(function (x) {
@@ -5363,6 +5388,10 @@ var PS = {};
   };
   var encodeLocalityWaypoint = Proto_Encode.unsignedVarint32(0);
   var encodeGetUserData = Proto_Encode.unsignedVarint32(0);
+  var encodeGetRevGeocoding = function (msg) {
+      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), encodeLocation(msg.location), Proto_Encode.unsignedVarint32(18), Proto_Encode.string(msg.lang) ]);
+      return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
+  };
   var encodeGetFreePassengers = function (msg) {
       var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(8), Proto_Encode.bigInt(msg.date) ]);
       return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
@@ -5419,7 +5448,7 @@ var PS = {};
           var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(58), encodeRegular ]);
           return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 168, column 1 - line 168, column 51): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Api.Pull (line 174, column 1 - line 174, column 51): " + [ v.constructor.name ]);
   };
   var encodeAirportWaypoint = Proto_Encode.unsignedVarint32(0);
   var encodeWaypointType = function (v) {
@@ -5459,7 +5488,7 @@ var PS = {};
           var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(74), encodeUnknownWaypoint ]);
           return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 320, column 1 - line 320, column 49): " + [ v.constructor.name ]);
+      throw new Error("Failed pattern match at Api.Pull (line 326, column 1 - line 326, column 49): " + [ v.constructor.name ]);
   };
   var encodeWaypoint = function (msg) {
       var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), Proto_Encode.string(msg.description), Proto_Encode.unsignedVarint32(18), encodeWaypointType(msg.tpe), Data_Maybe.fromMaybe(Proto_Uint8Array.fromArray([  ]))(Data_Functor.map(Data_Maybe.functorMaybe)(function (x) {
@@ -5479,6 +5508,10 @@ var PS = {};
   };
   var encodeAddPassenger = function (msg) {
       var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(10), Proto_Encode.string(msg.firstName), Proto_Encode.unsignedVarint32(18), Proto_Encode.string(msg.lastName), Proto_Encode.unsignedVarint32(26), Proto_Encode.string(msg.phone), Proto_Encode.unsignedVarint32(32), Proto_Encode.bigInt(msg.date), Proto_Encode.unsignedVarint32(42), encodePassengerType(msg.tpe), Proto_Encode.unsignedVarint32(50), encodeAddress(msg.from), Proto_Encode.unsignedVarint32(58), encodeAddress(msg.to) ]);
+      return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
+  };
+  var encodeAddDriverRoute = function (msg) {
+      var xs = Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(8), Proto_Encode.bigInt(msg.date), Proto_Encode.unsignedVarint32(18), Proto_Encode.string(msg.route) ]);
       return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(Proto_Uint8Array.length(xs)), xs ]);
   };
   var encodeAddDriver = function (msg) {
@@ -5527,7 +5560,13 @@ var PS = {};
       if (v instanceof GetDirections) {
           return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(642), encodeGetDirections(v.value0) ]);
       };
-      throw new Error("Failed pattern match at Api.Pull (line 59, column 1 - line 59, column 33): " + [ v.constructor.name ]);
+      if (v instanceof GetRevGeocoding) {
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(722), encodeGetRevGeocoding(v.value0) ]);
+      };
+      if (v instanceof AddDriverRoute) {
+          return Proto_Uint8Array.concatAll([ Proto_Encode.unsignedVarint32(802), encodeAddDriverRoute(v.value0) ]);
+      };
+      throw new Error("Failed pattern match at Api.Pull (line 63, column 1 - line 63, column 33): " + [ v.constructor.name ]);
   };
   exports["Logout"] = Logout;
   exports["TelegramLogin"] = TelegramLogin;
@@ -5538,6 +5577,8 @@ var PS = {};
   exports["GetFreePassengers"] = GetFreePassengers;
   exports["GetAutocomplete"] = GetAutocomplete;
   exports["GetDirections"] = GetDirections;
+  exports["GetRevGeocoding"] = GetRevGeocoding;
+  exports["AddDriverRoute"] = AddDriverRoute;
   exports["TelegramString"] = TelegramString;
   exports["TelegramNum"] = TelegramNum;
   exports["encodePull"] = encodePull;
@@ -6279,6 +6320,24 @@ var PS = {};
       };
       return GetDirectionsOk;
   })();
+  var GetRevGeocodingOk = (function () {
+      function GetRevGeocodingOk(value0) {
+          this.value0 = value0;
+      };
+      GetRevGeocodingOk.create = function (value0) {
+          return new GetRevGeocodingOk(value0);
+      };
+      return GetRevGeocodingOk;
+  })();
+  var AddDriverRouteOk = (function () {
+      function AddDriverRouteOk(value0) {
+          this.value0 = value0;
+      };
+      AddDriverRouteOk.create = function (value0) {
+          return new AddDriverRouteOk(value0);
+      };
+      return AddDriverRouteOk;
+  })();
   var decodeUnknownWaypoint = function (_xs_) {
       return function (pos0) {
           return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
@@ -6440,40 +6499,6 @@ var PS = {};
                   });
               })(res);
           };
-      };
-  };
-  var decodeGetDirectionsOk = function (_xs_) {
-      return function (pos0) {
-          var decode = function (end) {
-              return function (acc) {
-                  return function (pos1) {
-                      if (pos1 < end) {
-                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
-                              var v1 = v.val >>> 3;
-                              if (v1 === 1) {
-                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
-                                      return {
-                                          routes: Data_Array.snoc(acc.routes)(val)
-                                      };
-                                  });
-                              };
-                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v.pos)(v.val & 7))(function (v2) {
-                                  return acc;
-                              });
-                          });
-                      };
-                      return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
-                          pos: pos1,
-                          val: acc
-                      }));
-                  };
-              };
-          };
-          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
-              return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
-                  routes: [  ]
-              })(v.pos);
-          });
       };
   };
   var decodeLocation = function (_xs_) {
@@ -6722,6 +6747,150 @@ var PS = {};
           });
       };
   };
+  var decodeBounds = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (acc) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
+                              var v1 = v.val >>> 3;
+                              if (v1 === 1) {
+                                  return decodeFieldLoop(end)(decodeLocation(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          northeast: new Data_Maybe.Just(val),
+                                          southwest: acc.southwest
+                                      };
+                                  });
+                              };
+                              if (v1 === 2) {
+                                  return decodeFieldLoop(end)(decodeLocation(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          southwest: new Data_Maybe.Just(val),
+                                          northeast: acc.northeast
+                                      };
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v.pos)(v.val & 7))(function (v2) {
+                                  return acc;
+                              });
+                          });
+                      };
+                      return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                          pos: pos1,
+                          val: acc
+                      }));
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
+              return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
+                  northeast: Data_Maybe.Nothing.value,
+                  southwest: Data_Maybe.Nothing.value
+              })(v.pos))(function (v1) {
+                  if (v1.val.northeast instanceof Data_Maybe.Just && v1.val.southwest instanceof Data_Maybe.Just) {
+                      return Control_Applicative.pure(Data_Either.applicativeEither)({
+                          pos: v1.pos,
+                          val: {
+                              northeast: v1.val.northeast.value0,
+                              southwest: v1.val.southwest.value0
+                          }
+                      });
+                  };
+                  return Data_Either.Left.create(new Proto_Decode.MissingFields("Bounds"));
+              });
+          });
+      };
+  };
+  var decodeDirectionsRoute = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (acc) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
+                              var v1 = v.val >>> 3;
+                              if (v1 === 1) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          overview: new Data_Maybe.Just(val),
+                                          bounds: acc.bounds
+                                      };
+                                  });
+                              };
+                              if (v1 === 2) {
+                                  return decodeFieldLoop(end)(decodeBounds(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          bounds: new Data_Maybe.Just(val),
+                                          overview: acc.overview
+                                      };
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v.pos)(v.val & 7))(function (v2) {
+                                  return acc;
+                              });
+                          });
+                      };
+                      return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                          pos: pos1,
+                          val: acc
+                      }));
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
+              return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
+                  overview: Data_Maybe.Nothing.value,
+                  bounds: Data_Maybe.Nothing.value
+              })(v.pos))(function (v1) {
+                  if (v1.val.overview instanceof Data_Maybe.Just && v1.val.bounds instanceof Data_Maybe.Just) {
+                      return Control_Applicative.pure(Data_Either.applicativeEither)({
+                          pos: v1.pos,
+                          val: {
+                              overview: v1.val.overview.value0,
+                              bounds: v1.val.bounds.value0
+                          }
+                      });
+                  };
+                  return Data_Either.Left.create(new Proto_Decode.MissingFields("DirectionsRoute"));
+              });
+          });
+      };
+  };
+  var decodeGetDirectionsOk = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (acc) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
+                              var v1 = v.val >>> 3;
+                              if (v1 === 1) {
+                                  return decodeFieldLoop(end)(decodeDirectionsRoute(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          routes: Data_Array.snoc(acc.routes)(val)
+                                      };
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v.pos)(v.val & 7))(function (v2) {
+                                  return acc;
+                              });
+                          });
+                      };
+                      return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                          pos: pos1,
+                          val: acc
+                      }));
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
+              return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
+                  routes: [  ]
+              })(v.pos);
+          });
+      };
+  };
   var decodeArmy = function (_xs_) {
       return function (pos0) {
           return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
@@ -6789,7 +6958,7 @@ var PS = {};
                       if (v instanceof Data_Maybe.Nothing) {
                           return Data_Either.Left.create(new Proto_Decode.MissingFields("PassengerType"));
                       };
-                      throw new Error("Failed pattern match at Api.Push (line 207, column 5 - line 207, column 159): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
+                      throw new Error("Failed pattern match at Api.Push (line 223, column 5 - line 223, column 159): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
                   };
               };
           };
@@ -7350,7 +7519,7 @@ var PS = {};
                       if (v instanceof Data_Maybe.Nothing) {
                           return Data_Either.Left.create(new Proto_Decode.MissingFields("WaypointType"));
                       };
-                      throw new Error("Failed pattern match at Api.Push (line 477, column 5 - line 477, column 156): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
+                      throw new Error("Failed pattern match at Api.Push (line 493, column 5 - line 493, column 156): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
                   };
               };
           };
@@ -7461,6 +7630,40 @@ var PS = {};
           });
       };
   };
+  var decodeGetRevGeocodingOk = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (acc) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
+                              var v1 = v.val >>> 3;
+                              if (v1 === 1) {
+                                  return decodeFieldLoop(end)(decodeWaypoint(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          waypoint: new Data_Maybe.Just(val)
+                                      };
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v.pos)(v.val & 7))(function (v2) {
+                                  return acc;
+                              });
+                          });
+                      };
+                      return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                          pos: pos1,
+                          val: acc
+                      }));
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
+              return Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
+                  waypoint: Data_Maybe.Nothing.value
+              })(v.pos);
+          });
+      };
+  };
   var decodeAddRouteOk = function (_xs_) {
       return function (pos0) {
           var decode = function (end) {
@@ -7539,6 +7742,50 @@ var PS = {};
           });
       };
   };
+  var decodeAddDriverRouteOk = function (_xs_) {
+      return function (pos0) {
+          var decode = function (end) {
+              return function (acc) {
+                  return function (pos1) {
+                      if (pos1 < end) {
+                          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v) {
+                              var v1 = v.val >>> 3;
+                              if (v1 === 1) {
+                                  return decodeFieldLoop(end)(Proto_Decode.string(_xs_)(v.pos))(function (val) {
+                                      return {
+                                          res: new Data_Maybe.Just(val)
+                                      };
+                                  });
+                              };
+                              return decodeFieldLoop(end)(Proto_Decode.skipType(_xs_)(v.pos)(v.val & 7))(function (v2) {
+                                  return acc;
+                              });
+                          });
+                      };
+                      return Control_Applicative.pure(Data_Either.applicativeEither)(new Control_Monad_Rec_Class.Done({
+                          pos: pos1,
+                          val: acc
+                      }));
+                  };
+              };
+          };
+          return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos0))(function (v) {
+              return Control_Bind.bind(Data_Either.bindEither)(Control_Monad_Rec_Class.tailRecM3(Control_Monad_Rec_Class.monadRecEither)(decode)(v.pos + v.val | 0)({
+                  res: Data_Maybe.Nothing.value
+              })(v.pos))(function (v1) {
+                  if (v1.val.res instanceof Data_Maybe.Just) {
+                      return Control_Applicative.pure(Data_Either.applicativeEither)({
+                          pos: v1.pos,
+                          val: {
+                              res: v1.val.res.value0
+                          }
+                      });
+                  };
+                  return Data_Either.Left.create(new Proto_Decode.MissingFields("AddDriverRouteOk"));
+              });
+          });
+      };
+  };
   var decodeActive = function (_xs_) {
       return function (pos0) {
           var decode = function (end) {
@@ -7592,8 +7839,8 @@ var PS = {};
                           return Control_Bind.bind(Data_Either.bindEither)(Proto_Decode.unsignedVarint32(_xs_)(pos1))(function (v1) {
                               var v2 = v1.val >>> 3;
                               if (v2 === 1) {
-                                  return decodeFieldLoop(end)(decodeActive(_xs_)(v1.pos))(function ($598) {
-                                      return Data_Maybe.Just.create(Active.create($598));
+                                  return decodeFieldLoop(end)(decodeActive(_xs_)(v1.pos))(function ($693) {
+                                      return Data_Maybe.Just.create(Active.create($693));
                                   });
                               };
                               if (v2 === 2) {
@@ -7615,7 +7862,7 @@ var PS = {};
                       if (v instanceof Data_Maybe.Nothing) {
                           return Data_Either.Left.create(new Proto_Decode.MissingFields("UserStatus"));
                       };
-                      throw new Error("Failed pattern match at Api.Push (line 154, column 5 - line 154, column 150): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
+                      throw new Error("Failed pattern match at Api.Push (line 170, column 5 - line 170, column 150): " + [ end.constructor.name, v.constructor.name, pos1.constructor.name ]);
                   };
               };
           };
@@ -7731,6 +7978,12 @@ var PS = {};
           if (v1 === 80) {
               return decode(decodeGetDirectionsOk(_xs_)(v.pos))(GetDirectionsOk.create);
           };
+          if (v1 === 90) {
+              return decode(decodeGetRevGeocodingOk(_xs_)(v.pos))(GetRevGeocodingOk.create);
+          };
+          if (v1 === 100) {
+              return decode(decodeAddDriverRouteOk(_xs_)(v.pos))(AddDriverRouteOk.create);
+          };
           return Data_Either.Left.create(new Proto_Decode.BadType(v1));
       });
   };
@@ -7743,6 +7996,8 @@ var PS = {};
   exports["FreePassengers"] = FreePassengers;
   exports["GetAutocompleteOk"] = GetAutocompleteOk;
   exports["GetDirectionsOk"] = GetDirectionsOk;
+  exports["GetRevGeocodingOk"] = GetRevGeocodingOk;
+  exports["AddDriverRouteOk"] = AddDriverRouteOk;
   exports["Active"] = Active;
   exports["Guest"] = Guest;
   exports["decodePush"] = decodePush;
@@ -11566,7 +11821,24 @@ var PS = {};
           if (v instanceof Api.UnknownWaypoint) {
               return "";
           };
-          throw new Error("Failed pattern match at App.Waypoint (line 120, column 3 - line 120, column 41): " + [ v.constructor.name ]);
+          throw new Error("Failed pattern match at App.Waypoint (line 135, column 3 - line 135, column 41): " + [ v.constructor.name ]);
+      };
+      var outlineStyle = function (v) {
+          if (v) {
+              return React_DOM_Props.style({
+                  outlineColor: "#28a745",
+                  outlineStyle: "solid",
+                  outlineWidth: "thin"
+              });
+          };
+          if (!v) {
+              return React_DOM_Props.style({
+                  outlineColor: "#dc3545",
+                  outlineStyle: "solid",
+                  outlineWidth: "thin"
+              });
+          };
+          throw new Error("Failed pattern match at App.Waypoint (line 123, column 3 - line 123, column 42): " + [ v.constructor.name ]);
       };
       var onMsg = function ($$this) {
           return function (v) {
@@ -11591,11 +11863,10 @@ var PS = {};
       };
       var fetchAutocomplete = function (v) {
           return function (v1) {
-              return function __do() {
-                  var s = React.getState(v)();
-                  var p = React.getProps(v)();
-                  var $24 = Data_String_CodePoints.length(v1) > 3;
-                  if ($24) {
+              if (Data_String_CodePoints.length(v1) > 3) {
+                  return function __do() {
+                      var s = React.getState(v)();
+                      var p = React.getProps(v)();
                       Data_Maybe.fromMaybe(Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit))(Data_Functor.map(Data_Maybe.functorMaybe)(Effect_Timer.clearTimeout)(s.timer))();
                       var t = Effect_Timer.setTimeout(500)(Lib_WebSocket.snd(p.ws)(new Api_Pull.GetAutocomplete({
                           text: v1,
@@ -11611,8 +11882,8 @@ var PS = {};
                           };
                       })();
                   };
-                  return Data_Unit.unit;
               };
+              return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
           };
       };
       var render = function ($$this) {
@@ -11646,7 +11917,7 @@ var PS = {};
                           unsub: v1.unsub
                       };
                   });
-              }), React_DOM_Props.placeholder(props.keyText("key.waypoint.input.placeholder")) ]), (function () {
+              }), React_DOM_Props.placeholder(props.keyText("key.waypoint.input.placeholder")), outlineStyle(props.done) ]), (function () {
                   if (props.removeActive) {
                       return React_DOM.div([ Lib_React.cn("input-group-prepend align-self-center ml-2") ])([ React_DOM.a([ Lib_React.cn("far fa-trash-alt fa-lg text-secondary"), React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
                           return props.remove;
@@ -11654,8 +11925,8 @@ var PS = {};
                   };
                   return Data_Monoid.mempty(React.monoidReactElement);
               })(), React_DOM.div([ Lib_React.cn("dropdown-menu ml-4" + (function () {
-                  var $26 = Data_HeytingAlgebra.not(Data_HeytingAlgebra.heytingAlgebraFunction(Data_HeytingAlgebra.heytingAlgebraBoolean))(Data_Array["null"])(state.predictions);
-                  if ($26) {
+                  var $27 = Data_HeytingAlgebra.not(Data_HeytingAlgebra.heytingAlgebraFunction(Data_HeytingAlgebra.heytingAlgebraBoolean))(Data_Array["null"])(state.predictions);
+                  if ($27) {
                       return " show";
                   };
                   return "";
@@ -11791,6 +12062,12 @@ var PS = {};
     return {}
   }
 
+  exports.fitBoundsImpl = map => bounds => () => {
+    var b = new google.maps.LatLngBounds(bounds.southwest, bounds.northeast)
+    map.fitBounds(b)
+    return {}
+  }
+
   exports.createPolylineImpl = settings => () => {
     var polyline = new google.maps.Polyline(settings)
     return polyline
@@ -11857,6 +12134,11 @@ var PS = {};
       };
   };                        
   var googleFactor = 100000.0;
+  var fitBounds = function (v) {
+      return function (bounds) {
+          return $foreign.fitBoundsImpl(v)(bounds);
+      };
+  };
   var detachPolyline = function (v) {
       return $foreign.detachPolylineImpl(v);
   };
@@ -11873,8 +12155,8 @@ var PS = {};
               return function (c) {
                   var b = Data_Char.toCharCode(c) - 63 | 0;
                   var v = acc.curr | (b & 31) << acc.shift;
-                  var $11 = b >= 32;
-                  if ($11) {
+                  var $14 = b >= 32;
+                  if ($14) {
                       return {
                           shift: acc.shift + 5 | 0,
                           curr: v,
@@ -11884,8 +12166,8 @@ var PS = {};
                       };
                   };
                   var fullCurr = acc.v1 + (function () {
-                      var $12 = (v & 1) === 1;
-                      if ($12) {
+                      var $15 = (v & 1) === 1;
+                      if ($15) {
                           return ~(v >> 1);
                       };
                       return v >> 1;
@@ -11925,7 +12207,7 @@ var PS = {};
                           res: acc.res
                       };
                   };
-                  throw new Error("Failed pattern match at Lib.Maps (line 80, column 28 - line 84, column 34): " + [ acc.lat.constructor.name ]);
+                  throw new Error("Failed pattern match at Lib.Maps (line 86, column 28 - line 90, column 34): " + [ acc.lat.constructor.name ]);
               };
           })(init)(decodeFlatList(factor)(Data_String_CodeUnits.toCharArray(string)));
           return foldRes.res;
@@ -11947,6 +12229,7 @@ var PS = {};
   };
   exports["createMap"] = createMap;
   exports["setCenter"] = setCenter;
+  exports["fitBounds"] = fitBounds;
   exports["decodeGoogle"] = decodeGoogle;
   exports["createPolyline"] = createPolyline;
   exports["attachPolyline"] = attachPolyline;
@@ -11963,6 +12246,7 @@ var PS = {};
   var Api_Push = $PS["Api.Push"];
   var App_Waypoint = $PS["App.Waypoint"];
   var Control_Applicative = $PS["Control.Applicative"];
+  var Control_Bind = $PS["Control.Bind"];
   var Data_Array = $PS["Data.Array"];
   var Data_Foldable = $PS["Data.Foldable"];
   var Data_Functor = $PS["Data.Functor"];
@@ -11988,19 +12272,38 @@ var PS = {};
   var addDriverClass = (function () {
       var onMsg = function ($$this) {
           return function (v) {
+              if (v instanceof Data_Maybe.Just && v.value0 instanceof Api_Push.GetRevGeocodingOk) {
+                  return React.modifyState($$this)(function (state) {
+                      var updatedWaypoints = Data_Functor.map(Data_Maybe.functorMaybe)(function (w) {
+                          return Data_Array.cons({
+                              waypoint: w,
+                              done: true,
+                              n: 0
+                          })(Data_Array.drop(1)(state.waypoints));
+                      })(v.value0.value0.waypoint);
+                      var waypoints = Data_Maybe.fromMaybe(state.waypoints)(updatedWaypoints);
+                      return {
+                          waypoints: waypoints,
+                          date: state.date,
+                          dateDevaiation: state.dateDevaiation,
+                          seats: state.seats,
+                          location: state.location,
+                          map: state.map,
+                          routes: state.routes,
+                          routesRaw: state.routesRaw,
+                          unsub: state.unsub
+                      };
+                  });
+              };
               if (v instanceof Data_Maybe.Just && v.value0 instanceof Api_Push.GetDirectionsOk) {
+                  var withColor = Data_Array.zip(v.value0.value0.routes)([ "#FF0000", "#00FF00", "#0000FF", "#FFFF00" ]);
                   return function __do() {
-                      Effect_Class_Console.infoShow(Effect_Class.monadEffectEffect)(Data_Show.showString)("GetDirectionsOk")();
-                      Effect_Class_Console.infoShow(Effect_Class.monadEffectEffect)(Data_Show.showRecord()(Data_Show.showRecordFieldsCons(new Data_Symbol.IsSymbol(function () {
-                          return "routes";
-                      }))(Data_Show.showRecordFieldsNil)(Data_Show.showArray(Data_Show.showString))))(v.value0.value0)();
-                      var withColor = Data_Array.zip(v.value0.value0.routes)([ "#FF0000", "#00FF00", "#0000FF", "#FFFF00" ]);
                       var state = React.getState($$this)();
                       Data_Functor["void"](Effect.functorEffect)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect)(Data_Functor.map(Data_Functor.functorArray)(Lib_Maps.detachPolyline)(state.routes)))();
                       var routes = Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect)(Data_Functor.map(Data_Functor.functorArray)(function (v1) {
                           return function __do() {
                               var polyline = Lib_Maps.createPolyline({
-                                  path: Lib_Maps.decodeGoogle(v1.value0),
+                                  path: Lib_Maps.decodeGoogle(v1.value0.overview),
                                   strokeColor: v1.value1,
                                   strokeOpacity: 1.0,
                                   strokeWeight: 2
@@ -12009,6 +12312,12 @@ var PS = {};
                               return polyline;
                           };
                       })(withColor))();
+                      var setBounds = Control_Bind.bind(Data_Maybe.bindMaybe)(state.map)(function (gmap) {
+                          return Control_Bind.bind(Data_Maybe.bindMaybe)(Data_Array.head(v.value0.value0.routes))(function (route) {
+                              return Control_Applicative.pure(Data_Maybe.applicativeMaybe)(Lib_Maps.fitBounds(gmap)(route.bounds));
+                          });
+                      });
+                      Data_Maybe.fromMaybe(Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit))(setBounds)();
                       return React.modifyState($$this)(function (v1) {
                           return {
                               waypoints: v1.waypoints,
@@ -12018,6 +12327,42 @@ var PS = {};
                               location: v1.location,
                               map: v1.map,
                               routes: routes,
+                              routesRaw: Data_Functor.map(Data_Functor.functorArray)(function (v2) {
+                                  return v2.overview;
+                              })(v.value0.value0.routes),
+                              unsub: v1.unsub
+                          };
+                      })();
+                  };
+              };
+              if (v instanceof Data_Maybe.Just && v.value0 instanceof Api_Push.AddDriverRouteOk) {
+                  return function __do() {
+                      var state = React.getState($$this)();
+                      Data_Functor["void"](Effect.functorEffect)(Data_Traversable.sequence(Data_Traversable.traversableArray)(Effect.applicativeEffect)(Data_Functor.map(Data_Functor.functorArray)(Lib_Maps.detachPolyline)(state.routes)))();
+                      var path = Lib_Maps.decodeGoogle(v.value0.value0.res);
+                      Effect_Class_Console.infoShow(Effect_Class.monadEffectEffect)(Data_Show.showString)("AddDriverRouteOk")();
+                      Effect_Class_Console.infoShow(Effect_Class.monadEffectEffect)(Data_Show.showArray(Data_Show.showRecord()(Data_Show.showRecordFieldsCons(new Data_Symbol.IsSymbol(function () {
+                          return "lat";
+                      }))(Data_Show.showRecordFieldsCons(new Data_Symbol.IsSymbol(function () {
+                          return "lng";
+                      }))(Data_Show.showRecordFieldsNil)(Data_Show.showNumber))(Data_Show.showNumber))))(path)();
+                      var polyline = Lib_Maps.createPolyline({
+                          path: Lib_Maps.decodeGoogle(v.value0.value0.res),
+                          strokeColor: "#00FF00",
+                          strokeOpacity: 1.0,
+                          strokeWeight: 2
+                      })();
+                      Data_Maybe.fromMaybe(Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit))(Data_Functor.map(Data_Maybe.functorMaybe)(Lib_Maps.attachPolyline(polyline))(state.map))();
+                      return React.modifyState($$this)(function (v1) {
+                          return {
+                              waypoints: v1.waypoints,
+                              date: v1.date,
+                              dateDevaiation: v1.dateDevaiation,
+                              seats: v1.seats,
+                              location: v1.location,
+                              map: v1.map,
+                              routes: Data_Array.singleton(polyline),
+                              routesRaw: v1.routesRaw,
                               unsub: v1.unsub
                           };
                       })();
@@ -12044,8 +12389,8 @@ var PS = {};
               var points = Data_Array.filter(function (v) {
                   return v.done;
               })(s.waypoints);
-              var $29 = Data_Array.length(points) >= 2;
-              if ($29) {
+              var $36 = Data_Array.length(points) >= 2;
+              if ($36) {
                   var w = Data_Functor.map(Data_Functor.functorArray)(function (v) {
                       return v.waypoint;
                   })(points);
@@ -12078,6 +12423,7 @@ var PS = {};
                               location: v.location,
                               map: v.map,
                               routes: v.routes,
+                              routesRaw: v.routesRaw,
                               unsub: v.unsub
                           };
                       });
@@ -12098,6 +12444,7 @@ var PS = {};
                           location: v1.location,
                           map: v1.map,
                           routes: v1.routes,
+                          routesRaw: v1.routesRaw,
                           unsub: v1.unsub
                       };
                   });
@@ -12111,6 +12458,7 @@ var PS = {};
                           location: v1.location,
                           map: v1.map,
                           routes: v1.routes,
+                          routesRaw: v1.routesRaw,
                           unsub: v1.unsub
                       };
                   });
@@ -12142,6 +12490,7 @@ var PS = {};
                                           location: s.location,
                                           map: s.map,
                                           routes: s.routes,
+                                          routesRaw: s.routesRaw,
                                           unsub: s.unsub
                                       };
                                   })((function () {
@@ -12152,6 +12501,7 @@ var PS = {};
                                   })());
                               };
                           },
+                          done: a.done,
                           removeActive: Data_Array.length(state.waypoints) > 2,
                           remove: React.modifyStateWithCallback($$this)(function (s) {
                               return {
@@ -12162,6 +12512,7 @@ var PS = {};
                                   location: s.location,
                                   map: s.map,
                                   routes: s.routes,
+                                  routesRaw: s.routesRaw,
                                   unsub: s.unsub
                               };
                           })(fetchRoute($$this))
@@ -12184,11 +12535,16 @@ var PS = {};
                           location: s.location,
                           map: s.map,
                           routes: s.routes,
+                          routesRaw: s.routesRaw,
                           unsub: s.unsub
                       };
                   });
               }) ])([ React_DOM.text(props.keyText("key.waypoints.add.button")) ]), React_DOM.button([ Lib_React.cn("btn btn-outline-primary ml-3"), React_DOM_Props.href("#"), React_DOM_Props.onClick(function (v) {
-                  return Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit);
+                  var t = Proto_BigInt.fromNumber(Data_JSDate.getTime(state.date));
+                  return Lib_WebSocket.snd(props.ws)(new Api_Pull.AddDriverRoute({
+                      date: t,
+                      route: Data_Maybe.fromMaybe("")(Data_Array.head(state.routesRaw))
+                  }));
               }) ])([ React_DOM.text(props.keyText("key.waypoints.done.button")) ]) ]), React_DOM.div([ React_DOM_Props["_id"]("div-map"), React_DOM_Props.style({
                   height: "300px"
               }) ])([  ]) ]);
@@ -12215,6 +12571,7 @@ var PS = {};
                       location: Data_Maybe.Nothing.value,
                       map: Data_Maybe.Nothing.value,
                       routes: [  ],
+                      routesRaw: [  ],
                       unsub: Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit)
                   },
                   render: render($$this),
@@ -12236,6 +12593,7 @@ var PS = {};
                               location: v.location,
                               map: new Data_Maybe.Just(map),
                               routes: v.routes,
+                              routesRaw: v.routesRaw,
                               unsub: unsub
                           };
                       })();
@@ -12256,16 +12614,21 @@ var PS = {};
                                           location: new Data_Maybe.Just(location),
                                           map: v.map,
                                           routes: v.routes,
+                                          routesRaw: v.routesRaw,
                                           unsub: v.unsub
                                       };
                                   })();
                                   if (s.map instanceof Data_Maybe.Just) {
-                                      return Lib_Maps.setCenter(s.map.value0)(location)();
+                                      Lib_Maps.setCenter(s.map.value0)(location)();
+                                      return Lib_WebSocket.snd(props.ws)(new Api_Pull.GetRevGeocoding({
+                                          location: location,
+                                          lang: props.lang
+                                      }))();
                                   };
                                   if (s.map instanceof Data_Maybe.Nothing) {
                                       return Data_Unit.unit;
                                   };
-                                  throw new Error("Failed pattern match at App.Add.Driver (line 93, column 13 - line 95, column 35): " + [ s.map.constructor.name ]);
+                                  throw new Error("Failed pattern match at App.Add.Driver (line 95, column 13 - line 99, column 35): " + [ s.map.constructor.name ]);
                               };
                           };
                       })(Control_Applicative.pure(Effect.applicativeEffect)(Data_Unit.unit))();

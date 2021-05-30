@@ -3,6 +3,7 @@ module Lib.Maps
   , GooglePolyline
   , createMap
   , setCenter
+  , fitBounds
   , getLocation
   , decodeGoogle
   , createPolyline
@@ -23,6 +24,7 @@ import Effect (Effect)
 import Foreign (Foreign)
 
 import Api (Location)
+import Api.Push (Bounds)
 
 newtype GoogleMap      = GoogleMap Foreign
 newtype GooglePolyline = GooglePolyline Foreign
@@ -38,8 +40,12 @@ createMap id settings = GoogleMap <$> createMapImpl id settings
 setCenter :: GoogleMap -> Location -> Effect Unit
 setCenter (GoogleMap m) location = setCenterImpl m location
 
+fitBounds :: GoogleMap -> Bounds -> Effect Unit
+fitBounds (GoogleMap m) bounds = fitBoundsImpl m bounds
+
 foreign import createMapImpl :: String -> MapSettings -> Effect Foreign
 foreign import setCenterImpl :: Foreign -> Location -> Effect Unit
+foreign import fitBoundsImpl :: Foreign -> Bounds -> Effect Unit
 
 foreign import getLocation :: (Number -> Number -> Effect Unit) -> (Effect Unit) -> Effect Unit
 

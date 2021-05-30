@@ -5,7 +5,7 @@ module App.Add.Driver
 
 import Prelude hiding (div, min, max)
 
-import Data.Array (fromFoldable, elem, delete, (:), null, length, snoc, deleteAt, modifyAt, filter, zip, take)
+import Data.Array (fromFoldable, elem, delete, (:), null, length, cons, snoc, deleteAt, modifyAt, filter, zip, take, head, singleton, drop)
 import Data.Traversable (sequence, maximum)
 import Data.Tuple (Tuple(Tuple))
 import Data.Ord (compare)
@@ -20,8 +20,8 @@ import React.DOM.Props (htmlFor, _id, _type, required, autoComplete, min, max, v
 import Effect.Console (logShow)
 
 import Api (PassengerType(..), Location, WaypointType(..), Waypoint)
-import Api.Pull (Pull(AddDriver, GetDirections), Address)
-import Api.Push (Push(GetDirectionsOk), UserData)
+import Api.Pull (Pull(AddDriver, GetDirections, GetRevGeocoding, AddDriverRoute), Address)
+import Api.Push (Push(GetDirectionsOk, GetRevGeocodingOk, AddDriverRouteOk), UserData)
 import Proto.BigInt (fromNumber)
 
 import Keys (keyPassengerType)
@@ -32,7 +32,7 @@ import Lib.WebSocket (Ws)
 import Lib.WebSocket as WS
 import Lib.JS (encodeURI)
 import App.Waypoint (waypointClass)
-import Lib.Maps (getLocation, createMap, GoogleMap, GooglePolyline, decodeGoogle, createPolyline, attachPolyline, detachPolyline, setCenter)
+import Lib.Maps (getLocation, createMap, GoogleMap, GooglePolyline, decodeGoogle, createPolyline, attachPolyline, detachPolyline, fitBounds, setCenter)
 
 import Effect.Timer (setTimeout, clearTimeout, TimeoutId)
 
@@ -57,6 +57,7 @@ type State =
   , location :: Maybe Location
   , map :: Maybe GoogleMap
   , routes :: Array GooglePolyline
+  , routesRaw :: Array String
   , unsub :: Effect Unit
   }
 
@@ -78,6 +79,7 @@ addDriverClass = component "AddDriver" \this -> do
       , location: Nothing
       , map: Nothing
       , routes: []
+      , routesRaw: []
       , unsub: pure unit
       } :: State
     , render: render this
@@ -91,7 +93,9 @@ addDriverClass = component "AddDriver" \this -> do
             s <- getState this
             modifyState this _{ location = Just location }
             case s.map of
-              Just m  -> setCenter m location
+              Just m  -> do
+                setCenter m location
+                WS.snd props.ws $ GetRevGeocoding { location: location, lang: props.lang }
               Nothing -> pure unit
           )
           (pure unit)
@@ -101,18 +105,36 @@ addDriverClass = component "AddDriver" \this -> do
     }
   where
   onMsg :: This -> Maybe Push -> Effect Unit
+  onMsg this (Just (GetRevGeocodingOk r)) =
+    modifyState this \state -> do
+      let updatedWaypoints = map (\w -> cons { waypoint: w, done: true, n: 0 } $ drop 1 state.waypoints) r.waypoint
+      let waypoints = fromMaybe state.waypoints updatedWaypoints
+      state{ waypoints = waypoints }
   onMsg this (Just (GetDirectionsOk r)) = do
-    infoShow $ "GetDirectionsOk"
-    infoShow $ r
     let withColor = zip r.routes [ "#FF0000", "#00FF00", "#0000FF", "#FFFF00" ]
     state  <- getState this
     void $ sequence $ map detachPolyline state.routes
     routes <- sequence $ map (\(Tuple route color) -> do
-                polyline <- createPolyline { path: decodeGoogle route, strokeColor: color, strokeOpacity: 1.0, strokeWeight: 2 }
+                polyline <- createPolyline { path: decodeGoogle route.overview, strokeColor: color, strokeOpacity: 1.0, strokeWeight: 2 }
                 fromMaybe (pure unit) $ map (attachPolyline polyline) state.map
                 pure polyline
               ) withColor
-    modifyState this _{ routes = routes }
+    let setBounds = do
+          gmap  <- state.map
+          route <- head r.routes
+          pure $ fitBounds gmap route.bounds
+    fromMaybe (pure unit) setBounds
+    modifyState this _{ routes = routes, routesRaw = map (_.overview) r.routes }
+  onMsg this (Just (AddDriverRouteOk r)) = do
+    state  <- getState this
+    void $ sequence $ map detachPolyline state.routes
+    let path = decodeGoogle r.res
+    infoShow "AddDriverRouteOk"
+    infoShow path
+    polyline <- createPolyline { path: decodeGoogle r.res, strokeColor: "#00FF00", strokeOpacity: 1.0, strokeWeight: 2 }
+    fromMaybe (pure unit) $ map (attachPolyline polyline) state.map
+    modifyState this _{ routes = singleton $ polyline  }
+    
   onMsg this _                          = pure unit
 
   render :: This -> Effect ReactElement
@@ -174,6 +196,7 @@ addDriverClass = component "AddDriver" \this -> do
                         (fetchRoute this)
                       else
                         pure unit
+                , done: a.done
                 , removeActive: length state.waypoints > 2
                 , remove: 
                     modifyStateWithCallback this 
@@ -195,7 +218,9 @@ addDriverClass = component "AddDriver" \this -> do
           ]
         , button [ cn "btn btn-outline-primary ml-3"
                  , href "#"
-                 , onClick \_ -> pure unit
+                 , onClick \_ -> do
+                    let t = fromNumber $ getTime state.date
+                    WS.snd props.ws $ AddDriverRoute { date: t, route: fromMaybe "" $ head state.routesRaw }
                  ]
           [ text $ props.keyText "key.waypoints.done.button"
           ]  

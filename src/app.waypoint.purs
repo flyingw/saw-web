@@ -11,8 +11,9 @@ import Data.JSDate (JSDate, now, getTime)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Effect (Effect)
 import React (ReactClass, ReactThis, getProps, getState, modifyState, component, createLeafElement, ReactElement)
+import React.DOM.Props as DProps 
 import React.DOM (a, i, text, div, label, input, button, h6, small, iframe, span)
-import React.DOM.Props (htmlFor, _id, _type, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, disabled, checked, href, onFocus, onBlur, placeholder)
+import React.DOM.Props (htmlFor, _id, _type, required, autoComplete, min, max, value, src, width, height, frameBorder, onClick, onChange, disabled, checked, href, onFocus, onBlur, placeholder, style)
 import Effect.Console (logShow)
 
 import Api (PassengerType(..), Location, WaypointType(..), Waypoint)
@@ -40,6 +41,7 @@ type Props =
   , location :: Maybe Location
   , waypoint :: Waypoint
   , set :: Waypoint -> Boolean -> Effect Unit
+  , done :: Boolean
   , removeActive :: Boolean
   , remove :: Effect Unit
   }
@@ -94,6 +96,7 @@ waypointClass = component "Waypoint" \this -> do
               , onFocus \_ -> modifyState this _{ focus = true }
               , onBlur \_ -> modifyState this _{ focus = false }
               , placeholder $ props.keyText "key.waypoint.input.placeholder"
+              , outlineStyle props.done
               ]
       , if props.removeActive then
           div [ cn "input-group-prepend align-self-center ml-2" ] 
@@ -117,6 +120,18 @@ waypointClass = component "Waypoint" \this -> do
           ) state.predictions
       ]
 
+  outlineStyle :: Boolean -> DProps.Props
+  outlineStyle true = style
+    { outlineColor: "#28a745"
+    , outlineStyle: "solid"
+    , outlineWidth: "thin"
+    }
+  outlineStyle false = style
+    { outlineColor: "#dc3545"
+    , outlineStyle: "solid"
+    , outlineWidth: "thin"
+    }
+
   waypointIcon :: WaypointType -> String
   waypointIcon SubwayWaypoint        = "fas fa-subway fa-lg"
   waypointIcon BusStationWaypoint    = "fas fa-bus-alt fa-lg"
@@ -129,14 +144,10 @@ waypointClass = component "Waypoint" \this -> do
   waypointIcon UnknownWaypoint       = ""
 
   fetchAutocomplete :: This -> String -> Effect Unit
-  fetchAutocomplete this v = do
+  fetchAutocomplete this v | length v > 3 = do
     s  <- getState this
     p  <- getProps this
-    if length v > 3 
-    then do
-      _ <- fromMaybe (pure unit) $ map clearTimeout s.timer
-      t <- setTimeout 500 $ WS.snd p.ws $ GetAutocomplete { text: v, lang: p.lang, location: p.location }
-      modifyState this _{ timer = Just t }
-    else do
-      pure unit
+    _ <- fromMaybe (pure unit) $ map clearTimeout s.timer
+    t <- setTimeout 500 $ WS.snd p.ws $ GetAutocomplete { text: v, lang: p.lang, location: p.location }
+    modifyState this _{ timer = Just t }
   fetchAutocomplete _ _ = pure unit

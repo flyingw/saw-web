@@ -17,6 +17,12 @@ exports.setCenterImpl = map => location => () => {
   return {}
 }
 
+exports.fitBoundsImpl = map => bounds => () => {
+  var b = new google.maps.LatLngBounds(bounds.southwest, bounds.northeast)
+  map.fitBounds(b)
+  return {}
+}
+
 exports.createPolylineImpl = settings => () => {
   var polyline = new google.maps.Polyline(settings)
   return polyline
